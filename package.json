@@ -50,7 +50,7 @@
     "lint-staged": "15.2.7",
     "prettier": "3.6.2",
     "rimraf": "6.1.0",
-    "semver": "7.6.2",
+    "semver": "7.7.3",
     "socket.io-client": "4.7.5",
     "source-map-explorer": "2.5.3",
     "typescript": "5.9.3",
