@@ -15,7 +15,8 @@ export function editPlayer(element: any) {
   if (team) team.value = player.team ?? '';
 
   const playerId: any = document.getElementById('playerid');
-  if (playerId) playerId.value = player.id ?? '';
+  // Note: 'id' is a custom field stored in extensions, not TODS participantId
+  if (playerId) playerId.value = (player as any).id ?? '';
 
   const attributes = ['hand', 'entry', 'seed', 'draw_position', 'ioc'];
   attributes.forEach((attribute) => {

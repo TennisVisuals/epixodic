@@ -68,6 +68,8 @@ export function loadMatch(match_id: string, view = 'entry') {
     // Load players from legacy format
     if (match_data.players) {
       match_data.players.forEach((player: any, index: number) => {
+        // UMO now always returns participantName (TODS format)
+        // Legacy storage may still have player.name, so support both
         const fullName = player.participantName || player.name || `Player ${index + 1}`;
         const nameParts = fullName.trim().split(/\s+/);
         const standardGivenName = nameParts[0] || '';

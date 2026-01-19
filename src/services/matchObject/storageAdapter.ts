@@ -280,13 +280,13 @@ export class StorageAdapter {
    */
   private static _playerToParticipant(player: any): any {
     return {
-      participantId: player.puid || `player_${player.index || 0}`,
+      participantId: player.puid || player.participantId || `player_${player.index || 0}`,
       participantType: INDIVIDUAL,
-      participantName: player.name || 'Unknown',
+      participantName: player.participantName || player.name || 'Unknown',
       participantRole: COMPETITOR,
       person: {
-        personId: player.puid || `player_${player.index || 0}`,
-        standardFamilyName: player.name || 'Unknown',
+        personId: player.puid || player.participantId || `player_${player.index || 0}`,
+        standardFamilyName: player.participantName || player.name || 'Unknown',
         nationalityCode: player.ioc,
         birthDate: player.birth,
         sex: player.gender

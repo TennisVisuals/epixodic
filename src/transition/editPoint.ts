@@ -16,7 +16,7 @@ export function editPoint(index: number) {
   const player_select = Array.from(document.querySelectorAll('.select_player'));
   player_select.forEach((select: any) =>
     players.forEach(
-      (player: any, index: number) => (select.options[index] = new Option(player.name, index.toString())),
+      (player: any, index: number) => (select.options[index] = new Option(player.participantName, index.toString())),
     ),
   );
   const point_winner: any = document.getElementById('point_winner');

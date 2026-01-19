@@ -55,7 +55,8 @@ function updatePlayerDetails() {
   const teamElement: any = document.getElementById('team');
   if (teamElement.value) player.team = teamElement.value;
   const idElement: any = document.getElementById('playerid');
-  if (idElement.value) player.id = idElement.value;
+  // Note: 'id' is a custom field, will be stored in TODS extensions
+  if (idElement.value) (player as any).id = idElement.value;
 
   return player;
 }
