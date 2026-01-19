@@ -5,7 +5,7 @@ import { setDev } from '../services/helpers/setDev';
 import { browserStorage } from './browserStorage';
 import { registerEvents } from './registerEvents';
 import { newMatch } from './displayMatchArchive';
-import { sendKey, startBroadcast } from './coms';
+import { sendKey } from './coms';
 import { changeDisplay } from './viewManager';
 import { touchManager } from './touchManager';
 import { defineActionEvents } from './events';
@@ -15,7 +15,6 @@ import { loadMatch } from './loadMatch';
 import { closeModal } from './modals';
 import clipboard from 'clipboard';
 import { UUID } from './UUID';
-import { env } from './env';
 import {
   changePlayerName,
   checkPlayerName,

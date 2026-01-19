@@ -1,5 +1,5 @@
 import { loadDetails, stateChangeEvent, updateScore } from './displayUpdate';
-import { clearActionEvents, env, matchUp, updatePositions } from './env';
+import { clearActionEvents, env, updatePositions } from './env';
 import { browserStorage } from './browserStorage';
 import { defineActionEvents } from './events';
 import { viewManager } from './viewManager';
@@ -132,9 +132,6 @@ export function loadMatch(match_id: string, view = 'entry') {
       });
     }
   }
-
-  // After load/conversion, UMO is always TODS format
-  const loadedPlayers = env.match.metadata.players();
 
   updatePositions();
   updateScore();

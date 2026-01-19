@@ -8,7 +8,6 @@ import { viewManager } from './viewManager';
 import { SwipeList } from './swipeList';
 import { loadMatch } from './loadMatch';
 import { UUID } from './UUID';
-import umo from '@tennisvisuals/universal-match-object';
 import { env } from './env';
 
 export function displayMatchArchive(params?: any) {
