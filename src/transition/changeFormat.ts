@@ -3,6 +3,7 @@ import { updateScore } from './displayUpdate';
 import { viewManager } from './viewManager';
 import { findUpClass } from './utilities';
 import { getFormatName } from '../services/matchObject/formatMigration';
+import matchObject from '@tennisvisuals/universal-match-object';
 
 export function changeFormat(element: Element) {
   const selectionContainer = findUpClass(element, 'mf_format');
@@ -14,29 +15,8 @@ export function changeFormat(element: Element) {
     const pointsPlayed = env.match.history.points().length;
     
     if (pointsPlayed === 0) {
-      // No points played - rebuild match with new format
-      const players = env.match.metadata.players();
-      
-      // Prevent updateMatchArchive from triggering during rebuild
-      const wasLoading = env.loading_match;
-      env.loading_match = true;
-      
-      try {
-        // Reset and rebuild with new format
-        env.match.reset();
-        env.match.format.changeFormat(selectedFormat);
-        
-        // Restore players
-        players.forEach((player: any, index: number) => {
-          env.match.metadata.definePlayer({ 
-            index, 
-            ...player 
-          });
-        });
-      } finally {
-        // Restore loading_match flag
-        env.loading_match = wasLoading;
-      }
+      // No points played - create new match with new format (UMO v3)
+      env.match = matchObject.Match({ matchUpFormat: selectedFormat });
     } else {
       // Points already played - just update format code
       env.match.format.changeFormat(selectedFormat);

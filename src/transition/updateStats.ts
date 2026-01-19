@@ -1,4 +1,4 @@
-import { simpleChart } from './simpleChart';
+import { simpleChart } from '../visualizations/simpleChart';
 import { viewManager } from './viewManager';
 import { env, options } from './env';
 

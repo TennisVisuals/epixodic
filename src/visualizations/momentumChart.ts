@@ -1,4 +1,4 @@
-import { groupGames } from './groupGames';
+import { groupGames } from '../transition/groupGames';
 import { gameFish } from './gameFish';
 
 import * as d3 from 'd3';

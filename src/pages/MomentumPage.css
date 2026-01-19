@@ -1,0 +1,51 @@
+/**
+ * Momentum Page Styles
+ */
+
+.momentum-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background: var(--background-color, #fff);
+}
+
+.momentum-chart-container,
+.pts-chart-container {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+.momentum-chart-container {
+  padding: 10px;
+}
+
+.pts-chart-container {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+/* Portrait mode - momentum chart */
+@media (orientation: portrait) {
+  .momentum-chart-container {
+    display: inline !important;
+  }
+  
+  .pts-chart-container {
+    display: none !important;
+  }
+}
+
+/* Landscape mode - pts chart */
+@media (orientation: landscape) {
+  .momentum-chart-container {
+    display: none !important;
+  }
+  
+  .pts-chart-container {
+    display: flex !important;
+  }
+}

@@ -9,6 +9,7 @@ export function displayPointHistory() {
   games.forEach((game: any) => {
     if (game.points && game.points.length) html += gameEntry(game, players);
   });
+  // Always show match duration (will show 00:00:00 if no timestamps yet)
   html += `
     <div class="flexrows ph_game">
       <div class='ph_margin' style='width: 100%'>
@@ -112,10 +113,27 @@ function pointEntry(point: any, players: any[]) {
 }
 
 function matchDuration() {
-  const timestamps = env.match.history.points().map((p: any) => p.uts);
+  const points = env.match.history.points();
+  
+  // Filter out points without valid timestamps
+  const timestamps = points
+    .map((p: any) => p.uts)
+    .filter((t: any) => t !== undefined && t !== null && !isNaN(t));
+  
+  // If no valid timestamps, return 00:00:00
+  if (timestamps.length < 2) {
+    return '00:00:00';
+  }
+  
   const start = Math.min(...timestamps);
   const end = Math.max(...timestamps);
   const seconds = (end - start) / 1000.0;
+  
+  // Return 00:00:00 if calculation results in invalid number
+  if (isNaN(seconds) || seconds < 0) {
+    return '00:00:00';
+  }
+  
   return HHMMSS(seconds);
 }
 

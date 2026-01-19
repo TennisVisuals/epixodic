@@ -1,10 +1,10 @@
 import { changeDisplay, viewManager } from './viewManager';
 import { charts, env, setOrientation } from './env';
-import { momentumChart } from './momentumChart';
+import { momentumChart } from '../visualizations/momentumChart';
 import { groupGames } from './groupGames';
-import { gameTree } from './gameTree';
-import { ptsMatch } from './ptsChart';
-import { gameFish } from './gameFish';
+import { gameTree } from '../visualizations/gameTree';
+import { ptsMatch } from '../visualizations/ptsChart';
+import { gameFish } from '../visualizations/gameFish';
 
 import * as d3 from 'd3';
 

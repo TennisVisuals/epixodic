@@ -120,6 +120,22 @@ export function viewManager(new_view = env.view, params?: any) {
     view_keys.filter((view) => view != new_view).forEach((view) => views[view]({ activate: false }));
     views[new_view]({ activate: true, params });
     env.view = new_view;
+    
+    // PHASE 2: Update URL with router when view changes
+    if (typeof window !== 'undefined' && (window as any).appRouter) {
+      const appRouter = (window as any).appRouter;
+      if (!appRouter.isNavigating) {
+        const matchUpId = env.match?.metadata?.matchUp?.matchUpId;
+        let url = `/${new_view}`;
+        
+        if (matchUpId) {
+          url += `?matchUpId=${matchUpId}`;
+        }
+        
+        appRouter.updateURL(url);
+      }
+    }
+    
     return new_view;
   }
 }

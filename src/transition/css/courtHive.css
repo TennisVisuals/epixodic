@@ -343,6 +343,7 @@ body {
   -webkit-align-content: stretch;
   align-content: stretch;
   font-family: 'Helvetica Neue', Arial, sans-serif;
+  background-color: white;
 }
 
 .settings_options {
@@ -432,6 +433,7 @@ body {
   width: 100%;
   height: 100%;
   display: none;
+  background-color: white;
 }
 
 .mm {
@@ -714,6 +716,7 @@ body {
 
 #pointhistory {
   display: none;
+  background-color: white;
 }
 
 .fixedmenu {
@@ -768,6 +771,7 @@ body {
   height: 90%;
   overflow-y: scroll;
   overflow-x: hidden;
+  background-color: white;
 }
 
 #ph_frame {
@@ -1386,6 +1390,7 @@ body {
   display: none;
   width: 100%;
   height: 100%;
+  background-color: white;
 }
 
 .s_menu {
@@ -1706,6 +1711,7 @@ body {
   display: none;
   width: 100%;
   height: 100%;
+  background-color: white;
 }
 
 .m_content {
@@ -1716,6 +1722,7 @@ body {
   height: 90%;
   overflow-y: scroll;
   overflow-x: scroll;
+  background-color: white;
 }
 
 #momentumChart {
@@ -1742,6 +1749,7 @@ body {
   display: none;
   width: 100vw;
   height: 100vh;
+  background-color: white;
 }
 
 #gameTreeChart {

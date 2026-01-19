@@ -9,6 +9,7 @@ import { SwipeList } from './swipeList';
 import { loadMatch } from './loadMatch';
 import { UUID } from './UUID';
 import { env } from './env';
+import matchObject from '@tennisvisuals/universal-match-object';
 
 export function displayMatchArchive(params?: any) {
   const active = params?.active;
@@ -98,13 +99,10 @@ function deleteMatch(match_id: string) {
 }
 
 export function resetMatch(matchUpId?: string) {
-  // Reset clears everything including format structure
-  env.match.reset();
+  // UMO v3: Create new Match instead of reset + changeFormat
+  env.match = matchObject.Match({ matchUpFormat: 'SET3-S:6/TB7' });
   
-  // CRITICAL: Must use changeFormat() to rebuild structure, not just set property!
-  env.match.format.changeFormat('SET3-S:6/TB7');
-  
-  // Restore default participants (reset clears them)
+  // Set default participants
   env.match.metadata.definePlayer({ index: 0, firstName: 'Player', lastName: 'One' });
   env.match.metadata.definePlayer({ index: 1, firstName: 'Player', lastName: 'Two' });
   

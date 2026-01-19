@@ -1,5 +1,17 @@
-import { init } from './transition/init.ts';
-import { router } from './router/router';
+import './transition/css/courtHive.css';
+import { init } from './transition/init';
+import { router as enhancedRouter } from './router/enhancedRouter';
 
+// PHASE 2: Set up enhanced router BEFORE init
+// Router works alongside viewManager during transition period
+(window as any).appRouter = enhancedRouter;
+
+// Initialize app first
 init();
-router();
+
+// Start router after init completes - will restore from URL if needed
+// Router will update URL as views change via viewManager
+setTimeout(() => {
+  enhancedRouter.start();
+  // Router initialized - URL navigation enabled
+}, 100);
