@@ -1,4 +1,5 @@
 import { env, updateMatchArchive, updatePositions } from './env';
+import { loadDetails } from './displayUpdate';
 
 export function updatePlayer() {
   const playerUpdate = updatePlayerDetails();
@@ -17,7 +18,8 @@ export function updatePlayer() {
     }
   }
   
-  updatePositions(); // Refresh UI with new player name
+  updatePositions(); // Refresh court positions with new player name
+  loadDetails(); // CRITICAL: Refresh all player name displays in UI
   updateMatchArchive();
 }
 
