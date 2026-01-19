@@ -5,6 +5,12 @@ import { env } from '../../transition/env';
 import { browserStorage } from '../../transition/browserStorage';
 import { FactoryMatchUpLoader } from './factoryMatchUpLoader';
 import { loadMatch as loadMatchLegacy } from '../../transition/loadMatch';
+import { matchUpTypes, matchUpStatusConstants, participantTypes, participantRoles } from 'tods-competition-factory';
+
+const { SINGLES, DOUBLES } = matchUpTypes;
+const { COMPLETED } = matchUpStatusConstants;
+const { INDIVIDUAL } = participantTypes;
+const { COMPETITOR } = participantRoles;
 
 // Type definition for MatchUp
 type MatchUp = any;  // Will be replaced with proper TODS type
@@ -214,7 +220,7 @@ export class StorageAdapter {
     
     // Determine match type
     const isDoubles = legacyData.players.length === 4;
-    const matchUpType = isDoubles ? 'DOUBLES' : 'SINGLES';
+    const matchUpType = isDoubles ? DOUBLES : SINGLES;
     
     // Create sides from legacy players
     let sides: any[];
@@ -261,7 +267,7 @@ export class StorageAdapter {
         matchUpId: legacyData.match?.muid || matchId,
         matchUpType,
         matchUpFormat: legacyData.format?.code || 'SET3-S:6/TB7',
-        matchUpStatus: 'COMPLETED',
+        matchUpStatus: COMPLETED,
         sides
       },
       points: legacyData.points || [],
@@ -275,9 +281,9 @@ export class StorageAdapter {
   private static _playerToParticipant(player: any): any {
     return {
       participantId: player.puid || `player_${player.index || 0}`,
-      participantType: 'INDIVIDUAL',
+      participantType: INDIVIDUAL,
       participantName: player.name || 'Unknown',
-      participantRole: 'COMPETITOR',
+      participantRole: COMPETITOR,
       person: {
         personId: player.puid || `player_${player.index || 0}`,
         standardFamilyName: player.name || 'Unknown',
@@ -292,15 +298,16 @@ export class StorageAdapter {
    * Helper: Create PAIR participant from two players
    */
   private static _createPairParticipant(players: any[]): any {
+    const PAIR = participantTypes.PAIR;
     const [player1, player2] = players;
     const indiv1 = StorageAdapter._playerToParticipant(player1);
     const indiv2 = StorageAdapter._playerToParticipant(player2);
     
     return {
       participantId: `pair_${indiv1.participantId}_${indiv2.participantId}`,
-      participantType: 'PAIR',
+      participantType: PAIR,
       participantName: `${player1.name}/${player2.name}`,
-      participantRole: 'COMPETITOR',
+      participantRole: COMPETITOR,
       individualParticipantIds: [indiv1.participantId, indiv2.participantId],
       individualParticipants: [indiv1, indiv2]
     };

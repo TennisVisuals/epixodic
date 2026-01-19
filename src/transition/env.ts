@@ -4,6 +4,11 @@ import { migrateMatchData } from '../services/matchObject/formatMigration';
 
 // TODS-NATIVE: Using linked UMO package with TODS API!
 import umo from '@tennisvisuals/universal-match-object';
+import { participantTypes, participantRoles, matchUpTypes } from 'tods-competition-factory';
+
+const { INDIVIDUAL } = participantTypes;
+const { COMPETITOR } = participantRoles;
+const { SINGLES } = matchUpTypes;
 
 export const charts: any = {};
 
@@ -163,8 +168,8 @@ export function updateMatchArchive(force?: boolean) {
     participantId: player.participantId,
     participant: {
       participantId: player.participantId,
-      participantRole: 'COMPETITOR',
-      participantType: 'INDIVIDUAL',
+      participantRole: COMPETITOR,
+      participantType: INDIVIDUAL,
       participantName: player.participantName,
       person: player.person || {
         standardGivenName: player.participantName?.split(' ')[0] || '',
@@ -184,7 +189,7 @@ export function updateMatchArchive(force?: boolean) {
     tournamentId: tournament?.tournamentId || match?.tournamentId,
     matchUpId: match_id,
     matchUpFormat: matchUpFormat,
-    matchUpType: 'SINGLES',
+    matchUpType: SINGLES,
     sides: sides,
     score: todsScore,
     // App-specific data (not part of TODS matchUp spec, but needed for app)
