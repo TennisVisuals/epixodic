@@ -50,8 +50,8 @@ export const env: any = {
   match_swap: false, // automatic swap
   swap_sides: false, // user initiated swap
   orientation: 'vertical',
-  serving: matchUp.nextTeamServing(),
-  receiving: matchUp.nextTeamReceiving(),
+  serving: 0, // Will be set from match
+  receiving: 1, // Will be set from match
   edit_point_index: undefined,
   provider: undefined,
   match: matchUp, // Keep 'match' property for backward compat in app
@@ -92,7 +92,7 @@ export const device: any = {
 export const default_players = ['Player One', 'Player Two'];
 
 export function clearActionEvents() {
-  matchUp.events.clearEvents();
+  env.match.events.clearEvents();
 }
 
 export function updatePositions() {
@@ -103,7 +103,9 @@ export function updatePositions() {
 
   updateMatchArchive();
 
-  const player_names = matchUp.metadata.players();
+  // CRITICAL: Use env.match not matchUp! env.match gets replaced when loading,
+  // but matchUp is a global constant that never changes
+  const player_names = env.match.metadata.players();
   const p1 = document.getElementById('playerone');
   const p2 = document.getElementById('playertwo');
   if (p1) p1.innerHTML = firstAndLast(player_names[left_side].participantName || '');
@@ -127,8 +129,9 @@ export function updateMatchArchive(force?: boolean) {
     return;
   }
 
-  const players = matchUp.metadata.players();
-  const matchPoints = matchUp.history.points();
+  // CRITICAL: Use env.match not matchUp
+  const players = env.match.metadata.players();
+  const matchPoints = env.match.history.points();
 
   const save =
     force ||
@@ -148,14 +151,14 @@ export function updateMatchArchive(force?: boolean) {
   }
 
   // Build TODS matchUp from UMO (UMO is always TODS format after load/conversion)
-  const match = matchUp.metadata.defineMatch();
-  const tournament = matchUp.metadata.defineTournament();
-  const formatInfo = matchUp.format.settings();
+  const match = env.match.metadata.defineMatch();
+  const tournament = env.match.metadata.defineTournament();
+  const formatInfo = env.match.format.settings();
   const matchUpFormat = (typeof formatInfo === 'object' && formatInfo.name) ? formatInfo.name : 'SET3-S:6/TB7';
 
   // Build minimal TODS score structure
   // We save points, so UMO can reconstruct sets on load
-  const scoreboard = matchUp.scoreboard();
+  const scoreboard = env.match.scoreboard();
   const score = {
     sets: [], // Will be reconstructed from points on load
     scoreStringSide1: scoreboard,
@@ -194,8 +197,8 @@ export function updateMatchArchive(force?: boolean) {
     score: todsScore,
     // App-specific data (not part of TODS matchUp spec, but needed for app)
     _appData: {
-      scoreboard: matchUp.scoreboard(),
-      first_service: matchUp.set.firstService(),
+      scoreboard: env.match.scoreboard(),
+      first_service: env.match.set.firstService(),
     },
   };
 
