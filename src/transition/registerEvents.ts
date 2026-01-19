@@ -13,7 +13,6 @@ import { classAction } from './classAction';
 import { exportMatch } from './exportMatch';
 import { toggleChart } from './toggleChart';
 import { updateStats } from './updateStats';
-import { modalShare } from './modalShare';
 import { updatePoint } from './editPoint';
 import { editPlayer } from './editPlayer';
 import { modalHelp } from './modalHelp';
@@ -44,7 +43,6 @@ export function registerEvents() {
     .register('modalInfo', 'tap', modalInfo)
     .register('toggleChart', 'tap', toggleChart)
     .register('broadcastToggle', 'tap', broadcastToggle)
-    .register('modalShare', 'tap', modalShare)
     .register('enterKey', 'tap', enterKey)
     .register('changeFormat', 'tap', changeFormat)
     .register('closeModal', 'tap', closeModal)
