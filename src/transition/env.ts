@@ -15,11 +15,6 @@ function createDefaultMatch() {
   match.metadata.definePlayer({ index: 0, firstName: 'Player', lastName: 'One' });
   match.metadata.definePlayer({ index: 1, firstName: 'Player', lastName: 'Two' });
 
-  // Ensure matchUpFormat is set (sometimes UMO constructor doesn't set it)
-  if (!match.format.matchUpFormat) {
-    match.format.matchUpFormat = 'SET3-S:6/TB7';
-  }
-
   return match;
 }
 
@@ -150,7 +145,8 @@ export function updateMatchArchive(force?: boolean) {
   // Build TODS matchUp from UMO (UMO is always TODS format after load/conversion)
   const match = matchUp.metadata.defineMatch();
   const tournament = matchUp.metadata.defineTournament();
-  const matchUpFormat = matchUp.format.matchUpFormat;
+  const formatInfo = matchUp.format.settings();
+  const matchUpFormat = (typeof formatInfo === 'object' && formatInfo.name) ? formatInfo.name : 'SET3-S:6/TB7';
 
   // Build minimal TODS score structure
   // We save points, so UMO can reconstruct sets on load

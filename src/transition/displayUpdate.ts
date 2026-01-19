@@ -261,8 +261,6 @@ export function checkPlayerName(keypress: any) {
 
 export function changePlayerName() {
   const player_name: any = document.getElementById('playername');
-  const team: any = document.getElementById('team');
-  const id: any = document.getElementById('playerid');
   if (player_name) {
     // Split name into standardGivenName/standardFamilyName (TODS format)
     const fullName = player_name.value.trim();
