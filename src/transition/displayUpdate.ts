@@ -293,9 +293,9 @@ export function changePlayerName() {
       }
     }
   }
-  updatePositions();
-  // Update Game Tree labels when player name changes
-  vizUpdate();
+  updatePositions(); // Refresh court positions
+  loadDetails(); // CRITICAL: Refresh all player name displays (scoring, stats, etc.)
+  vizUpdate(); // Update Game Tree labels when player name changes
 }
 
 export function editMatchDetails() {
