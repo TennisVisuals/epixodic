@@ -27,7 +27,7 @@ function createDefaultMatch() {
 export const matchUp = createDefaultMatch();
 
 export const app: any = {
-  broadcast: undefined,
+  // broadcast property removed
   user_uuid: undefined,
 };
 

@@ -1,6 +1,5 @@
 import { updateTournamentDetails } from './updateTournamentDetails';
 import { updateMatchDetails } from './updateMatchDetails';
-import { broadcastToggle, sendHistory } from './coms';
 import { editMatchDetails } from './displayUpdate';
 import { newMatch } from './displayMatchArchive';
 import { updateDetails } from './updateDetails';
@@ -19,7 +18,6 @@ import { modalHelp } from './modalHelp';
 import { modalInfo } from './modalInfo';
 import { updateAppState } from './env';
 import { closeModal } from './modals';
-import { enterKey } from './enterKey';
 import {
   outcomeEntry,
   matchArchive,
@@ -42,13 +40,10 @@ export function registerEvents() {
   eventManager
     .register('modalInfo', 'tap', modalInfo)
     .register('toggleChart', 'tap', toggleChart)
-    .register('broadcastToggle', 'tap', broadcastToggle)
-    .register('enterKey', 'tap', enterKey)
     .register('changeFormat', 'tap', changeFormat)
     .register('closeModal', 'tap', closeModal)
     .register('newMatch', 'tap', newMatch)
     .register('exportMatch', 'tap', exportMatch)
-    .register('sendHistory', 'tap', sendHistory)
     .register('settings', 'tap', settings)
     .register('outcomeEntry', 'tap', outcomeEntry)
     .register('matchArchive', 'tap', matchArchive)

@@ -1,10 +1,8 @@
 import { updateState, visibleButtons } from './displayUpdate';
 import { resetButton, resetStyles } from './events';
-import { broadcastScore } from './broadcastScore';
 import { checkMatchEnd } from './checkMatchEnd';
 import { buttons, env, settings } from './env';
 import { strokeSlider } from './strokeSlider';
-import { broadcastStatus } from './coms';
 import { DOUBLE_FAULT } from './constants';
 
 const toggles: any = {};
@@ -54,7 +52,7 @@ export function classAction(element: any) {
       const server_mode = `.modeaction_player${server_side}`;
       Array.from(document.querySelectorAll(server_mode)).forEach((div) => (div.innerHTML = '2nd Serve'));
       env.serve2nd = true;
-      broadcastStatus('Service Fault');
+      // Broadcasting removed
     },
     doubleFault(side: number) {
       return side != env.serving ? undefined : { code: 'd' };
@@ -118,7 +116,7 @@ export function classAction(element: any) {
       if (env.rally == 1) rallyMode();
     },
     let() {
-      broadcastStatus('Service: Let');
+      // Broadcasting removed
       env.lets += 1;
       // reset serve clock
     },
@@ -147,7 +145,6 @@ export function classAction(element: any) {
 
     // perhaps refactor to defer adding point until
     // stroke/result action, if any; then decorate point not necessary
-    // and broadcast of point doesn't have to wait until decoration...
     // would require a global variable, perhaps 'pip' for point-in-progress
     const what = env.match.addPoint(point);
 
@@ -160,7 +157,7 @@ export function classAction(element: any) {
       strokeSlider(slider_side);
     } else {
       checkMatchEnd(what);
-      broadcastScore(what);
+      // Broadcasting removed
     }
 
     env.rally = 0;

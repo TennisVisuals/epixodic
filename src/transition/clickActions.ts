@@ -1,6 +1,5 @@
 import { resetButtons, setCourtSide, swapServer, updateState, visibleButtons } from './displayUpdate';
 import { env, options, updateMatchArchive } from './env';
-import { broadcastScore } from './broadcastScore';
 import { viewManager } from './viewManager';
 import { showGameFish } from './configureViz';
 import { findUpClass } from './utilities';
@@ -51,7 +50,7 @@ export function undoAction() {
     resetButtons();
   } else {
     const undo = env.match.undo();
-    broadcastScore('Undo');
+    // Broadcasting removed
     if (undo) env.undone.push(undo);
     updateMatchArchive(true);
   }
@@ -59,8 +58,8 @@ export function undoAction() {
 }
 export function redoAction() {
   if (!env.undone.length) return;
-  const action = env.match.addPoint(env.undone.pop());
-  broadcastScore(action);
+  env.match.addPoint(env.undone.pop());
+  // Broadcasting removed
 }
 export function changeServer() {
   console.log('changeServer');

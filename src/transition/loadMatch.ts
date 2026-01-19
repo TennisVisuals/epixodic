@@ -40,9 +40,12 @@ export function loadMatch(match_id: string, view = 'entry') {
   clearActionEvents();
   browserStorage.set('current_match', match_id);
   if (match_data.match) {
-    if (!match_data.match.muid) {
-      match_data.match.muid = UUID();
-      browserStorage.remove(match_id);
+    // Only add muid for legacy format
+    if (isLegacyStorage) {
+      if (!match_data.match.muid) {
+        match_data.match.muid = UUID();
+        browserStorage.remove(match_id);
+      }
     }
     env.match.metadata.defineMatch(match_data.match);
   }

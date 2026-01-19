@@ -92,9 +92,9 @@ export class FactoryMatchUpLoader {
       env.match.set.firstService(0);
     }
 
-    // 6. Store Factory matchUp ID and metadata
+    // 6. Store Factory matchUp ID and metadata (TODS format)
     env.match.metadata.defineMatch({
-      muid: matchUp.matchUpId,
+      matchUpId: matchUp.matchUpId,
       // Map additional Factory fields to UMO metadata
       status: matchUp.matchUpStatus,
     });

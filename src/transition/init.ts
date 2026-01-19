@@ -5,7 +5,6 @@ import { setDev } from '../services/helpers/setDev';
 import { browserStorage } from './browserStorage';
 import { registerEvents } from './registerEvents';
 import { newMatch } from './displayMatchArchive';
-import { sendKey } from './coms';
 import { changeDisplay } from './viewManager';
 import { touchManager } from './touchManager';
 import { defineActionEvents } from './events';
@@ -108,9 +107,10 @@ export function init() {
   configureViz();
   vizUpdate();
 
-  if (queryString.key) {
-    setTimeout(() => sendKey({ key: queryString.key }), 1000);
-  }
+  // Broadcasting/key functionality removed
+  // if (queryString.key) {
+  //   setTimeout(() => sendKey({ key: queryString.key }), 1000);
+  // }
 
   setInitialState();
 }

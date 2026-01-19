@@ -59,10 +59,10 @@ export function displayMatchArchive(params?: any) {
   if (ma_elem) {
     ma_elem.addEventListener('click', function (e: any) {
       const p = findUpClass(e.target, 'swipe-item');
-      const muid = p?.getAttribute('muid');
+      const matchId = p?.getAttribute('data-match-id');
       const selected_match = findUpClass(e.target, 'mh_match');
       if (selected_match) {
-        return loadMatch(muid);
+        return loadMatch(matchId);
       }
 
       if (e?.target?.className?.indexOf('img_export') >= 0 || e.target.className == 'export_icon') {
@@ -71,10 +71,10 @@ export function displayMatchArchive(params?: any) {
         p.style.transitionDuration = '125ms';
         p.style.webkitTransform = 'translateX(0px)';
         p.style.transform = 'translateX(0px)';
-        modalExport(muid);
+        modalExport(matchId);
       }
       if (e.target.className.indexOf('img_recycle') >= 0 || e.target.className == 'recycle_icon') {
-        deleteMatch(muid);
+        deleteMatch(matchId);
         p.remove();
       }
     });
@@ -84,16 +84,8 @@ export function displayMatchArchive(params?: any) {
 }
 
 function deleteMatch(match_id: string) {
-  /*
-  if (broadcasting()) {
-    const match_data = JSON.parse(browserStorage.get(match_id));
-    const data: any = { muid: match_id };
-    const tournament = (match_data && match_data.tournament) || {};
-    data.tuid = tournament.tuid || tournament.name;
-    // coms.socket.emit('delete match', data);
-  }
-  */
-
+  // Broadcasting functionality removed
+  
   browserStorage.remove(match_id);
   const current_match_id = browserStorage.get('current_match');
   let match_archive = JSON.parse(browserStorage.get('match_archive') || '[]');
@@ -105,7 +97,7 @@ function deleteMatch(match_id: string) {
   displayMatchArchive({ active: true });
 }
 
-export function resetMatch(muid?: string) {
+export function resetMatch(matchUpId?: string) {
   // Reset clears everything including format structure
   env.match.reset();
   
@@ -119,9 +111,9 @@ export function resetMatch(muid?: string) {
   loadDetails();
   updateScore();
   const date = new Date().valueOf();
-  muid = muid || UUID();
-  env.match.metadata.defineMatch({ muid, date });
-  browserStorage.set('current_match', muid);
+  matchUpId = matchUpId || UUID();
+  env.match.metadata.defineMatch({ matchUpId, date });
+  browserStorage.set('current_match', matchUpId);
   stateChangeEvent();
 }
 
@@ -183,7 +175,7 @@ function archiveEntry(match_id: string, match_data: any) {
   const match_format = match_data.matchUpFormat || '';
   
   return `
-      <div id='match_${match_id}' muid='${match_id}' class='flexcenter mh_swipe swipe-item'>
+      <div id='match_${match_id}' data-match-id='${match_id}' class='flexcenter mh_swipe swipe-item'>
          <div class='flexcols mh_match'>
             <div class='mh_players'>${display_players}</div>
             <div class='mh_details'>

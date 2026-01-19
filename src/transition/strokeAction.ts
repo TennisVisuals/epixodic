@@ -1,5 +1,4 @@
 import { stateChangeEvent } from './displayUpdate';
-import { broadcastScore } from './broadcastScore';
 import { checkMatchEnd } from './checkMatchEnd';
 import { strokeSlider } from './strokeSlider';
 import { env } from './env';
@@ -16,5 +15,5 @@ export function strokeAction(element: any) {
   const point_episodes = env.match.history.action('addPoint');
   const last_action = point_episodes[point_episodes.length - 1];
   checkMatchEnd(last_action);
-  broadcastScore(last_action);
+  // Broadcasting removed
 }
