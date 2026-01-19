@@ -9,7 +9,8 @@ export function editPlayer(element: any) {
   if (editPlayerDisplay) editPlayerDisplay.style.display = 'flex';
   const player = env.match.metadata.players(env.edit_player);
   const playerName: any = document.getElementById('playername');
-  if (playerName) playerName.value = player.name;
+  // Use participantName (modern TODS format)
+  if (playerName) playerName.value = player.participantName || '';
   const team: any = document.getElementById('team');
   if (team) team.value = player.team ?? '';
 

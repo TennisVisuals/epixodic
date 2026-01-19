@@ -125,7 +125,12 @@ export function classAction(element: any) {
   };
 
   const sound: any = document.getElementById('click');
-  if (sound && settings.audible_clicks) sound.play();
+  if (sound && settings.audible_clicks) {
+    // Catch autoplay errors (browser policy)
+    sound.play().catch(() => {
+      /* Autoplay blocked - expected behavior */
+    });
+  }
   if (element.id) styleButton(element.id);
   if (service && service == 'second_service') env.serve2nd = true;
   if (Object.keys(actions).indexOf(action) < 0) return undefined;

@@ -1,0 +1,219 @@
+import { describe, it, expect } from 'vitest';
+import {
+  migrateFormat,
+  migrateMatchData,
+  migrateBatch,
+  getFormatName,
+  getAvailableFormats,
+  isValidFormatCode,
+  isLegacyFormat,
+  isFactoryFormat,
+  getMigrationStats,
+  LEGACY_TO_FACTORY,
+  FACTORY_TO_LEGACY,
+} from './formatMigration';
+
+describe('Format Migration', () => {
+  describe('migrateFormat()', () => {
+    it('should migrate all legacy match formats', () => {
+      expect(migrateFormat('3_6a_7')).toBe('SET3-S:6/TB7');
+      expect(migrateFormat('5_6a_7')).toBe('SET5-S:6/TB7');
+      expect(migrateFormat('3_6n_10')).toBe('SET3-S:6NOAD/TB7-F:TB10');
+      expect(migrateFormat('5_6a_7_long')).toBe('SET5-S:6/TB7-F:6');
+      expect(migrateFormat('1_8a_7')).toBe('SET1-S:8/TB7');
+    });
+
+    it('should pass through Factory formats unchanged', () => {
+      expect(migrateFormat('SET3-S:6/TB7')).toBe('SET3-S:6/TB7');
+      expect(migrateFormat('SET5-S:6/TB7-F:6')).toBe('SET5-S:6/TB7-F:6');
+    });
+
+    it('should handle unknown formats', () => {
+      const result = migrateFormat('unknown');
+      expect(result).toBe('unknown'); // Falls back to original
+    });
+  });
+
+  describe('isLegacyFormat() and isFactoryFormat()', () => {
+    it('should identify legacy formats', () => {
+      expect(isLegacyFormat('3_6a_7')).toBe(true);
+      expect(isLegacyFormat('5_6a_7')).toBe(true);
+      expect(isLegacyFormat('SET3-S:6/TB7')).toBe(false);
+    });
+
+    it('should identify Factory formats', () => {
+      expect(isFactoryFormat('SET3-S:6/TB7')).toBe(true);
+      expect(isFactoryFormat('SET5-S:6/TB7-F:6')).toBe(true);
+      expect(isFactoryFormat('T120P')).toBe(true);
+      expect(isFactoryFormat('3_6a_7')).toBe(false);
+    });
+  });
+
+  describe('migrateMatchData()', () => {
+    it('should migrate format in match data', () => {
+      const legacy = { format: '3_6a_7', score: '6-4, 6-3' };
+      const migrated = migrateMatchData(legacy);
+      
+      expect(migrated.format).toBe('SET3-S:6/TB7');
+      expect(migrated.score).toBe('6-4, 6-3');
+      expect(migrated._migrated).toBeDefined();
+      expect(migrated._migrated.from).toBe('3_6a_7');
+      expect(migrated._migrated.to).toBe('SET3-S:6/TB7');
+    });
+
+    it('should migrate format in nested metadata', () => {
+      const legacy = {
+        metadata: { format: '5_6a_7', players: ['A', 'B'] },
+        score: '6-4, 6-3, 6-2',
+      };
+      const migrated = migrateMatchData(legacy);
+      
+      expect(migrated.metadata.format).toBe('SET5-S:6/TB7');
+    });
+
+    it('should not modify already-migrated data', () => {
+      const factory = { format: 'SET3-S:6/TB7', score: '6-4, 6-3' };
+      const migrated = migrateMatchData(factory);
+      
+      expect(migrated.format).toBe('SET3-S:6/TB7');
+      expect(migrated._migrated).toBeUndefined();
+    });
+  });
+
+  describe('migrateBatch()', () => {
+    it('should migrate array of format codes', () => {
+      const legacy = ['3_6a_7', '5_6a_7', '3_6n_10'];
+      const migrated = migrateBatch(legacy);
+      
+      expect(migrated).toEqual([
+        'SET3-S:6/TB7',
+        'SET5-S:6/TB7',
+        'SET3-S:6NOAD/TB7-F:TB10',
+      ]);
+    });
+
+    it('should handle mixed legacy and factory codes', () => {
+      const mixed = ['3_6a_7', 'SET5-S:6/TB7', '3_6n_10'];
+      const migrated = migrateBatch(mixed);
+      
+      expect(migrated).toEqual([
+        'SET3-S:6/TB7',
+        'SET5-S:6/TB7',
+        'SET3-S:6NOAD/TB7-F:TB10',
+      ]);
+    });
+  });
+
+  describe('getFormatName()', () => {
+    it('should return human-readable names for Factory codes', () => {
+      expect(getFormatName('SET3-S:6/TB7')).toBe('Standard Best of 3');
+      expect(getFormatName('SET5-S:6/TB7')).toBe('Best of 5 (US Open)');
+      expect(getFormatName('SET5-S:6/TB7-F:6')).toBe('Best of 5 (Long Final Set)');
+    });
+
+    it('should migrate legacy codes and return names', () => {
+      expect(getFormatName('3_6a_7')).toBe('Standard Best of 3');
+      expect(getFormatName('5_6a_7')).toBe('Best of 5 (US Open)');
+    });
+
+    it('should return code itself if no name found', () => {
+      expect(getFormatName('unknown')).toBe('unknown');
+    });
+  });
+
+  describe('getAvailableFormats()', () => {
+    it('should return array of format objects', () => {
+      const formats = getAvailableFormats();
+      
+      expect(Array.isArray(formats)).toBe(true);
+      expect(formats.length).toBeGreaterThan(0);
+      expect(formats[0]).toHaveProperty('code');
+      expect(formats[0]).toHaveProperty('name');
+      expect(formats[0]).toHaveProperty('category');
+    });
+
+    it('should only include Factory format codes', () => {
+      const formats = getAvailableFormats();
+      
+      formats.forEach((format) => {
+        expect(isFactoryFormat(format.code)).toBe(true);
+      });
+    });
+  });
+
+  describe('isValidFormatCode()', () => {
+    it('should accept valid Factory codes', () => {
+      expect(isValidFormatCode('SET3-S:6/TB7')).toBe(true);
+      expect(isValidFormatCode('SET5-S:6/TB7-F:6')).toBe(true);
+    });
+
+    it('should accept valid legacy codes', () => {
+      expect(isValidFormatCode('3_6a_7')).toBe(true);
+      expect(isValidFormatCode('5_6a_7')).toBe(true);
+    });
+
+    it('should reject invalid codes', () => {
+      expect(isValidFormatCode('invalid')).toBe(false);
+      expect(isValidFormatCode('')).toBe(false);
+    });
+  });
+
+  describe('getMigrationStats()', () => {
+    it('should calculate migration statistics', () => {
+      const matches = [
+        { format: '3_6a_7' },
+        { format: '5_6a_7' },
+        { format: 'SET3-S:6/TB7' },
+        { format: '3_6n_10' },
+      ];
+
+      const stats = getMigrationStats(matches);
+
+      expect(stats.total).toBe(4);
+      expect(stats.needsMigration).toBe(3); // 3 legacy
+      expect(stats.alreadyMigrated).toBe(1); // 1 factory
+      expect(stats.byFormat['3_6a_7']).toBe(1);
+      expect(stats.byFormat['SET3-S:6/TB7']).toBe(1);
+    });
+
+    it('should handle empty array', () => {
+      const stats = getMigrationStats([]);
+      
+      expect(stats.total).toBe(0);
+      expect(stats.needsMigration).toBe(0);
+      expect(stats.alreadyMigrated).toBe(0);
+    });
+  });
+
+  describe('Format mappings', () => {
+    it('should have bidirectional mapping for all formats', () => {
+      Object.entries(LEGACY_TO_FACTORY).forEach(([_legacy, factory]) => {
+        expect(factory).toBeTruthy();
+        expect(isFactoryFormat(factory)).toBe(true);
+        
+        // Check reverse mapping exists (note: some factory codes may map to multiple legacy codes)
+        expect(FACTORY_TO_LEGACY[factory]).toBeTruthy();
+      });
+    });
+
+    it('should have all expected match formats', () => {
+      const expectedFormats = [
+        '3_6a_7',
+        '3_6n_7',
+        '3_4n_10',
+        '1_4n_7',
+        '3_6n_10',
+        '5_6a_7',
+        '5_6a_7_long',
+        '3_6a_7_long',
+        '1_8a_7',
+        '1_8n_7',
+        '1_6a_7',
+      ];
+
+      expectedFormats.forEach((format) => {
+        expect(LEGACY_TO_FACTORY[format]).toBeDefined();
+      });
+    });
+  });
+});

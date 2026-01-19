@@ -8,6 +8,7 @@ import { viewManager } from './viewManager';
 import { SwipeList } from './swipeList';
 import { loadMatch } from './loadMatch';
 import { UUID } from './UUID';
+import umo from '@tennisvisuals/universal-match-object';
 import { env } from './env';
 
 export function displayMatchArchive(params?: any) {
@@ -106,7 +107,16 @@ function deleteMatch(match_id: string) {
 }
 
 export function resetMatch(muid?: string) {
+  // Reset clears everything including format structure
   env.match.reset();
+  
+  // CRITICAL: Must use changeFormat() to rebuild structure, not just set property!
+  env.match.format.changeFormat('SET3-S:6/TB7');
+  
+  // Restore default participants (reset clears them)
+  env.match.metadata.definePlayer({ index: 0, firstName: 'Player', lastName: 'One' });
+  env.match.metadata.definePlayer({ index: 1, firstName: 'Player', lastName: 'Two' });
+  
   loadDetails();
   updateScore();
   const date = new Date().valueOf();
@@ -116,23 +126,63 @@ export function resetMatch(muid?: string) {
   stateChangeEvent();
 }
 
-export function newMatch(force_format?: boolean) {
+export function newMatch(force_format?: boolean | Element) {
   resetMatch();
-  viewManager(force_format ? 'entry' : 'matchformat');
+  
+  // If called as event handler, force_format will be an Element
+  // Only use 'entry' view if explicitly passed boolean true
+  const shouldSkipFormatSelection = typeof force_format === 'boolean' && force_format === true;
+  const view = shouldSkipFormatSelection ? 'entry' : 'matchformat';
+  
+  console.log('View to show:', view);
+  console.log('Will skip format selection?', shouldSkipFormatSelection);
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+  
+  viewManager(view);
 }
 
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 function archiveEntry(match_id: string, match_data: any) {
-  const date = new Date(match_data.match.date);
+  const date = new Date(match_data.match?.date || Date.now());
   const display_date = [date.getDate(), months[date.getMonth()], date.getFullYear()].join('-');
-  const players = match_data.players;
+  
+  // Detect format: TODS (has matchUpId) vs Legacy (has muid)
+  const isTODSFormat = match_data.matchUpId && !match_data.muid;
+  
+  // Get players based on format
+  let player1Name = 'Player 1';
+  let player2Name = 'Player 2';
+  
+  if (isTODSFormat) {
+    // TODS format: get from sides
+    const side1 = match_data.sides?.find((s: any) => s.sideNumber === 1);
+    const side2 = match_data.sides?.find((s: any) => s.sideNumber === 2);
+    player1Name = side1?.participant?.participantName || 'Player 1';
+    player2Name = side2?.participant?.participantName || 'Player 2';
+  } else {
+    // Legacy format: get from players array
+    player1Name = match_data.players?.[0]?.participantName || match_data.players?.[0]?.name || 'Player 1';
+    player2Name = match_data.players?.[1]?.participantName || match_data.players?.[1]?.name || 'Player 2';
+  }
+  
   const display_players = `
-         <span class='nowrap'>${firstAndLast(players[0].name)}</span>
+         <span class='nowrap'>${firstAndLast(player1Name)}</span>
          <span> v. </span>
-         <span class='nowrap'>${firstAndLast(players[1].name)}</span>
+         <span class='nowrap'>${firstAndLast(player2Name)}</span>
          `;
-  const match_score = match_data.scoreboard;
-  const match_format = match_data.format.name;
+  
+  // Get score based on format
+  let match_score = '';
+  if (isTODSFormat) {
+    // TODS format: use scoreStringSide1
+    match_score = match_data.score?.scoreStringSide1 || '';
+  } else {
+    // Legacy format: use scoreboard
+    match_score = match_data._appData?.scoreboard || match_data.scoreboard || '';
+  }
+  
+  const match_format = match_data.matchUpFormat || '';
+  
   return `
       <div id='match_${match_id}' muid='${match_id}' class='flexcenter mh_swipe swipe-item'>
          <div class='flexcols mh_match'>

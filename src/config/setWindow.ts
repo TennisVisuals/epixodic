@@ -12,7 +12,8 @@ export function setWindow() {
     windowEvent.preventDefault();
     const reason = windowEvent.reason;
     const message = reason && (reason.stack || reason);
-    if (message && message.indexOf('blocked') > 0) {
+    // Check if message is a string before calling indexOf
+    if (typeof message === 'string' && message.indexOf('blocked') > 0) {
       console.warn('popup blocked');
     } else {
       console.warn('Unhandled rejection:', reason && (reason.stack || reason));

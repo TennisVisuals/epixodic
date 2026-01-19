@@ -15,6 +15,7 @@ import { loadMatch } from './loadMatch';
 import { closeModal } from './modals';
 import clipboard from 'clipboard';
 import { UUID } from './UUID';
+import { env } from './env';
 import {
   changePlayerName,
   checkPlayerName,
@@ -74,7 +75,8 @@ export function init() {
 
   restoreAppState();
   checkUserUUID();
-  if (app.broadcast && navigator.onLine) startBroadcast();
+  // Broadcast disabled - not needed for standalone app
+  // if (app.broadcast && navigator.onLine) startBroadcast();
 
   defineEntryEvents();
   defineActionEvents();

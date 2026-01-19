@@ -769,7 +769,7 @@ function ptsChart() {
             return split[split.length - 1];
           }
           const legend =
-            winner != undefined ? players[winner].name : `${lastName(players[0].name)}/${lastName(players[1].name)}`;
+            winner != undefined ? players[winner].participantName : `${lastName(players[0].participantName)}/${lastName(players[1].participantName)}`;
 
           set_winner
             .transition()

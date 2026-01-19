@@ -118,8 +118,8 @@ export function vizUpdate() {
   if (charts.gametree) {
     charts.gametree.options({
       labels: {
-        Player: players[0].name,
-        Opponent: players[1].name
+        Player: players[0].participantName,
+        Opponent: players[1].participantName
       }
     });
     charts.gametree.update({ sizeToFit: true });

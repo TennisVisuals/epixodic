@@ -6,9 +6,10 @@ export function broadcastScore(action?: any) {
   const players = env.match.metadata.players();
 
   // don't publish if the player names haven't been changed
-  const pub = players[0].name != default_players[0] && players[1].name != default_players[1];
+  const pub = players[0].participantName != default_players[0] && players[1].participantName != default_players[1];
 
-  if (pub && broadcasting()) {
+  // Broadcast disabled for standalone app
+  if (false && pub && broadcasting()) {
     const coords = device.geoposition.coords || {};
     const tournament = env.match.metadata.defineTournament();
     const match_meta = env.match.metadata.defineMatch();

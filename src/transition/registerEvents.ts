@@ -56,7 +56,7 @@ export function registerEvents() {
     .register('matchArchive', 'tap', matchArchive)
     .register('mainMenu', 'tap', mainMenu)
     .register('modalHelp', 'tap', modalHelp)
-    .register('updateAppState', 'tap', updateAppState)
+    .register('updateAppState', 'change', updateAppState)
     .register('updateStats', 'tap', updateStats)
     .register('closeGameFish', 'tap', closeGameFish)
     .register('strokeAction', 'tap', strokeAction)

@@ -4,7 +4,7 @@
   "version": "2.0.2",
   "type": "module",
   "engines": {
-    "node": "20",
+    "node": ">=20",
     "pnpm": ">=8",
     "npm": "please-use-pnpm"
   },
@@ -20,6 +20,7 @@
     "config": "node config.mjs",
     "format": "prettier --write src",
     "lint": "eslint src --fix --cache",
+    "local": "pnpm link --global @tennisvisuals/universal-match-object",
     "pre-commit": "lint-staged",
     "prepare": "rimraf dist",
     "preview": "vite preview",
@@ -31,8 +32,8 @@
     "@commitlint/cli": "19.8.1",
     "@commitlint/config-conventional": "19.8.1",
     "@types/node": "20.19.27",
-    "@typescript-eslint/eslint-plugin": "7.18.0",
-    "@typescript-eslint/parser": "7.18.0",
+    "@typescript-eslint/eslint-plugin": "8.53.0",
+    "@typescript-eslint/parser": "8.53.0",
     "@vitejs/plugin-react": "4.7.0",
     "@vitest/coverage-v8": "1.6.1",
     "@vitest/ui": "1.6.1",
@@ -62,6 +63,7 @@
     "yargs": "17.7.2"
   },
   "dependencies": {
+    "@tennisvisuals/universal-match-object": "link:../universal-match-object",
     "animate.css": "^4.1.1",
     "axios": "^1.6.5",
     "bulma": "^1.0.0",

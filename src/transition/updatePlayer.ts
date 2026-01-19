@@ -1,12 +1,41 @@
-import { env, updateMatchArchive } from './env';
+import { env, updateMatchArchive, updatePositions } from './env';
 
 export function updatePlayer() {
-  env.match.metadata.definePlayer(updatePlayerDetails());
+  const playerUpdate = updatePlayerDetails();
+  
+  try {
+    env.match.metadata.updateParticipant(playerUpdate);
+  } catch (error: any) {
+    if (error.message?.includes('No participant found')) {
+      // Participant doesn't exist yet, create it with definePlayer
+      const index = playerUpdate.sideNumber - 1;
+      const firstName = playerUpdate.person?.standardGivenName || 'Player';
+      const lastName = playerUpdate.person?.standardFamilyName || String(playerUpdate.sideNumber);
+      env.match.metadata.definePlayer({ index, firstName, lastName });
+    } else {
+      throw error;
+    }
+  }
+  
+  updatePositions(); // Refresh UI with new player name
   updateMatchArchive();
 }
 
 function updatePlayerDetails() {
-  const player: any = { index: env.edit_player };
+  const sideNumber = env.edit_player + 1; // Convert index to sideNumber (0→1, 1→2)
+  const player: any = { sideNumber };
+  
+  // Get player name and split into standardGivenName/standardFamilyName (TODS format)
+  const playerNameElement: any = document.getElementById('playername');
+  if (playerNameElement?.value) {
+    const fullName = playerNameElement.value.trim();
+    const nameParts = fullName.split(/\s+/);
+    player.person = {
+      standardGivenName: nameParts[0] || '',
+      standardFamilyName: nameParts.slice(1).join(' ') || ''
+    };
+  }
+  
   const attributes = ['hand', 'entry', 'seed', 'draw_position', 'ioc'];
   attributes.forEach((attribute) => {
     const target_id = `player_${attribute}`;

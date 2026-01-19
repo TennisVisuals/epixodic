@@ -2,6 +2,7 @@ import { env, options, settings, updateMatchArchive, updatePositions } from './e
 import { browserStorage } from './browserStorage';
 import { groupGames } from './groupGames';
 import { closeModal } from './modals';
+import { vizUpdate } from './configureViz';
 
 export function updateScore() {
   const score = env.match.score();
@@ -34,8 +35,9 @@ export function updateScore() {
   display_set_1.forEach((element) => (element.innerHTML = sets_counter[right_side]));
 
   const sets = score.components.sets;
-  const threshold = env.match.format.threshold();
-  const max_games = threshold == 1 ? 0 : threshold > 2 ? 4 : 2;
+  // FACTORY-FIRST: Use modern setsToWin accessor
+  const setsToWin = env.match.format.setsToWin;
+  const max_games = setsToWin == 1 ? 0 : setsToWin > 2 ? 4 : 2;
   [0, 1, 2, 3, 4].forEach((index) => {
     if (!sets || (sets && !sets[index])) {
       // old way
@@ -262,15 +264,40 @@ export function changePlayerName() {
   const team: any = document.getElementById('team');
   const id: any = document.getElementById('playerid');
   if (player_name) {
+    // Split name into standardGivenName/standardFamilyName (TODS format)
+    const fullName = player_name.value.trim();
+    const nameParts = fullName.split(/\s+/);
+    const standardGivenName = nameParts[0] || '';
+    const standardFamilyName = nameParts.slice(1).join(' ') || '';
+    
+    const sideNumber = env.edit_player + 1; // Convert index to sideNumber (0→1, 1→2)
     const update: any = {
-      index: env.edit_player,
-      name: player_name.value,
+      sideNumber,
+      person: {
+        standardGivenName,
+        standardFamilyName,
+      }
     };
-    if (team) update.team = team.value;
-    if (id) update.id = id.value;
-    env.match.metadata.definePlayer(update);
+    
+    try {
+      env.match.metadata.updateParticipant(update);
+    } catch (error: any) {
+      if (error.message?.includes('No participant found')) {
+        // Participant doesn't exist yet, create it with definePlayer
+        const index = sideNumber - 1;
+        env.match.metadata.definePlayer({ 
+          index, 
+          firstName: standardGivenName, 
+          lastName: standardFamilyName 
+        });
+      } else {
+        throw error;
+      }
+    }
   }
   updatePositions();
+  // Update Game Tree labels when player name changes
+  vizUpdate();
 }
 
 export function editMatchDetails() {

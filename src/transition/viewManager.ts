@@ -105,7 +105,8 @@ export function viewManager(new_view = env.view, params?: any) {
       if (activate) {
         touchManager.prevent_touch = false;
         const point_episodes = env.match.history.action('addPoint');
-        const noAd = env.match.format.settings().code.indexOf('n_') >= 0;
+        // FACTORY-FIRST: Check NoAD from Factory structure (not string parsing)
+        const noAd = env.match.format.structure?.setFormat?.NoAD || false;
         charts.gametree.options({ display: { noAd } });
         charts.gametree.data(point_episodes).update();
         charts.gametree.update({ sizeToFit: true });

@@ -49,7 +49,7 @@ function gameEntry(game: any, players: any[]) {
   const last_point = game.points[game.points.length - 1];
   const game_score = game.complete ? game.score.join('-') : undefined;
   const tiebreak = last_point.tiebreak;
-  const server = tiebreak ? 'Tiebreak' : players[last_point.server].name;
+  const server = tiebreak ? 'Tiebreak' : players[last_point.server].participantName;
   const service = tiebreak ? '' : last_point.server ? 'playertwo' : 'playerone';
   const servergame = tiebreak ? '' : last_point.server == last_point.winner ? 'won' : 'lost';
   let html = `
@@ -82,9 +82,9 @@ function pointEntry(point: any, players: any[]) {
   if (point.result) {
     let shot_by;
     if (['Ace', 'Winner'].indexOf(point.result) >= 0) {
-      shot_by = players[point.winner].name;
+      shot_by = players[point.winner].participantName;
     } else {
-      shot_by = players[1 - point.winner].name;
+      shot_by = players[1 - point.winner].participantName;
     }
     player_initials = shot_by
       .split(' ')

@@ -7,7 +7,6 @@ import { resetMatch } from './displayMatchArchive';
 import { browserStorage } from './browserStorage';
 import { viewManager } from './viewManager';
 import { pulseCircle } from './pulseCircle';
-import { version } from '../config/version';
 import { connect } from 'socket.io-client';
 import { closeModal } from './modals';
 import * as d3 from 'd3';
@@ -74,12 +73,21 @@ export function sendHistory() {
         tournament: env.match.metadata.defineTournament(),
         first_service: env.match.set.firstService(),
         players: env.match.metadata.players(),
-        format: env.match.format.settings(),
+        // FACTORY-FIRST: Use modern accessors
+        format: {
+          // @ts-ignore - UMO v3.0 modern API
+          code: env.match.format.code,
+          // @ts-ignore - UMO v3.0 modern API
+          bestOf: env.match.format.bestOf,
+          // @ts-ignore - UMO v3.0 modern API
+          setsToWin: env.match.format.setsToWin,
+          // @ts-ignore - UMO v3.0 modern API
+          structure: env.match.format.structure
+        },
         scoreboard: env.match.scoreboard(),
         points: env.match.history.points(),
         provider: env.provider,
         matchUpId: match.muid,
-        ch_version: version,
         match,
       },
     };
@@ -125,8 +133,21 @@ function receiveMatchUp(data: any) {
     sides: auth_match.teams,
     format,
   });
-  env.match.metadata.definePlayer({ index: 0, name: teams[0] });
-  env.match.metadata.definePlayer({ index: 1, name: teams[1] });
+  // Split team names into firstName/lastName for modern TODS format
+  const team0Parts = teams[0].trim().split(/\s+/);
+  const team1Parts = teams[1].trim().split(/\s+/);
+  
+  env.match.metadata.definePlayer({ 
+    index: 0, 
+    firstName: team0Parts[0] || '', 
+    lastName: team0Parts.slice(1).join(' ') || '' 
+  });
+  
+  env.match.metadata.definePlayer({ 
+    index: 1, 
+    firstName: team1Parts[0] || '', 
+    lastName: team1Parts.slice(1).join(' ') || '' 
+  });
 
   const surface: any = auth_match.event.surface;
   if (surface) {

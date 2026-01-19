@@ -1,10 +1,30 @@
 import { browserStorage } from './browserStorage';
 import { firstAndLast } from './utilities';
-import { mo } from '../services/matchObject/umo';
-import { version } from '../config/version';
+import { migrateMatchData } from '../services/matchObject/formatMigration';
+
+// TODS-NATIVE: Using linked UMO package with TODS API!
+import umo from '@tennisvisuals/universal-match-object';
 
 export const charts: any = {};
-const match = mo.Match();
+
+// Create a fresh match with defaults
+function createDefaultMatch() {
+  const match = umo.Match({ matchUpFormat: 'SET3-S:6/TB7' });
+
+  // Initialize with default participants
+  match.metadata.definePlayer({ index: 0, firstName: 'Player', lastName: 'One' });
+  match.metadata.definePlayer({ index: 1, firstName: 'Player', lastName: 'Two' });
+
+  // Ensure matchUpFormat is set (sometimes UMO constructor doesn't set it)
+  if (!match.format.matchUpFormat) {
+    match.format.matchUpFormat = 'SET3-S:6/TB7';
+  }
+
+  return match;
+}
+
+// Initialize matchUp with defaults
+export const matchUp = createDefaultMatch();
 
 export const app: any = {
   broadcast: undefined,
@@ -12,11 +32,11 @@ export const app: any = {
 };
 
 export const settings: any = {
-  track_shot_types: undefined,
-  audible_clicks: undefined,
-  display_gamefish: undefined,
-  auto_swap_sides: undefined,
-  point_buttons: undefined,
+  track_shot_types: true,
+  audible_clicks: false,
+  display_gamefish: true,
+  auto_swap_sides: true,
+  point_buttons: false,
 };
 
 export const env: any = {
@@ -30,11 +50,12 @@ export const env: any = {
   match_swap: false, // automatic swap
   swap_sides: false, // user initiated swap
   orientation: 'vertical',
-  serving: match.nextTeamServing(),
-  receiving: match.nextTeamReceiving(),
+  serving: matchUp.nextTeamServing(),
+  receiving: matchUp.nextTeamReceiving(),
   edit_point_index: undefined,
   provider: undefined,
-  match,
+  match: matchUp, // Keep 'match' property for backward compat in app
+  loading_match: false, // Flag to prevent saving during match load
 };
 
 const c1 = 'rgb(64, 168, 75)';
@@ -71,7 +92,7 @@ export const device: any = {
 export const default_players = ['Player One', 'Player Two'];
 
 export function clearActionEvents() {
-  match.events.clearEvents();
+  matchUp.events.clearEvents();
 }
 
 export function updatePositions() {
@@ -82,32 +103,41 @@ export function updatePositions() {
 
   updateMatchArchive();
 
-  const player_names = match.metadata.players();
-  // var display_position = Array.from(document.getElementsByClassName("position_display"));
-  // display_position[0].value = firstAndLast(player_names[left_side].name);
-  // display_position[1].value = firstAndLast(player_names[right_side].name);
+  const player_names = matchUp.metadata.players();
   const p1 = document.getElementById('playerone');
   const p2 = document.getElementById('playertwo');
-  if (p1) p1.innerHTML = firstAndLast(player_names[left_side].name);
-  if (p2) p2.innerHTML = firstAndLast(player_names[right_side].name);
+  if (p1) p1.innerHTML = firstAndLast(player_names[left_side].participantName || '');
+  if (p2) p2.innerHTML = firstAndLast(player_names[right_side].participantName || '');
 
   // new way
   const display_player_0 = Array.from(document.querySelectorAll('.display_player_0'));
-  display_player_0.forEach((element) => (element.innerHTML = player_names[left_side].name));
+  display_player_0.forEach((element) => (element.innerHTML = player_names[left_side].participantName || ''));
   const display_player_1 = Array.from(document.querySelectorAll('.display_player_1'));
-  display_player_1.forEach((element) => (element.innerHTML = player_names[right_side].name));
+  display_player_1.forEach((element) => (element.innerHTML = player_names[right_side].participantName || ''));
 }
 
 export function updateMatchArchive(force?: boolean) {
-  const points = match.history.points();
+  // Don't save while loading a match (prevents overwriting during load)
+  if (env.loading_match) {
+    return;
+  }
 
-  // var match_id = match.metadata.defineMatch().muid;
   const match_id = browserStorage.get('current_match');
-  if (!match_id) return;
-  const players = match.metadata.players();
+  if (!match_id) {
+    return;
+  }
+
+  const players = matchUp.metadata.players();
+  const matchPoints = matchUp.history.points();
+
   const save =
-    force || points.length || (players[0].name != default_players[0] && players[1].name != default_players[1]);
-  if (!save) return;
+    force ||
+    matchPoints.length ||
+    (players[0].participantName != default_players[0] && players[1].participantName != default_players[1]);
+
+  if (!save) {
+    return;
+  }
 
   // add key for current match
   const match_archive = JSON.parse(browserStorage.get('match_archive') || '[]');
@@ -117,17 +147,82 @@ export function updateMatchArchive(force?: boolean) {
     browserStorage.set('match_archive', JSON.stringify(match_archive));
   }
 
-  const match_object = {
-    ch_version: version,
-    players: players,
-    first_service: match.set.firstService(),
-    match: match.metadata.defineMatch(),
-    format: match.format.settings(),
-    tournament: match.metadata.defineTournament(),
-    points: points,
-    scoreboard: match.scoreboard(),
+  // Build TODS matchUp from UMO (UMO is always TODS format after load/conversion)
+  const match = matchUp.metadata.defineMatch();
+  const tournament = matchUp.metadata.defineTournament();
+  const matchUpFormat = matchUp.format.matchUpFormat;
+
+  // Build minimal TODS score structure
+  // We save points, so UMO can reconstruct sets on load
+  const scoreboard = matchUp.scoreboard();
+  const score = {
+    sets: [], // Will be reconstructed from points on load
+    scoreStringSide1: scoreboard,
+    scoreStringSide2: scoreboard, // TODO: flip for side2 perspective
   };
-  browserStorage.set(match_id, JSON.stringify(match_object));
+
+  // Build TODS sides from players (sideNumber 1, 2)
+  const sides = players.map((player: any, index: number) => ({
+    sideNumber: index + 1,
+    participantId: player.participantId,
+    participant: {
+      participantId: player.participantId,
+      participantRole: 'COMPETITOR',
+      participantType: 'INDIVIDUAL',
+      participantName: player.participantName,
+      person: player.person || {
+        standardGivenName: player.participantName?.split(' ')[0] || '',
+        standardFamilyName: player.participantName?.split(' ').slice(1).join(' ') || '',
+      },
+    },
+  }));
+
+  // Add points detail to score object (TODS format)
+  const todsScore = {
+    ...score,
+    points: matchPoints,
+  };
+
+  // TODS matchUp structure - always save as TODS (no legacy fallbacks)
+  const todsMatchUp = {
+    tournamentId: tournament?.tournamentId || match?.tournamentId,
+    matchUpId: match_id,
+    matchUpFormat: matchUpFormat,
+    matchUpType: 'SINGLES',
+    sides: sides,
+    score: todsScore,
+    // App-specific data (not part of TODS matchUp spec, but needed for app)
+    _appData: {
+      scoreboard: matchUp.scoreboard(),
+      first_service: matchUp.set.firstService(),
+    },
+  };
+
+  browserStorage.set(match_id, JSON.stringify(todsMatchUp));
+}
+
+// Add function to load and auto-migrate stored matches
+export function loadStoredMatch(match_id: string): any {
+  const stored = browserStorage.get(match_id);
+  if (!stored) return null;
+
+  try {
+    const matchData = JSON.parse(stored);
+
+    // Auto-migrate if this is a legacy match (not TODS-native or Factory-migrated)
+    if (!matchData._tods_native && !matchData._factory_migrated) {
+      const migrated = migrateMatchData(matchData);
+      // Save the migrated version with TODS flag
+      migrated._tods_native = true;
+      browserStorage.set(match_id, JSON.stringify(migrated));
+      return migrated;
+    }
+
+    return matchData;
+  } catch (e) {
+    console.error('Error loading match:', e);
+    return null;
+  }
 }
 
 export function restoreAppState() {

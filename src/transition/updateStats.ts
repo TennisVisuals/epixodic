@@ -9,9 +9,12 @@ export function updateStats(element?: Element) {
   const charts: any[] = [];
   const sets = env.match.sets().length;
   let statselectors = `<div class='updateStats s_set'>Match</div>`;
+  
+  // const counters = env.match.stats.counters(set_filter); // Unused for now
   const stats = env.match.stats.calculated(set_filter);
+  
   const stripModifiers = (text: string) => text.match(/[A-Za-z0-9_]/g)?.join('');
-  if (stats?.length) {
+  if (stats?.length && Array.isArray(stats)) {
     // generate & display match/set view selectors
     if (sets > 1) {
       for (let s = 0; s < sets; s++) {
@@ -24,15 +27,20 @@ export function updateStats(element?: Element) {
     // generate & display stats html
     let left: any, right: any;
     stats.forEach((stat: any) => {
+      // UMO uses 'teams' array for stat data
+      const team_stats = stat.teams || stat.team_stats;
+      if (!team_stats || team_stats.length < 2) return;
       if (env.swap_sides) {
-        [right, left] = stat.team_stats;
+        [right, left] = team_stats;
       } else {
-        [left, right] = stat.team_stats;
+        [left, right] = team_stats;
       }
       const value: number = [0]
         .concat(...[left, right].map((side: any) => (side.value ? side.value : [])))
         .reduce((a: number, b: number) => a + b, 0);
-      const id = stripModifiers(stat.name.toLowerCase().split(' ').join('_'));
+      // UMO uses 'category' for stat names
+      const statName = stat.category || stat.name;
+      const id = stripModifiers(statName.toLowerCase().split(' ').join('_'));
       let left_display = left.display;
       let right_display = right.display;
 
@@ -40,7 +48,7 @@ export function updateStats(element?: Element) {
         .concat(...[left, right].map((value: any) => (value.numerators ? value.numerators : [])))
         .filter((item, i, s) => s.lastIndexOf(item) == i)
         .join(',');
-      const statclass = numerators && value && stat.name != 'Aggressive Margin' ? 'statname_chart' : 'statname';
+      const statclass = numerators && value && statName != 'Aggressive Margin' ? 'statname_chart' : 'statname';
 
       if (isNaN(left.value)) {
         left.value = 0;
@@ -52,7 +60,7 @@ export function updateStats(element?: Element) {
       }
 
       if (options.highlight_better_stats) {
-        if (['Double Faults', 'Unforced Errors', 'Forced Errors'].indexOf(stat.name) >= 0) {
+        if (['Double Faults', 'Unforced Errors', 'Forced Errors'].indexOf(statName) >= 0) {
           if (left.value < right.value) left_display = `<b class="toggleChart">${left_display}</b>`;
           if (right.value < left.value) right_display = `<b class="toggleChart">${right_display}</b>`;
         } else {
@@ -63,18 +71,20 @@ export function updateStats(element?: Element) {
       html +=
         `<div class='statrow' id="${id}">` +
         `<div class='toggleChart statleft'>${left_display}</div>` +
-        `<div class='toggleChart ${statclass}'>${stat.name}</div><div class='toggleChart statright'>${right_display}</div>` +
+        `<div class='toggleChart ${statclass}'>${statName}</div><div class='toggleChart statright'>${right_display}</div>` +
         `</div>`;
       const table = `<div class='statrow' id="${id}_chart" style='display:none' onclick="showChartSource('${numerators}')"></div>`;
 
-      if (numerators && value && stat.name != 'Aggressive Margin') {
+      if (numerators && value && statName != 'Aggressive Margin') {
         charts.push({ target: `${id}_chart`, numerators });
         html += table;
       }
     });
 
     const counters = env.match.stats.counters(set_filter).teams;
-    if (counters[0].Backhand || counters[0].Forehand || counters[1].Backhand || counters[1].Forehand) {
+    // Check if counters exist and have data before accessing
+    if (counters && counters[0] && counters[1] && 
+        (counters[0].Backhand || counters[0].Forehand || counters[1].Backhand || counters[1].Forehand)) {
       const left = env.swap_sides ? 1 : 0;
       const right = env.swap_sides ? 0 : 1;
       html += `<div class='statsection flexcenter'>Finishing Shots - Strokes</div>`;
