@@ -5,6 +5,7 @@ import { defineActionEvents } from './events';
 import { viewManager } from './viewManager';
 import { isJSON } from './utilities';
 import { UUID } from './UUID';
+import matchObject from '@tennisvisuals/universal-match-object';
 
 export function loadMatch(match_id: string, view = 'entry') {
   if (!match_id) {
@@ -99,12 +100,12 @@ export function loadMatch(match_id: string, view = 'entry') {
     // CRITICAL: Must rebuild match with correct format BEFORE loading points
     const savedFormat = match_data.matchUpFormat || 'SET3-S:6/TB7';
     
-    // Reset and rebuild with the saved format
-    env.match.reset();
-    env.match.format.changeFormat(savedFormat);
+    // UMO v3: Create new Match with correct format instead of reset+changeFormat
+    // This replaces the deprecated reset() + changeFormat() pattern
+    env.match = matchObject.Match({ matchUpFormat: savedFormat });
 
-    // CRITICAL: After reset(), must DEFINE participants before updating them
-    // Initialize default participants (reset cleared them)
+    // CRITICAL: After creating new match, must DEFINE participants
+    // Initialize default participants
     env.match.metadata.definePlayer({ index: 0, firstName: 'Player', lastName: '1' });
     env.match.metadata.definePlayer({ index: 1, firstName: 'Player', lastName: '2' });
 
