@@ -45,22 +45,22 @@ export function displayMatchArchive(params?: any) {
         image_class: 'export_icon',
         image: exportImage,
         side: 'right',
-        width: 60
+        width: 60,
       },
       {
         class: 'img_recycle swipe_img',
         image_class: 'recycle_icon',
         image: recycleImage,
         side: 'right',
-        width: 60
-      }
-    ]
+        width: 60,
+      },
+    ],
   });
 
   if (ma_elem) {
     ma_elem.addEventListener('click', function (e: any) {
       const p = findUpClass(e.target, 'swipe-item');
-      const matchId = p?.getAttribute('data-match-id');
+      const matchId = p?.dataset.matchId;
       const selected_match = findUpClass(e.target, 'mh_match');
       if (selected_match) {
         return loadMatch(matchId);
@@ -74,7 +74,7 @@ export function displayMatchArchive(params?: any) {
         p.style.transform = 'translateX(0px)';
         modalExport(matchId);
       }
-      if (e.target.className.indexOf('img_recycle') >= 0 || e.target.className == 'recycle_icon') {
+      if (e.target.className.includes('img_recycle') || e.target.className == 'recycle_icon') {
         deleteMatch(matchId);
         p.remove();
       }
@@ -86,7 +86,7 @@ export function displayMatchArchive(params?: any) {
 
 function deleteMatch(match_id: string) {
   // Broadcasting functionality removed
-  
+
   browserStorage.remove(match_id);
   const current_match_id = browserStorage.get('current_match');
   let match_archive = JSON.parse(browserStorage.get('match_archive') || '[]');
@@ -101,14 +101,14 @@ function deleteMatch(match_id: string) {
 export function resetMatch(matchUpId?: string) {
   // UMO v3: Create new Match instead of reset + changeFormat
   env.match = matchObject.Match({ matchUpFormat: 'SET3-S:6/TB7' });
-  
+
   // Set default participants
   env.match.metadata.definePlayer({ index: 0, firstName: 'Player', lastName: 'One' });
   env.match.metadata.definePlayer({ index: 1, firstName: 'Player', lastName: 'Two' });
-  
+
   loadDetails();
   updateScore();
-  const date = new Date().valueOf();
+  const date = Date.now();
   matchUpId = matchUpId || UUID();
   env.match.metadata.defineMatch({ matchUpId, date });
   browserStorage.set('current_match', matchUpId);
@@ -117,16 +117,16 @@ export function resetMatch(matchUpId?: string) {
 
 export function newMatch(force_format?: boolean | Element) {
   resetMatch();
-  
+
   // If called as event handler, force_format will be an Element
   // Only use 'entry' view if explicitly passed boolean true
   const shouldSkipFormatSelection = typeof force_format === 'boolean' && force_format === true;
   const view = shouldSkipFormatSelection ? 'entry' : 'matchformat';
-  
+
   console.log('View to show:', view);
   console.log('Will skip format selection?', shouldSkipFormatSelection);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-  
+
   viewManager(view);
 }
 
@@ -134,14 +134,14 @@ const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 function archiveEntry(match_id: string, match_data: any) {
   const date = new Date(match_data.match?.date || Date.now());
   const display_date = [date.getDate(), months[date.getMonth()], date.getFullYear()].join('-');
-  
+
   // Detect format: TODS (has matchUpId) vs Legacy (has muid)
   const isTODSFormat = match_data.matchUpId && !match_data.muid;
-  
+
   // Get players based on format
-  let player1Name = 'Player 1';
-  let player2Name = 'Player 2';
-  
+  let player1Name: string;
+  let player2Name: string;
+
   if (isTODSFormat) {
     // TODS format: get from sides
     const side1 = match_data.sides?.find((s: any) => s.sideNumber === 1);
@@ -153,13 +153,13 @@ function archiveEntry(match_id: string, match_data: any) {
     player1Name = match_data.players?.[0]?.participantName || match_data.players?.[0]?.name || 'Player 1';
     player2Name = match_data.players?.[1]?.participantName || match_data.players?.[1]?.name || 'Player 2';
   }
-  
+
   const display_players = `
          <span class='nowrap'>${firstAndLast(player1Name)}</span>
          <span> v. </span>
          <span class='nowrap'>${firstAndLast(player2Name)}</span>
          `;
-  
+
   // Get score based on format
   let match_score = '';
   if (isTODSFormat) {
@@ -169,9 +169,9 @@ function archiveEntry(match_id: string, match_data: any) {
     // Legacy format: use scoreboard
     match_score = match_data._appData?.scoreboard || match_data.scoreboard || '';
   }
-  
+
   const match_format = match_data.matchUpFormat || '';
-  
+
   return `
       <div id='match_${match_id}' data-match-id='${match_id}' class='flexcenter mh_swipe swipe-item'>
          <div class='flexcols mh_match'>

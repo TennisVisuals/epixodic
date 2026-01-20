@@ -91,7 +91,8 @@ export function loadMatch(match_id: string, view = 'entry') {
     const legacyPoints = match_data._appData?.points || match_data.points;
     if (legacyPoints) {
       legacyPoints.forEach((point: any) => {
-        env.match.addPoint(point.winner);
+        // Pass the entire point object to preserve rally, result, location, etc.
+        env.match.addPoint(point);
       });
     }
   } else {
@@ -133,8 +134,8 @@ export function loadMatch(match_id: string, view = 'entry') {
     if (todsPoints) {
       // UMO doesn't have a restore() method - need to replay points via addPoint()
       todsPoints.forEach((point: any) => {
-        // Replay the point by calling addPoint with the winner
-        env.match.addPoint(point.winner);
+        // Pass the entire point object to preserve rally, result, location, etc.
+        env.match.addPoint(point);
       });
     }
   }

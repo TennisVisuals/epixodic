@@ -5,182 +5,136 @@
  * Adapts point episode data from UMO to RallyTree format.
  */
 
-// @ts-ignore - RallyTree.js is plain JavaScript
-import RallyTree from './RallyTree.js';
+import * as d3 from 'd3';
+import { rallyCount } from '../functions/legacyRally';
 
-export interface RallyData {
-  points: any[];
-  rallies: any[];
+// Import RallyTree factory function
+import rallyTreeFactory from './RallyTree.js';
+
+// Make d3 globally available for RallyTree.js (legacy code expects it)
+if (typeof window !== 'undefined') {
+  (window as any).d3 = d3;
 }
 
 export class RallyTreeViz {
-  private tree: any;
+  private chart: any;
   private container: HTMLElement;
-  private options: any;
+  private selection: any;
 
   constructor(container: HTMLElement, options: any = {}) {
+    console.log('RallyTreeViz: constructor called', { container, options });
+    
     this.container = container;
-    this.options = {
+    
+    // Create D3 selection
+    this.selection = d3.select(container);
+    console.log('RallyTreeViz: D3 selection created', this.selection);
+    
+    // Initialize RallyTree using the imported factory
+    if (!rallyTreeFactory) {
+      console.error('RallyTree factory not available');
+      return;
+    }
+    
+    console.log('RallyTreeViz: Creating chart from factory');
+    this.chart = rallyTreeFactory();
+    console.log('RallyTreeViz: Chart created', this.chart);
+    
+    // Set initial options
+    const chartOptions = {
       width: options.width || container.clientWidth || 800,
       height: options.height || container.clientHeight || 400,
-      ...options
+      orientation: 'horizontal',
+      display: { sizeToFit: true }
     };
-
-    // Initialize RallyTree
-    // Note: Will need to check RallyTree.js API to see how to properly initialize
-    // For now, creating a placeholder structure
-    this.tree = null;
+    console.log('RallyTreeViz: Setting options', chartOptions);
+    this.chart.options(chartOptions);
+    
+    // Call the chart on the selection
+    console.log('RallyTreeViz: Calling chart on selection');
+    this.selection.call(this.chart);
+    console.log('RallyTreeViz: Constructor complete');
   }
 
   /**
    * Update visualization with point episodes
    */
   update(episodes: any[]): void {
-    if (!episodes || episodes.length === 0) {
-      this.renderEmptyState();
+    console.log('RallyTreeViz: update() called', { episodes: episodes?.length, hasChart: !!this.chart });
+    
+    if (!this.chart) {
+      console.warn('RallyTree chart not initialized');
       return;
     }
 
-    const rallyData = this.extractRallyData(episodes);
-    this.render(rallyData);
-  }
-
-  /**
-   * Extract rally data from point episodes
-   */
-  private extractRallyData(episodes: any[]): RallyData {
-    const rallies: any[] = [];
-    
-    episodes.forEach((episode, index) => {
-      // Extract rally information from episode
-      // This will depend on what data UMO provides in episodes
-      const rally = {
-        pointNumber: index + 1,
-        server: episode.server,
-        winner: episode.winner,
-        shots: this.extractShots(episode),
-        // Add more rally metadata as needed
-      };
-      
-      rallies.push(rally);
-    });
-
-    return {
-      points: episodes,
-      rallies,
-    };
-  }
-
-  /**
-   * Extract shot sequence from episode
-   */
-  private extractShots(episode: any): any[] {
-    // TODO: Parse shot data from episode
-    // For now, return empty array - will implement when we know episode structure
-    const shots: any[] = [];
-    
-    // Check if episode has rally/shot data
-    if (episode.rally && Array.isArray(episode.rally)) {
-      return episode.rally.map((shot: any, index: number) => ({
-        shotNumber: index + 1,
-        player: shot.player,
-        type: shot.type,
-        // Add more shot attributes
-      }));
+    if (!episodes || episodes.length === 0) {
+      console.log('RallyTreeViz: No episodes to display');
+      return;
     }
-    
-    return shots;
-  }
 
-  /**
-   * Render rally tree visualization
-   */
-  private render(data: RallyData): void {
-    // Clear container
-    this.container.innerHTML = '';
-
-    // TODO: Initialize and render RallyTree when we understand its API
-    // For now, render a data summary
-    const summary = this.createElement('div', {
-      className: 'rallytree-summary',
-      style: {
-        padding: '20px',
-        fontFamily: 'monospace',
-        fontSize: '12px',
+    // Add rallyLength method to each point for RallyTree
+    const pointsWithRallyLength = episodes.map(ep => ({
+      ...ep.point,
+      winner: ep.point.winner,
+      server: ep.point.server,
+      rally: ep.point.rally,
+      rallyLength: function() {
+        return this.rally ? rallyCount(this.rally) : 0;
       }
+    }));
+
+    console.log('RallyTreeViz: Processed points', {
+      count: pointsWithRallyLength.length,
+      sample: pointsWithRallyLength[0]
     });
 
-    summary.innerHTML = `
-      <h3>Rally Tree Data</h3>
-      <p>Total rallies: ${data.rallies.length}</p>
-      <p>Integration in progress...</p>
-      <details>
-        <summary>Rally Data Preview</summary>
-        <pre>${JSON.stringify(data.rallies.slice(0, 3), null, 2)}</pre>
-      </details>
-    `;
-
-    this.container.appendChild(summary);
-  }
-
-  /**
-   * Render empty state
-   */
-  private renderEmptyState(): void {
-    this.container.innerHTML = '';
+    // Update the chart with processed points
+    // RallyTree uses D3 pattern: call chart with data, then call it on selection
+    console.log('RallyTreeViz: Setting chart data using D3 pattern');
     
-    const empty = this.createElement('div', {
-      className: 'rallytree-empty',
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100%',
-        color: '#999',
-      }
-    });
+    // Set the data on the chart (returns the chart for chaining)
+    const chartWithData = this.chart.data ? 
+      this.chart.data(pointsWithRallyLength) : 
+      this.chart;
     
-    empty.textContent = 'No rally data available';
-    this.container.appendChild(empty);
+    console.log('RallyTreeViz: Chart with data', chartWithData);
+    
+    // Update by calling the chart on the selection again
+    if (chartWithData.update) {
+      console.log('RallyTreeViz: Calling chart.update()');
+      chartWithData.update({ sizeToFit: true });
+      console.log('RallyTreeViz: Update complete');
+    } else {
+      console.log('RallyTreeViz: No update method, re-calling chart on selection');
+      this.selection.call(chartWithData);
+      console.log('RallyTreeViz: Chart re-rendered');
+    }
   }
 
   /**
    * Resize visualization
    */
   resize(width?: number, height?: number): void {
-    if (width) this.options.width = width;
-    if (height) this.options.height = height;
+    if (!this.chart) return;
     
-    // Re-render with new dimensions
-    // this.tree?.resize(this.options.width, this.options.height);
+    const newOptions: any = {};
+    if (width) newOptions.width = width;
+    if (height) newOptions.height = height;
+    
+    if (Object.keys(newOptions).length > 0) {
+      this.chart.options(newOptions);
+      if (this.chart.update) {
+        this.chart.update({ sizeToFit: true });
+      }
+    }
   }
 
   /**
    * Destroy and cleanup
    */
   destroy(): void {
-    if (this.tree && typeof this.tree.destroy === 'function') {
-      this.tree.destroy();
-    }
-    this.container.innerHTML = '';
-  }
-
-  /**
-   * Utility: Create element
-   */
-  private createElement(tag: string, attrs: any = {}): HTMLElement {
-    const element = document.createElement(tag);
-    
-    Object.entries(attrs).forEach(([key, value]) => {
-      if (key === 'className') {
-        element.className = value as string;
-      } else if (key === 'style' && typeof value === 'object') {
-        Object.assign(element.style, value);
-      } else {
-        element.setAttribute(key, value as string);
-      }
-    });
-    
-    return element;
+    // D3 cleanup
+    this.selection.selectAll('*').remove();
+    this.chart = null;
   }
 }

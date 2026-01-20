@@ -122,7 +122,7 @@ export function gameFish() {
       let max_rally = 0;
       data.forEach((e: any) => {
         if (e.rally && rallyCount(e.rally) > max_rally) max_rally = rallyCount(e.rally);
-        if (e.score.indexOf('T') > 0) tiebreak = true;
+        if (e.score && e.score.indexOf('T') > 0) tiebreak = true;
       });
 
       if (options.fish.max_rally && options.fish.max_rally > max_rally) max_rally = options.fish.max_rally;
@@ -664,6 +664,7 @@ export function gameFish() {
     };
 
     function findOffset(point: any) {
+      if (!point.points || point.points.length < 2) return 0;
       return point.points[options.display.reverse ? 0 : 1] - point.points[options.display.reverse ? 1 : 0];
     }
   }

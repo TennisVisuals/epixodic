@@ -15,6 +15,15 @@ function rallyTree() {
    // integrate margins
 
     var points = [];
+    var rallyWinPct; // Declare function variable for hoisting
+    var ryl; // Rally length tracking - used in update()
+    var max0, max1; // Max rally counts per player
+    var maxRally; // Maximum rally length
+    var update; // Update function
+    var maxLimb, widthScale, barSpacing, barHeight; // Layout calculations
+    var serveAdvantage, displayPct, option; // Display options
+    var colors, transition_time; // Styling
+    var pp_keys, remaining_rally_lengths; // Rally statistics helpers
 
     var options = {
       width: 100,
@@ -671,3 +680,11 @@ function rallyTree() {
 
     return chart;
 }
+
+// Export to window for direct usage
+if (typeof window !== 'undefined') {
+  window.rallyTree = rallyTree;
+}
+
+// ES6 export
+export default rallyTree;

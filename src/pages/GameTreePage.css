@@ -5,29 +5,22 @@
 .game-tree-page {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   width: 100%;
-  overflow: hidden;
-}
-
-.gametree-section {
-  flex: 1;
-  overflow: auto;
-  padding: 10px;
   background: var(--background-color, #fff);
 }
 
-.section-divider {
-  height: 2px;
-  background: var(--border-color, #ddd);
-  flex-shrink: 0;
-}
-
-.rallytree-section {
+/* Ensure gametreeRoot takes remaining space below header */
+.game-tree-page .gametreeRoot {
   flex: 1;
   overflow: auto;
-  padding: 10px;
-  background: var(--background-color, #fff);
+  margin-top: 0;
+  position: relative;
+}
+
+/* Push visualization content down below fixed header */
+.game-tree-page .gametreeRoot {
+  padding-top: 4em;
 }
 
 .rallytree-placeholder {

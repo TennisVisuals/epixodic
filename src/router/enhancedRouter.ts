@@ -129,6 +129,19 @@ export class EnhancedRouter {
    * Mount a page component
    */
   private async mountPageComponent(PageComponent: any, view: string, params?: any) {
+    // Use viewManager to hide all other views properly
+    const allViews = ['gametree', 'stats', 'momentum', 'pointhistory', 'entry', 'mainmenu', 
+                      'matcharchive', 'matchformats', 'settings', 'welcome', 'matchdetails'];
+    
+    // Deactivate all views EXCEPT the one we're mounting
+    allViews.filter(v => v !== view).forEach(v => {
+      try {
+        viewManager(v, { activate: false });
+      } catch (e) {
+        // Ignore errors from views that don't exist
+      }
+    });
+    
     // Unmount current page if exists
     if (this.currentPage) {
       await this.currentPage.unmount();
@@ -136,23 +149,20 @@ export class EnhancedRouter {
     }
 
     // Get or create container for page
-    // For now, we'll use the existing view container
     const containerId = this.getContainerIdForView(view);
     let container = document.getElementById(containerId);
     
     if (!container) {
-      console.warn(`Container ${containerId} not found, using gametree`);
       container = document.getElementById('gametree');
     }
 
     if (!container) {
-      console.error('No container found for page component');
       // Fall back to viewManager
       viewManager(view, params);
       return;
     }
 
-    // Show the container (in case it was hidden)
+    // Show the container
     container.style.display = 'flex';
 
     // Create and mount page component
@@ -160,8 +170,6 @@ export class EnhancedRouter {
     await page.mount();
     
     this.currentPage = page;
-    
-    console.log(`✅ Mounted ${PageComponent.name} for view: ${view}`);
   }
 
   /**
@@ -248,6 +256,25 @@ export class EnhancedRouter {
    */
   getCurrentPath(): string {
     return this.currentRoute;
+  }
+  
+  /**
+   * Check if a page component exists for a view
+   */
+  hasPageComponent(view: string): boolean {
+    return this.pageComponents.has(view);
+  }
+  
+  /**
+   * Manually trigger navigation to a view (called by viewManager)
+   */
+  async navigateToViewDirect(view: string, params?: any): Promise<void> {
+    // Prevent redundant navigation if already navigating
+    if (this.isNavigating) {
+      return;
+    }
+    
+    await this.navigateToView(view, params);
   }
 }
 

@@ -73,6 +73,8 @@ export function viewManager(new_view = env.view, params?: any) {
       changeDisplay(activate && env.orientation == 'portrait' ? 'flex' : 'none', 'toolbar');
     },
     stats({ activate = true } = {}) {
+      // TODO: Migrate to page component once stats rendering is refactored
+      // For now, use legacy stats view
       changeDisplay(activate ? 'flex' : 'none', 'statsscreen');
       if (activate) {
         touchManager.prevent_touch = false;
@@ -100,8 +102,20 @@ export function viewManager(new_view = env.view, params?: any) {
         charts.mc.update();
       }
     },
-    gametree({ activate = true } = {}) {
+    async gametree({ activate = true } = {}) {
+      // CRITICAL: Always control visibility first
       changeDisplay(activate ? 'flex' : 'none', 'gametree');
+      
+      // Check if we should use the new page component
+      if (activate && typeof window !== 'undefined' && (window as any).appRouter) {
+        const appRouter = (window as any).appRouter;
+        if (appRouter.hasPageComponent && appRouter.hasPageComponent('gametree')) {
+          await appRouter.navigateToViewDirect('gametree');
+          return;
+        }
+      }
+      
+      // Legacy gametree view
       if (activate) {
         touchManager.prevent_touch = false;
         const point_episodes = env.match.history.action('addPoint');
@@ -116,10 +130,39 @@ export function viewManager(new_view = env.view, params?: any) {
 
   const view_keys = Object.keys(views);
   if (view_keys.indexOf(new_view) >= 0) {
-    // disactivate all views that don't match the new_view
-    view_keys.filter((view) => view != new_view).forEach((view) => views[view]({ activate: false }));
-    views[new_view]({ activate: true, params });
-    env.view = new_view;
+    // Check if the new view is router-managed
+    const isRouterManaged = typeof window !== 'undefined' && (window as any).appRouter?.hasPageComponent?.(new_view);
+    
+    if (isRouterManaged) {
+      // Router-managed view: let it handle everything
+      views[new_view]({ activate: true, params });
+      env.view = new_view;
+      
+      // Deactivate other views (but they'll return early if router-managed)
+      view_keys.filter((view) => view != new_view).forEach((view) => views[view]({ activate: false }));
+    } else {
+      // Legacy view: use traditional flow
+      // First deactivate all other views
+      view_keys.filter((view) => view != new_view).forEach((view) => views[view]({ activate: false }));
+      
+      // Manually hide any router-managed containers before showing legacy view
+      if (typeof window !== 'undefined' && (window as any).appRouter) {
+        const appRouter = (window as any).appRouter;
+        if (appRouter.hasPageComponent) {
+          // Hide gametree container if it's router-managed
+          if (appRouter.hasPageComponent('gametree')) {
+            const gametreeContainer = document.getElementById('gametree');
+            if (gametreeContainer) {
+              gametreeContainer.style.display = 'none';
+            }
+          }
+        }
+      }
+      
+      // Activate the new legacy view
+      views[new_view]({ activate: true, params });
+      env.view = new_view;
+    }
     
     // PHASE 2: Update URL with router when view changes
     if (typeof window !== 'undefined' && (window as any).appRouter) {

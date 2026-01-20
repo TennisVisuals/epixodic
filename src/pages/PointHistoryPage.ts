@@ -37,9 +37,10 @@ export class PointHistoryPage extends BasePage {
     header.appendChild(title);
 
     // Create history container
+    // IMPORTANT: displayPointHistory() expects id='ph_frame'
     const historyContent = this.createElement('div', {
       className: 'point-history-content',
-      id: 'point-history-container',
+      id: 'ph_frame',
     });
 
     this.container.appendChild(header);

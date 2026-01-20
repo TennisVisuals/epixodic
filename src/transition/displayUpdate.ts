@@ -147,6 +147,7 @@ export function updateState() {
   if (env.match.nextTeamServing() != env.serving) setTimeout(() => swapServer(), 400);
   resetButtons();
   updatePositions();
+  updateScore(); // CRITICAL: Update score display when points are added
 }
 
 export function resetButtons() {
