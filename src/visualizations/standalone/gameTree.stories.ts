@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/html';
 import { gameTree } from './gameTree';
 import { sampleGamePoints, deuceGamePoints, noAdGamePoints, pointsToEpisodes } from './data/sampleGame';
 import { generateMultipleGamesV4 } from './data/sampleGames';
+import { setDev } from './utils/setDev';
 import { select } from 'd3-v7';
 
 interface GameTreeArgs {
@@ -54,6 +55,15 @@ const meta: Meta<GameTreeArgs> = {
 
     const episodes = pointsToEpisodes(sampleGamePoints);
     chart.data(episodes);
+
+    // Set dev data for debugging
+    setDev({
+      // umo: mcpGameFixture.matchUp,
+      data: episodes,
+      // points: mcpGameFixture.matchUp.history?.points || [],
+      episodes: episodes,
+      // vizPoints: mcpGamePoints,
+    });
 
     setTimeout(() => {
       select(container).call(chart);
@@ -115,6 +125,14 @@ export const MultipleGames: Story = {
 
     const episodes = generateMultipleGamesV4();
     chart.data(episodes);
+
+    setDev({
+      // umo: mcpGameFixture.matchUp,
+      data: episodes,
+      // points: mcpGameFixture.matchUp.history?.points || [],
+      episodes: episodes,
+      // vizPoints: mcpGamePoints,
+    });
 
     setTimeout(() => {
       select(container).call(chart);
@@ -179,6 +197,14 @@ export const DeuceGame: Story = {
     const episodes = pointsToEpisodes(deuceGamePoints);
     chart.data(episodes);
 
+    setDev({
+      // umo: mcpGameFixture.matchUp,
+      data: episodes,
+      // points: mcpGameFixture.matchUp.history?.points || [],
+      episodes: episodes,
+      // vizPoints: mcpGamePoints,
+    });
+
     setTimeout(() => {
       select(container).call(chart);
       if (chart.update) chart.update();
@@ -224,6 +250,14 @@ export const NoAdScoring: Story = {
     // Use the No-Ad specific game data
     const episodes = pointsToEpisodes(noAdGamePoints);
     chart.data(episodes);
+
+    setDev({
+      // umo: mcpGameFixture.matchUp,
+      data: episodes,
+      // points: mcpGameFixture.matchUp.history?.points || [],
+      episodes: episodes,
+      // vizPoints: mcpGamePoints,
+    });
 
     setTimeout(() => {
       select(container).call(chart);
@@ -276,6 +310,14 @@ export const ColorCodedResults: Story = {
 
     const episodes = pointsToEpisodes(sampleGamePoints);
     chart.data(episodes);
+
+    setDev({
+      // umo: mcpGameFixture.matchUp,
+      data: episodes,
+      // points: mcpGameFixture.matchUp.history?.points || [],
+      episodes: episodes,
+      // vizPoints: mcpGamePoints,
+    });
 
     setTimeout(() => {
       select(container).call(chart);

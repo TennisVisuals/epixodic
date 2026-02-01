@@ -133,8 +133,8 @@ export function gameFish() {
       fish_height = options.height - (options.margins.top + options.margins.bottom);
 
       // Ensure dimensions are valid
-      if (isNaN(fish_width) || fish_width <= 0) fish_width = 100;
-      if (isNaN(fish_height) || fish_height <= 0) fish_height = 100;
+      if (Number.isNaN(fish_width) || fish_width <= 0) fish_width = 100;
+      if (Number.isNaN(fish_height) || fish_height <= 0) fish_height = 100;
 
       const vert = options.display.orientation == 'vertical' ? 1 : 0;
       const fish_offset = vert ? fish_width : fish_height;
@@ -161,7 +161,7 @@ export function gameFish() {
       }
 
       // Ensure cell_size is valid
-      if (!cell_size || isNaN(cell_size) || cell_size <= 0) {
+      if (!cell_size || Number.isNaN(cell_size) || cell_size <= 0) {
         cell_size = options.fish.min_cell_size || 5;
       }
 
@@ -333,10 +333,10 @@ export function gameFish() {
           .attr('transform', rallyT)
           .attr('height', vert ? lScale.bandwidth() : rallyCalc)
           .attr('width', vert ? rallyCalc : lScale.bandwidth())
-          .on('mouseover', function() {
+          .on('mouseover', function () {
             select(this).attr('fill', 'yellow');
           })
-          .on('mouseout', function() {
+          .on('mouseout', function () {
             select(this).attr('fill', '#eeeeff');
           });
       } else {
@@ -576,6 +576,7 @@ export function gameFish() {
         return translate(o, l, d.rotate);
       }
 
+      // for the momentum chart the midpoint needs to be adjusted
       function gridCT(d: any) {
         const o = midpoint + (d[1] - d[0] + vert - 1) * radius;
         const l = (d[0] + d[1] + 3 - vert) * radius;

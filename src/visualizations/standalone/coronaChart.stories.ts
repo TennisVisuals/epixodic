@@ -12,10 +12,10 @@ interface CoronaChartArgs {
 
 /**
  * Corona Chart Visualization
- * 
+ *
  * Displays point-by-point score differentials in a radial/circular format.
  * Creates a "corona" effect showing momentum swings around a central point.
- * Each radial segment represents a game, with the distance from center 
+ * Each radial segment represents a game, with the distance from center
  * indicating the cumulative score differential.
  */
 const meta: Meta<CoronaChartArgs> = {
@@ -27,7 +27,7 @@ const meta: Meta<CoronaChartArgs> = {
     wrapper.style.display = 'flex';
     wrapper.style.gap = '20px';
     wrapper.style.padding = '20px';
-    
+
     // Chart container
     const chartContainer = document.createElement('div');
     chartContainer.style.flex = '1';
@@ -37,13 +37,10 @@ const meta: Meta<CoronaChartArgs> = {
     chartContainer.style.alignItems = 'center';
     chartContainer.style.justifyContent = 'center';
     chartContainer.style.padding = '20px';
-    
+
     // Create SVG
-    const svg = select(chartContainer)
-      .append('svg')
-      .attr('width', 600)
-      .attr('height', 600);
-    
+    const svg = select(chartContainer).append('svg').attr('width', 600).attr('height', 600);
+
     // Generate sample data
     const sampleSetMap = [
       {
@@ -53,7 +50,7 @@ const meta: Meta<CoronaChartArgs> = {
         winner_index: 0 as 0 | 1,
       },
     ];
-    
+
     const prefs = {
       width: 600,
       height: 600,
@@ -66,29 +63,29 @@ const meta: Meta<CoronaChartArgs> = {
       },
       functions: {},
     };
-    
+
     // Render corona chart
     setTimeout(() => {
       coronaChart(svg, sampleSetMap, prefs, 0, 0);
     }, 0);
-    
+
     // Data viewer
     const dataContainer = document.createElement('div');
     dataContainer.style.flex = '0 0 400px';
-    
+
     const dataTitle = document.createElement('h3');
     dataTitle.textContent = 'Sample Data';
     dataTitle.style.marginTop = '0';
     dataTitle.style.marginBottom = '10px';
     dataContainer.appendChild(dataTitle);
-    
+
     const jsonContainer = document.createElement('div');
     createJsonViewer(jsonContainer, sampleSetMap, { expanded: 2 });
     dataContainer.appendChild(jsonContainer);
-    
+
     wrapper.appendChild(chartContainer);
     wrapper.appendChild(dataContainer);
-    
+
     return wrapper;
   },
   argTypes: {
@@ -134,12 +131,9 @@ export const ExtraLarge: Story = {
     container.style.display = 'flex';
     container.style.alignItems = 'center';
     container.style.justifyContent = 'center';
-    
-    const svg = select(container)
-      .append('svg')
-      .attr('width', 1000)
-      .attr('height', 1000);
-    
+
+    const svg = select(container).append('svg').attr('width', 1000).attr('height', 1000);
+
     const sampleSetMap = [
       {
         p2sdiff: generateScoreDiffs(80),
@@ -148,7 +142,7 @@ export const ExtraLarge: Story = {
         winner_index: 0 as 0 | 1,
       },
     ];
-    
+
     const prefs = {
       width: 1000,
       height: 1000,
@@ -157,11 +151,11 @@ export const ExtraLarge: Story = {
       display: { info: false, badge: false, home: false },
       functions: {},
     };
-    
+
     setTimeout(() => {
       coronaChart(svg, sampleSetMap, prefs, 0, 0);
     }, 0);
-    
+
     return container;
   },
 };
@@ -186,12 +180,9 @@ export const WithResult: Story = {
     container.style.display = 'flex';
     container.style.alignItems = 'center';
     container.style.justifyContent = 'center';
-    
-    const svg = select(container)
-      .append('svg')
-      .attr('width', 1000)
-      .attr('height', 1000);
-    
+
+    const svg = select(container).append('svg').attr('width', 1000).attr('height', 1000);
+
     const sampleSetMap = [
       {
         p2sdiff: generateScoreDiffs(60),
@@ -206,7 +197,7 @@ export const WithResult: Story = {
         winner_index: 0 as 0 | 1,
       },
     ];
-    
+
     const prefs = {
       width: 1000,
       height: 1000,
@@ -215,11 +206,11 @@ export const WithResult: Story = {
       display: { info: args.showInfo, badge: false, home: false },
       functions: {},
     };
-    
+
     setTimeout(() => {
       coronaChart(svg, sampleSetMap, prefs, 0, 0);
     }, 0);
-    
+
     return container;
   },
 };
@@ -244,12 +235,9 @@ export const WithBadge: Story = {
     container.style.display = 'flex';
     container.style.alignItems = 'center';
     container.style.justifyContent = 'center';
-    
-    const svg = d3.select(container)
-      .append('svg')
-      .attr('width', 800)
-      .attr('height', 800);
-    
+
+    const svg = select(container).append('svg').attr('width', 800).attr('height', 800);
+
     const sampleSetMap = [
       {
         p2sdiff: generateScoreDiffs(55),
@@ -258,7 +246,7 @@ export const WithBadge: Story = {
         winner_index: 0 as 0 | 1,
       },
     ];
-    
+
     const prefs = {
       width: 800,
       height: 800,
@@ -267,11 +255,11 @@ export const WithBadge: Story = {
       display: { info: false, badge: 'Final', home: false },
       functions: {},
     };
-    
+
     setTimeout(() => {
       coronaChart(svg, sampleSetMap, prefs, 0, 0);
     }, 0);
-    
+
     return container;
   },
 };
@@ -296,12 +284,9 @@ export const ReversedColors: Story = {
     container.style.display = 'flex';
     container.style.alignItems = 'center';
     container.style.justifyContent = 'center';
-    
-    const svg = d3.select(container)
-      .append('svg')
-      .attr('width', 800)
-      .attr('height', 800);
-    
+
+    const svg = select(container).append('svg').attr('width', 800).attr('height', 800);
+
     const sampleSetMap = [
       {
         p2sdiff: generateScoreDiffs(70),
@@ -310,7 +295,7 @@ export const ReversedColors: Story = {
         winner_index: 1 as 0 | 1,
       },
     ];
-    
+
     const prefs = {
       width: 800,
       height: 800,
@@ -319,11 +304,11 @@ export const ReversedColors: Story = {
       display: { info: false, badge: false, home: false },
       functions: {},
     };
-    
+
     setTimeout(() => {
       coronaChart(svg, sampleSetMap, prefs, 0, 0);
     }, 0);
-    
+
     return container;
   },
 };
@@ -332,14 +317,14 @@ export const ReversedColors: Story = {
 function generateScoreDiffs(count: number): number[] {
   const diffs: number[] = [];
   let current = 0;
-  
+
   for (let i = 0; i < count; i++) {
     const change = Math.random() > 0.5 ? 1 : -1;
     current += change;
     // Keep within reasonable bounds
     current = Math.max(-12, Math.min(12, current));
     diffs.push(current);
-    
+
     // Occasionally reset to zero (game boundary)
     if (Math.random() > 0.85) {
       diffs.push(0);
@@ -347,6 +332,6 @@ function generateScoreDiffs(count: number): number[] {
       i++;
     }
   }
-  
+
   return diffs;
 }

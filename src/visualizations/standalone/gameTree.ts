@@ -278,7 +278,8 @@ export function gameTree() {
       canvas.transition().duration(transition_time).attr('width', tree_width).attr('height', tree_height);
 
       // D3 v7: Use .join() pattern and save merged selection
-      const gradientsMerged = canvas.selectAll('.gradient')
+      const gradientsMerged = canvas
+        .selectAll('.gradient')
         .data(point_lines, get_id)
         .join('linearGradient')
         .attr('id', (d: any) => {
@@ -300,7 +301,8 @@ export function gameTree() {
         });
 
       // D3 v7: Use .join() for stops and operate on saved merged selection
-      gradientsMerged.selectAll('.points_stop')
+      gradientsMerged
+        .selectAll('.points_stop')
         .data((d: any) => {
           return calcStops(d);
         })
@@ -314,29 +316,31 @@ export function gameTree() {
         });
 
       // D3 v7: Use .join() with enter/update transitions
-      canvas.selectAll('.line')
+      canvas
+        .selectAll('.line')
         .data(point_lines)
         .join(
-          enter => enter
-            .append('line')
-            .attr('class', 'line')
-            .attr('id', (d: any) => d.id)
-            .attr('x1', (d: any) => d.start.x * tree_width)
-            .attr('y1', (d: any) => d.start.y * tree_height)
-            .attr('x2', (d: any) => d.end.x * tree_width)
-            .attr('y2', (d: any) => d.end.y * tree_height)
-            .attr('stroke-width', (d: any) => d.width ? d.width : 0)
-            .attr('stroke', (d: any) => 'url(#gradient' + d.id + ')')
-            .on('mousemove', function (event, d) {
-              if (events.point.mousemove) events.point.mousemove(d, event);
-            })
-            .on('mouseout', function (event, d) {
-              if (events.point.mouseout) events.point.mouseout(d, event);
-            })
-            .on('click', function (event, d) {
-              if (events.point.click) events.point.click(d, event);
-            }),
-          update => update
+          (enter) =>
+            enter
+              .append('line')
+              .attr('class', 'line')
+              .attr('id', (d: any) => d.id)
+              .attr('x1', (d: any) => d.start.x * tree_width)
+              .attr('y1', (d: any) => d.start.y * tree_height)
+              .attr('x2', (d: any) => d.end.x * tree_width)
+              .attr('y2', (d: any) => d.end.y * tree_height)
+              .attr('stroke-width', (d: any) => (d.width ? d.width : 0))
+              .attr('stroke', (d: any) => 'url(#gradient' + d.id + ')')
+              .on('mousemove', function (event, d) {
+                if (events.point.mousemove) events.point.mousemove(d, event);
+              })
+              .on('mouseout', function (event, d) {
+                if (events.point.mouseout) events.point.mouseout(d, event);
+              })
+              .on('click', function (event, d) {
+                if (events.point.click) events.point.click(d, event);
+              }),
+          (update) => update,
         )
         .transition()
         .duration(options.lines.easing || (opts && opts.easing) ? options.lines.duration : 0)
@@ -344,7 +348,7 @@ export function gameTree() {
         .attr('y1', (d: any) => d.start.y * tree_height)
         .attr('x2', (d: any) => d.end.x * tree_width)
         .attr('y2', (d: any) => d.end.y * tree_height)
-        .attr('stroke-width', (d: any) => counters.p[d.id] ? scale(counters.p[d.id]) : 0);
+        .attr('stroke-width', (d: any) => (counters.p[d.id] ? scale(counters.p[d.id]) : 0));
 
       const ulines = canvas.selectAll('.uline').data(under_lines);
 
@@ -769,7 +773,7 @@ export function gameTree() {
     return counters;
   };
 
-  chart.update = function (opts: any) {
+  chart.update = function (opts?: any) {
     if (events.update.begin) events.update.begin();
     if (typeof update === 'function') update(opts);
     setTimeout(function () {
@@ -842,10 +846,7 @@ export function gameTree() {
         options.selectors.selected[1] = true;
         options.selectors.selected[0] = false;
       } else {
-        select('[id=Opponent]')
-          .attr('opacity', 0.4)
-          .attr('status', 'none')
-          .attr('fill', options.nodes.colors.neutral);
+        select('[id=Opponent]').attr('opacity', 0.4).attr('status', 'none').attr('fill', options.nodes.colors.neutral);
         select('[id=Player]').attr('opacity', 1).attr('status', 'selected').attr('fill', options.nodes.colors[i]);
         options.selectors.selected[0] = true;
         options.selectors.selected[1] = false;
