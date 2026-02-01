@@ -10,8 +10,26 @@ export function updateStats(element?: Element) {
   const sets = env.match.sets().length;
   let statselectors = `<div class='updateStats s_set'>Match</div>`;
   
-  // const counters = env.match.stats.counters(set_filter); // Unused for now
-  const stats = env.match.stats.calculated(set_filter);
+  // Use V4 stats (fixes handed stats that were broken in V3)
+  const stats = env.matchUp.stats.calculated(set_filter);
+  
+  console.log('\n========== [HVE] V4 STATISTICS COMPARISON ==========');
+  console.log('[HVE] V4 stats.calculated returned', stats?.length, 'statistics:');
+  stats?.forEach((stat: any) => {
+    console.log(`  - ${stat.category}: ${stat.teams[0].display} - ${stat.teams[1].display}`);
+  });
+  
+  // V3 stats.calculated - parallel for comparison
+  try {
+    const v3Stats = env.match.stats.calculated(set_filter);
+    console.log('\n[HVE] V3 stats.calculated returned', v3Stats?.length, 'statistics:');
+    v3Stats?.forEach((stat: any) => {
+      console.log(`  - ${stat.category}: ${stat.teams[0].display} - ${stat.teams[1].display}`);
+    });
+    console.log('========== END STATISTICS COMPARISON ==========\n');
+  } catch (e) {
+    console.error('[HVE] V3 stats.calculated FAILED:', e);
+  }
   
   const stripModifiers = (text: string) => text.match(/[A-Za-z0-9_]/g)?.join('');
   if (stats?.length && Array.isArray(stats)) {
@@ -50,22 +68,47 @@ export function updateStats(element?: Element) {
         .join(',');
       const statclass = numerators && value && statName != 'Aggressive Margin' ? 'statname_chart' : 'statname';
 
-      if (isNaN(left.value)) {
+      // Ensure values are numbers for comparison
+      if (isNaN(left.value) || left.value === null || left.value === undefined) {
         left.value = 0;
         left_display = '0';
       }
-      if (isNaN(right.value)) {
+      if (isNaN(right.value) || right.value === null || right.value === undefined) {
         right.value = 0;
         right_display = '0';
       }
+      
+      // Convert to numbers if they're strings
+      if (typeof left.value === 'string') {
+        left.value = parseFloat(left.value) || 0;
+      }
+      if (typeof right.value === 'string') {
+        right.value = parseFloat(right.value) || 0;
+      }
 
       if (options.highlight_better_stats) {
-        if (['Double Faults', 'Unforced Errors', 'Forced Errors'].indexOf(statName) >= 0) {
-          if (left.value < right.value) left_display = `<b class="toggleChart">${left_display}</b>`;
-          if (right.value < left.value) right_display = `<b class="toggleChart">${right_display}</b>`;
-        } else {
-          if (left.value > right.value) left_display = `<b class="toggleChart">${left_display}</b>`;
-          if (right.value > left.value) right_display = `<b class="toggleChart">${right_display}</b>`;
+        // Debug logging for key stats (only show first time)
+        if (['Aces', 'Winners', 'First Serve %', 'Double Faults'].includes(statName)) {
+          console.log(`[HVE] Stat "${statName}": left=${left.value}, right=${right.value}`);
+        }
+        
+        // Skip highlighting if values are equal (tie)
+        if (left.value !== right.value) {
+          // For error stats, lower is better
+          if (['Double Faults', 'Unforced Errors', 'Forced Errors'].indexOf(statName) >= 0) {
+            if (left.value < right.value) {
+              left_display = `<b class="toggleChart">${left_display}</b>`;
+            } else if (right.value < left.value) {
+              right_display = `<b class="toggleChart">${right_display}</b>`;
+            }
+          } else {
+            // For other stats, higher is better (including percentages)
+            if (left.value > right.value) {
+              left_display = `<b class="toggleChart">${left_display}</b>`;
+            } else if (right.value > left.value) {
+              right_display = `<b class="toggleChart">${right_display}</b>`;
+            }
+          }
         }
       }
       html +=
@@ -81,7 +124,36 @@ export function updateStats(element?: Element) {
       }
     });
 
-    const counters = env.match.stats.counters(set_filter).teams;
+    // Use V4 counters (includes proper Forehand/Backhand grouping)
+    const countersObj = env.matchUp.stats.counters(set_filter);
+    const counters = countersObj.teams;
+    
+    console.log('[HVE] V4 Counters analysis:');
+    console.log('  Team 0 categories:', Object.keys(counters[0] || {}));
+    console.log('  Team 1 categories:', Object.keys(counters[1] || {}));
+    
+    // Check for serve-related counters
+    console.log('  Team 0 serves1stIn:', counters[0]?.serves1stIn?.length || 0);
+    console.log('  Team 0 serves1stWon:', counters[0]?.serves1stWon?.length || 0);
+    console.log('  Team 0 pointsServed:', counters[0]?.pointsServed?.length || 0);
+    console.log('  Team 0 winners:', counters[0]?.winners?.length || 0);
+    console.log('  Team 0 forcedErrors:', counters[0]?.forcedErrors?.length || 0);
+    
+    // Sample point to see metadata
+    if (counters[0]?.pointsWon?.length > 0) {
+      console.log('  Sample point from Team 0:', counters[0].pointsWon[0]);
+    }
+    
+    // V3 stats.counters - parallel for comparison
+    try {
+      const v3Counters = env.match.stats.counters(set_filter);
+      console.log('\n[HVE] V3 Counters analysis:');
+      console.log('  Team 0 categories:', Object.keys(v3Counters.teams[0] || {}));
+      console.log('[HVE] V3 stats.counters parallel call');
+    } catch (e) {
+      console.error('[HVE] V3 stats.counters FAILED:', e);
+    }
+    
     // Check if counters exist and have data before accessing
     if (counters && counters[0] && counters[1] && 
         (counters[0].Backhand || counters[0].Forehand || counters[1].Backhand || counters[1].Forehand)) {
@@ -154,7 +226,18 @@ export function updateStats(element?: Element) {
 }
 
 function addCharts(charts: any[]) {
-  const counters = env.match.stats.counters();
+  // Use V4 counters for chart rendering
+  const counters = env.matchUp.stats.counters();
+  
+  // V3 stats.counters - parallel for comparison
+  try {
+    // const v3Counters = env.match.stats.counters();
+    env.match.stats.counters();
+    console.log('[HVE] V3 stats.counters (addCharts) parallel call');
+  } catch (e) {
+    console.error('[HVE] V3 stats.counters (addCharts) FAILED:', e);
+  }
+  
   const stripModifiers = (text: string) => text.match(/[A-Za-z0-9]/g)?.join('');
   if (!counters) return;
   charts.forEach((chart) => {
@@ -163,8 +246,15 @@ function addCharts(charts: any[]) {
       const team = counters.teams[key];
       const numerators = chart.numerators.split(',').map((numerator: any) => stripModifiers(numerator));
       const episodes = [].concat(...numerators.map((numerator: any) => team[numerator]));
+      
+      // V4 returns points directly, V3 wraps them in episodes
       const points = episodes
-        .map((episode: any) => (episode ? episode.point : undefined))
+        .map((episode: any) => {
+          if (!episode) return undefined;
+          // If it has a 'point' property, it's V3 episode structure
+          // Otherwise it's V4 direct point structure
+          return episode.point ? episode.point : episode;
+        })
         .filter((f) => f)
         .sort((a, b) => a.index - b.index);
       player_points.push(points.map((point) => point.index));

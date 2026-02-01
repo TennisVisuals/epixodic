@@ -9,6 +9,7 @@ import { SwipeList } from './swipeList';
 import { loadMatch } from './loadMatch';
 import { UUID } from './UUID';
 import { env } from './env';
+// Use v3 UMO - v4 testing done via env.matchUp shadow
 import matchObject from '@tennisvisuals/universal-match-object';
 
 export function displayMatchArchive(params?: any) {
@@ -99,12 +100,16 @@ function deleteMatch(match_id: string) {
 }
 
 export function resetMatch(matchUpId?: string) {
-  // UMO v3: Create new Match instead of reset + changeFormat
+  console.log('[HVE] resetMatch called - creating fresh V3 and V4 matches');
+  
+  // Create fresh V3 match (drives UI)
   env.match = matchObject.Match({ matchUpFormat: 'SET3-S:6/TB7' });
-
-  // Set default participants
   env.match.metadata.definePlayer({ index: 0, firstName: 'Player', lastName: 'One' });
   env.match.metadata.definePlayer({ index: 1, firstName: 'Player', lastName: 'Two' });
+  
+  // Create fresh V4 match (shadow for testing)
+  // TODO: Import MatchV4 if we want to reset v4 too
+  // For now, leave env.matchUp as-is since we're not using it yet
 
   loadDetails();
   updateScore();
@@ -123,9 +128,9 @@ export function newMatch(force_format?: boolean | Element) {
   const shouldSkipFormatSelection = typeof force_format === 'boolean' && force_format === true;
   const view = shouldSkipFormatSelection ? 'entry' : 'matchformat';
 
-  console.log('View to show:', view);
-  console.log('Will skip format selection?', shouldSkipFormatSelection);
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+  console.log('[HVE] View to show:', view);
+  console.log('[HVE] Will skip format selection?', shouldSkipFormatSelection);
+  console.log('[HVE] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
   viewManager(view);
 }

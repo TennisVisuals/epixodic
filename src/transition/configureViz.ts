@@ -9,6 +9,7 @@ import { gameFish } from '../visualizations/gameFish';
 import * as d3 from 'd3';
 
 export function configureViz() {
+  console.log('[HVE] Configuring visualizations...');
   // set up momentum
   let pcolors: any = ['#a55194', '#6b6ecf'];
   charts.mc = momentumChart();
@@ -22,9 +23,9 @@ export function configureViz() {
       rally: true,
       player: false,
       grid: false,
-      score: true
+      score: true,
     },
-    colors: pcolors
+    colors: pcolors,
   });
   charts.mc.events({ score: { click: showGame } });
   d3.select('#momentumChart').call(charts.mc);
@@ -34,7 +35,7 @@ export function configureViz() {
   charts.gamefish = gameFish();
   charts.gamefish.options({
     display: { sizeToFit: true },
-    colors: pcolors
+    colors: pcolors,
   });
   d3.select('#gameFishChart').call(charts.gamefish);
 
@@ -44,19 +45,19 @@ export function configureViz() {
     display: { sizeToFit: true },
     lines: {
       points: { winners: 'green', errors: '#BA1212', unknown: '#2ed2db' },
-      colors: { underlines: 'black' }
+      colors: { underlines: 'black' },
     },
     nodes: {
       colors: {
         0: pcolors.players[0],
         1: pcolors.players[1],
-        neutral: '#ecf0f1'
-      }
+        neutral: '#ecf0f1',
+      },
     },
     selectors: {
       enabled: true,
-      selected: { 0: false, 1: false }
-    }
+      selected: { 0: false, 1: false },
+    },
   };
   charts.gametree.options(options);
   d3.select('#gameTreeChart').call(charts.gametree);
@@ -64,7 +65,7 @@ export function configureViz() {
   charts.pts_match = ptsMatch();
   charts.pts_match.options({
     margins: { top: 40, bottom: 20 },
-    display: { sizeToFit: true }
+    display: { sizeToFit: true },
   });
   charts.pts_match.data(env.match);
   d3.select('#PTSChart').call(charts.pts_match);
@@ -87,9 +88,9 @@ export function showGameFish(index?: number) {
     display: { reverse: env.swap_sides },
     fish: {
       gridcells: gridcells,
-      cell_size: 20
+      cell_size: 20,
     },
-    score: game.score
+    score: game.score,
   });
   charts.gamefish.data(game.points).update();
   window.scrollTo(0, 0);
@@ -107,6 +108,8 @@ export function vizUpdate() {
   } else if (env.view == 'momentum' && direction == 'horizontal') {
     changeDisplay('none', 'momentum');
     changeDisplay('flex', 'pts');
+    // Pass updated match objects for comparison logging before updating
+    charts.pts_match.data(env.match, env.matchUp);
     charts.pts_match.update({ sizeToFit: true });
     env.view = 'pts';
   }
@@ -119,8 +122,8 @@ export function vizUpdate() {
     charts.gametree.options({
       labels: {
         Player: players[0].participantName,
-        Opponent: players[1].participantName
-      }
+        Opponent: players[1].participantName,
+      },
     });
     charts.gametree.update({ sizeToFit: true });
   }

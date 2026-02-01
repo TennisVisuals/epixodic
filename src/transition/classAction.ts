@@ -1,9 +1,10 @@
-import { updateState, visibleButtons } from './displayUpdate';
+import { stateChangeEvent, updateState, visibleButtons } from './displayUpdate';
 import { resetButton, resetStyles } from './events';
 import { checkMatchEnd } from './checkMatchEnd';
 import { buttons, env, settings } from './env';
 import { strokeSlider } from './strokeSlider';
 import { DOUBLE_FAULT } from './constants';
+import { pointLogger } from '../services/pointLogger';
 
 const toggles: any = {};
 
@@ -146,7 +147,25 @@ export function classAction(element: any) {
     // perhaps refactor to defer adding point until
     // stroke/result action, if any; then decorate point not necessary
     // would require a global variable, perhaps 'pip' for point-in-progress
+    
+    // Clone point for V4 BEFORE V3 processes it (V3's pointParser mutates by adding 'code')
+    // V4 should derive code independently from winner/server if needed
+    const pointForV4 = {...point};
+    
+    // V3 addPoint - drives UI (may mutate point object by adding 'code')
     const what = env.match.addPoint(point);
+    
+    // V4 addPoint - parallel testing (no UI interaction, receives clean data)
+    try {
+      env.matchUp.addPoint(pointForV4);
+      console.log('[HVE] V4 addPoint shadow call succeeded');
+    } catch (e) {
+      console.error('[HVE] V4 addPoint shadow call FAILED:', e);
+    }
+    
+    // Log point decoration AFTER addPoint so we get the enriched point with winner
+    // This ensures winner is always explicitly captured
+    pointLogger.log(what.point || point);
 
     if (
       settings.track_shot_types &&
@@ -163,7 +182,12 @@ export function classAction(element: any) {
     env.rally = 0;
     env.lets = 0;
     env.undone = [];
-    updateState();
+    
+    // Call stateChangeEvent instead of updateState to trigger page updates
+    // stateChangeEvent calls updateState internally + notifies current page
+    console.log('[HVE] classAction - About to call stateChangeEvent()');
+    stateChangeEvent();
+    console.log('[HVE] classAction - stateChangeEvent() completed');
   }
   visibleButtons();
 }

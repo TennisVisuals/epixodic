@@ -23,6 +23,7 @@ node_modules
 .env.production
 /build
 /dist
+storybook-static
 
 # misc
 .DS_Store

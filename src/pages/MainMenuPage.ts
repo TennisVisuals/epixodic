@@ -92,8 +92,20 @@ export class MainMenuPage extends BasePage {
   }
 
   private getMenuItems() {
+    console.log('[HVE] MainMenu - getMenuItems() called');
     const router = (window as any).appRouter;
+    
+    // V3 data (drives menu logic)
     const points = env.match.history.points();
+    console.log('[HVE] MainMenu - V3 returned points:', points.length);
+    
+    // V4 data (parallel testing)
+    const v4_points = env.matchUp.history?.points || [];
+    console.log('[HVE] MainMenu - V4 returned points:', v4_points.length);
+    
+    console.log('[HVE] MainMenu - Count match:', points.length === v4_points.length);
+    console.log('[HVE] MainMenu - ✅ Menu data retrieved successfully');
+    
     const hasPoints = points.length > 0;
     const match_archive = JSON.parse(browserStorage.get('match_archive') || '[]');
     const hasArchive = match_archive.length > 0;

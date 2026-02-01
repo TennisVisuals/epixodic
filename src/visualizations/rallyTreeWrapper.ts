@@ -18,13 +18,11 @@ if (typeof window !== 'undefined') {
 
 export class RallyTreeViz {
   private chart: any;
-  private container: HTMLElement;
+  // private container: HTMLElement;
   private selection: any;
 
   constructor(container: HTMLElement, options: any = {}) {
     console.log('RallyTreeViz: constructor called', { container, options });
-    
-    this.container = container;
     
     // Create D3 selection
     this.selection = d3.select(container);

@@ -48,11 +48,22 @@ export class StatsPage extends BasePage {
   private renderStats(setFilter?: number): void {
     if (!this.statsContainer) return;
 
+    console.log('[HVE] StatsPage - renderStats() called');
     // Clear existing content
     this.statsContainer.innerHTML = '';
     this.charts = [];
 
+    // V3 data (drives visualization)
     const sets = env.match.sets().length;
+    console.log('[HVE] StatsPage - V3 returned sets:', sets);
+    
+    // V4 data (parallel testing)
+    const v4_sets = env.matchUp.score?.sets?.length || 0;
+    console.log('[HVE] StatsPage - V4 returned sets:', v4_sets);
+    
+    console.log('[HVE] StatsPage - Set count match:', sets === v4_sets);
+    console.log('[HVE] StatsPage - Rendering stats with', sets, 'sets');
+    
     let html = '';
 
     // Set selector
@@ -102,39 +113,41 @@ export class StatsPage extends BasePage {
     // For now, skip rendering charts since updateStats handles the display
     return;
 
+    // TODO: Implement proper stats rendering below
     // Generate stat categories
-    const statCategories = this.getStatCategories();
+    // const statCategories = this.getStatCategories();
+    //
+    // statCategories.forEach(category => {
+    //   const categoryDiv = this.createElement('div', {
+    //     className: 'stat-category',
+    //   });
+    //
+    //   const categoryTitle = this.createElement('h3', {
+    //     className: 'stat-category-title',
+    //   });
+    //   categoryTitle.textContent = category.title;
+    //
+    //   categoryDiv.appendChild(categoryTitle);
+    //
+    //   category.stats.forEach(statKey => {
+    //     const chartContainer = this.createElement('div', {
+    //       className: 'stat-chart-container',
+    //     });
+    //
+    //     const statData = this.getStatData(stats, statKey, players);
+    //     
+    //     if (statData) {
+    //       const chart = simpleChart(chartContainer, statData);
+    //       this.charts.push(chart);
+    //     }
+    //
+    //     categoryDiv.appendChild(chartContainer);
+    //   });
+    //
+    //   chartsContainer.appendChild(categoryDiv);
+    // });
 
-    statCategories.forEach(category => {
-      const categoryDiv = this.createElement('div', {
-        className: 'stat-category',
-      });
-
-      const categoryTitle = this.createElement('h3', {
-        className: 'stat-category-title',
-      });
-      categoryTitle.textContent = category.title;
-
-      categoryDiv.appendChild(categoryTitle);
-
-      category.stats.forEach(statKey => {
-        const chartContainer = this.createElement('div', {
-          className: 'stat-chart-container',
-        });
-
-        const statData = this.getStatData(stats, statKey, players);
-        
-        if (statData) {
-          const chart = simpleChart(chartContainer, statData);
-          this.charts.push(chart);
-        }
-
-        categoryDiv.appendChild(chartContainer);
-      });
-
-      chartsContainer.appendChild(categoryDiv);
-    });
-
+    console.log('[HVE] StatsPage - ✅ Visualization rendering COMPLETE');
     console.log(`StatsPage: Rendered ${this.charts.length} stat charts`);
   }
 

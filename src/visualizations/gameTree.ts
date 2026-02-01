@@ -1,5 +1,17 @@
 import * as d3 from 'd3';
 
+function applyMax(arr: any) {
+  return Math.max.apply(null, arr);
+}
+
+function applyMin(arr: any) {
+  return Math.min.apply(null, arr);
+}
+
+function get_id(d) {
+  return d?.id;
+}
+
 export function gameTree() {
   // TODO
   // change the gradient direction in lines across width
@@ -9,12 +21,6 @@ export function gameTree() {
   // bar chart showing win % for each player or primary/opponents
   // for each point position
 
-  function applyMax(arr: any) {
-    return Math.max.apply(null, arr);
-  }
-  function applyMin(arr: any) {
-    return Math.min.apply(null, arr);
-  }
   const images = { left: undefined, right: undefined };
 
   // All options that should be accessible to caller
@@ -29,7 +35,7 @@ export function gameTree() {
       top: 0,
       right: 0,
       bottom: 0,
-      left: 0
+      left: 0,
     },
 
     display: {
@@ -38,18 +44,18 @@ export function gameTree() {
       rightImg: false,
       show_images: false,
       sizeToFit: true,
-      showEmpty: false // display even if no data
+      showEmpty: false, // display even if no data
     },
 
     lines: {
       easing: false, // 'bounce'
       duration: 600,
       points: { winners: '#2ed2db', errors: '#2ed2db', unknown: '#2ed2db' },
-      colors: { underlines: '#2ed2db' }
+      colors: { underlines: '#2ed2db' },
     },
 
     nodes: {
-      colors: { 0: 'black', 1: 'red', neutral: '#ecf0f1' }
+      colors: { 0: 'black', 1: 'red', neutral: '#ecf0f1' },
     },
 
     points: {
@@ -62,7 +68,7 @@ export function gameTree() {
         'Forcing Error',
         'Forcing Volley Error',
         'Net Cord',
-        'In'
+        'In',
       ],
       errors: [
         'Unforced Error',
@@ -74,17 +80,17 @@ export function gameTree() {
         'Netted Passing Shot',
         'L',
         'Overhead Passing Shot',
-        'Double Fault'
+        'Double Fault',
       ],
-      highlight: [] // opposite of filter; filter unhighlighted...
+      highlight: [], // opposite of filter; filter unhighlighted...
     },
 
     selectors: {
       enabled: true,
-      selected: { 0: false, 1: false }
+      selected: { 0: false, 1: false },
     },
 
-    labels: { Game: 'GAME', Player: 'Player', Opponent: 'Opponent' }
+    labels: { Game: 'GAME', Player: 'Player', Opponent: 'Opponent' },
   };
 
   // functions which should be accessible via ACCESSORS
@@ -108,16 +114,12 @@ export function gameTree() {
     node: { mousemove: null, mouseout: null },
     score: { mousemove: null, mouseout: null },
     label: { mousemove: null, mouseout: null, click: selectView },
-    selector: { mousemove: null, mouseout: null, click: selectView }
+    selector: { mousemove: null, mouseout: null, click: selectView },
   };
 
   function chart(selection: any) {
     const root = selection.append('div').attr('class', 'gametreeRoot');
 
-    /*
-    const tree_width = options.width - (options.margins.left + options.margins.right);
-    const tree_height = options.width * 0.9;
-    */
     canvas = root.append('svg');
 
     update = function (opts: any) {
@@ -128,7 +130,7 @@ export function gameTree() {
 
       counterCalcs();
 
-      if (options.display.sizeToFit || (opts && opts.sizeToFit)) {
+      if (options.display.sizeToFit || opts?.sizeToFit) {
         const dims = selection.node().getBoundingClientRect();
         options.width = Math.min(dims.width, dims.height);
       }
@@ -144,15 +146,15 @@ export function gameTree() {
       const point_min = applyMin(
         keys.map(function (k) {
           return isNaN(counters.p[k]) ? 0 : counters.p[k];
-        })
+        }),
       );
       const point_max = applyMax([
         applyMax(
           keys.map(function (k) {
             return isNaN(counters.p[k]) ? 0 : counters.p[k];
-          })
+          }),
         ),
-        options.min_max
+        options.min_max,
       ]);
 
       const scale = d3
@@ -730,14 +732,14 @@ export function gameTree() {
       const previous =
         d == 0 || previous_episode.game.complete ? calcPosition([0, 0]) : calcPosition(previous_episode.point.points);
       const progression = 'L' + previous + point_connector + calcPosition(_data[d].point.points);
-      if (options.points.highlight.length && options.points.highlight.indexOf(d) < 0) {
+      if (options.points.highlight.length && !options.points.highlight.includes(d)) {
         continue;
       }
       counters.p[progression] = counters.p[progression] ? counters.p[progression] + 1 : 1;
 
-      if (options.points.winners.indexOf(_data[d].point.result) >= 0) {
+      if (options.points.winners.includes(_data[d].point.result)) {
         counters.w[progression] = counters.w[progression] ? counters.w[progression] + 1 : 1;
-      } else if (options.points.errors.indexOf(_data[d].point.result) >= 0) {
+      } else if (options.points.errors.includes(_data[d].point.result)) {
         counters.e[progression] = counters.e[progression] ? counters.e[progression] + 1 : 1;
       }
     }
@@ -747,21 +749,11 @@ export function gameTree() {
       const point_min = Math.min(...points);
       const diff = point_min >= 4 ? point_min - 3 : 0;
       const pos = points.map((point, index) =>
-        options.display.noAd && point == 4 && points[1 - index] == 3 ? 'G' : point - diff
+        options.display.noAd && point == 4 && points[1 - index] == 3 ? 'G' : point - diff,
       );
       return pos.join('-');
     }
   }
-
-  function get_id(d) {
-    return d && d.id;
-  }
-
-  /*
-  function isEven(n) {
-    return n == parseFloat(n) ? !(n % 2) : void 0;
-  }
-  */
 
   function clearView() {
     d3.select('[id=Player]').attr('opacity', 0.4).attr('status', 'none').attr('fill', options.nodes.colors.neutral);
@@ -816,7 +808,7 @@ export function gameTree() {
       { offset: u_pct + '%', color: options.lines.points.winners },
       { offset: u_pct + winner_pct + '%', color: options.lines.points.winners },
       { offset: u_pct + winner_pct + '%', color: options.lines.points.errors },
-      { offset: '100%', color: options.lines.points.errors }
+      { offset: '100%', color: options.lines.points.errors },
     ];
   }
 
@@ -855,7 +847,7 @@ export function gameTree() {
     sl2r: r_start * 1.5,
     plr1: c_start * 0.8,
     plr2: c_start + 4 * c_dist,
-    plrs: r_start + 4.25 * r_dist
+    plrs: r_start + 4.25 * r_dist,
   };
 
   const pos = {
@@ -899,7 +891,7 @@ export function gameTree() {
     L1s: { x: f.col1, y: f.foot },
     L1e: { x: f.adc1, y: f.foot },
     L2s: { x: f.adc2, y: f.foot },
-    L2e: { x: f.col7, y: f.foot }
+    L2e: { x: f.col7, y: f.foot },
   };
 
   const point_circles = [
@@ -922,7 +914,7 @@ export function gameTree() {
     { name: '40-30', pos: pos['p3-2'], color_pct: 0.4, player: 0 },
     { name: '40-15', pos: pos['p3-1'], color_pct: 0.2, player: 0 },
     { name: '40-0', pos: pos['p3-0'], color_pct: 0, player: 0 },
-    { name: 'A-40', pos: pos['p3-4'], color_pct: 0.5, player: 0 }
+    { name: 'A-40', pos: pos['p3-4'], color_pct: 0.5, player: 0 },
   ];
 
   const point_lines = [
@@ -963,12 +955,12 @@ export function gameTree() {
 
     // no Ad
     { id: 'L3-3xG-3', start: pos['p3-3'], end: pos['pG-3'] },
-    { id: 'L3-3x3-G', start: pos['p3-3'], end: pos['p3-G'] }
+    { id: 'L3-3x3-G', start: pos['p3-3'], end: pos['p3-G'] },
   ];
 
   const under_lines = [
     { stroke: 'blue', start: pos['L1s'], end: pos['L1e'], width: 2 },
-    { stroke: 'blue', start: pos['L2s'], end: pos['L2e'], width: 2 }
+    { stroke: 'blue', start: pos['L2s'], end: pos['L2e'], width: 2 },
   ];
 
   const point_text = [
@@ -991,18 +983,18 @@ export function gameTree() {
     { pos: pos['p3-2'], fill: 'white', fontsize: 0.7, text: '40-30' },
     { pos: pos['p3-1'], fill: 'white', fontsize: 0.7, text: '40-15' },
     { pos: pos['p3-0'], fill: 'white', fontsize: 0.7, text: '40-0' },
-    { pos: pos['p3-4'], fill: 'white', fontsize: 0.7, text: 'A-40' }
+    { pos: pos['p3-4'], fill: 'white', fontsize: 0.7, text: 'A-40' },
   ];
 
   const label_text = [
     { pos: pos['tPlyr'], fill: 'black', fontsize: 0.9, id: 'Player', anchor: 'middle', baseline: 'hanging' },
     { pos: pos['tOpp'], fill: 'black', fontsize: 0.9, id: 'Opponent', anchor: 'middle', baseline: 'hanging' },
-    { pos: pos['GAME'], fill: '#555555', fontsize: 0.9, id: 'Game', anchor: 'middle', baseline: 'central' }
+    { pos: pos['GAME'], fill: '#555555', fontsize: 0.9, id: 'Game', anchor: 'middle', baseline: 'central' },
   ];
 
   const selectors = [
     { id: 'Player', pos: pos['sPlyr'], r_pct: 0.4, opacity: 1, status: 'none' },
-    { id: 'Opponent', pos: pos['sOpp'], r_pct: 0.4, opacity: 0.4, status: 'none' }
+    { id: 'Opponent', pos: pos['sOpp'], r_pct: 0.4, opacity: 0.4, status: 'none' },
   ];
 
   // Helper Functions

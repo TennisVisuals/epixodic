@@ -1,7 +1,8 @@
 // Factory MatchUp Loader
 // Loads TODS MatchUp objects into UMO for live scoring
 
-import umo from '@tennisvisuals/universal-match-object';
+// UMO v4.0: Using v3 compatibility adapter
+import { Match, fromMatchUp } from '@tennisvisuals/universal-match-object/v4-umo';
 import { updatePositions, env } from '../../transition/env';
 import { updateScore, loadDetails } from '../../transition/displayUpdate';
 import { matchUpTypes, matchUpStatusConstants, participantTypes, participantRoles } from 'tods-competition-factory';
@@ -10,9 +11,6 @@ const { SINGLES, DOUBLES } = matchUpTypes;
 const { TO_BE_PLAYED } = matchUpStatusConstants;
 const { INDIVIDUAL } = participantTypes;
 const { COMPETITOR } = participantRoles;
-
-// Extract fromMatchUp from UMO
-const fromMatchUp = (umo as any).fromMatchUp;
 
 // Type definition for MatchUp
 type MatchUp = any; // Will be replaced with proper TODS type

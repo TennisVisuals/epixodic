@@ -100,6 +100,19 @@ export function stateChangeEvent() {
   updateState();
   updateScore();
   visibleButtons();
+  
+  // Notify current page to update visualizations
+  const router = (window as any).appRouter; // Router is exposed as appRouter, not router
+  console.log('[HVE] stateChangeEvent - router exists:', !!router);
+  if (router) {
+    const currentPage = router.getCurrentPage();
+    console.log('[HVE] stateChangeEvent - currentPage exists:', !!currentPage);
+    console.log('[HVE] stateChangeEvent - has updateVisualizations:', typeof currentPage?.updateVisualizations);
+    if (currentPage && typeof currentPage.updateVisualizations === 'function') {
+      console.log('[HVE] stateChangeEvent - Calling currentPage.updateVisualizations()');
+      currentPage.updateVisualizations();
+    }
+  }
 }
 
 export function visibleButtons() {

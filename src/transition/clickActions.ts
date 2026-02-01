@@ -1,4 +1,5 @@
 import { resetButtons, setCourtSide, swapServer, updateState, visibleButtons } from './displayUpdate';
+import { pointLogger } from '../services/pointLogger';
 import { env, options, updateMatchArchive } from './env';
 import { viewManager } from './viewManager';
 import { showGameFish } from './configureViz';
@@ -49,7 +50,17 @@ export function undoAction() {
     env.lets = 0;
     resetButtons();
   } else {
+    // V3 undo - drives UI
     const undo = env.match.undo();
+    
+    // V4 undo - parallel testing
+    try {
+      env.matchUp.undo();
+      console.log('[HVE] V4 undo shadow call succeeded');
+    } catch (e) {
+      console.error('[HVE] V4 undo shadow call FAILED:', e);
+    }
+    
     // Broadcasting removed
     if (undo) env.undone.push(undo);
     updateMatchArchive(true);
@@ -58,7 +69,20 @@ export function undoAction() {
 }
 export function redoAction() {
   if (!env.undone.length) return;
-  env.match.addPoint(env.undone.pop());
+  const point = env.undone.pop();
+  pointLogger.log(point);
+  
+  // V3 addPoint - drives UI
+  env.match.addPoint(point);
+  
+  // V4 addPoint - parallel testing
+  try {
+    env.matchUp.addPoint(point);
+    console.log('[HVE] V4 addPoint (redo) shadow call succeeded');
+  } catch (e) {
+    console.error('[HVE] V4 addPoint (redo) shadow call FAILED:', e);
+  }
+  
   // Broadcasting removed
 }
 export function changeServer() {

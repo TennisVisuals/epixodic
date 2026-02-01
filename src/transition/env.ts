@@ -2,8 +2,12 @@ import { browserStorage } from './browserStorage';
 import { firstAndLast } from './utilities';
 import { migrateMatchData } from '../services/matchObject/formatMigration';
 
-// TODS-NATIVE: Using linked UMO package with TODS API!
-import umo from '@tennisvisuals/universal-match-object';
+// UMO v3: Standard match object (drives UI)
+import matchObjectV3 from '@tennisvisuals/universal-match-object';
+
+// UMO v4: Shadow match for parallel testing (no UI interaction)
+import { Match as MatchV4 } from '@tennisvisuals/universal-match-object/v4-umo';
+
 import { participantTypes, participantRoles, matchUpTypes } from 'tods-competition-factory';
 
 const { INDIVIDUAL } = participantTypes;
@@ -12,19 +16,32 @@ const { SINGLES } = matchUpTypes;
 
 export const charts: any = {};
 
-// Create a fresh match with defaults
-function createDefaultMatch() {
-  const match = umo.Match({ matchUpFormat: 'SET3-S:6/TB7' });
-
-  // Initialize with default participants
-  match.metadata.definePlayer({ index: 0, firstName: 'Player', lastName: 'One' });
-  match.metadata.definePlayer({ index: 1, firstName: 'Player', lastName: 'Two' });
-
-  return match;
+// Create initial matches - V3 FIRST (drives UI), then V4 (shadow for testing)
+function createDefaultMatches() {
+  console.log('[HVE] Creating default matches - env.match (v3) + env.matchUp (v4)');
+  
+  // V3 Match - drives UI via env.match
+  const matchV3 = matchObjectV3.Match({ matchUpFormat: 'SET3-S:6/TB7' });
+  matchV3.metadata.definePlayer({ index: 0, firstName: 'Player', lastName: 'One' });
+  matchV3.metadata.definePlayer({ index: 1, firstName: 'Player', lastName: 'Two' });
+  
+  // V4 Match - shadow for testing via env.matchUp
+  const matchV4 = MatchV4({ matchUpFormat: 'SET3-S:6/TB7' });
+  matchV4.metadata.definePlayer({ index: 0, firstName: 'Player', lastName: 'One' });
+  matchV4.metadata.definePlayer({ index: 1, firstName: 'Player', lastName: 'Two' });
+  
+  console.log('[HVE] Default matches created - env.match (v3) and env.matchUp (v4) ready');
+  
+  return { matchV3, matchV4 };
 }
 
-// Initialize matchUp with defaults
-export const matchUp = createDefaultMatch();
+const { matchV3, matchV4 } = createDefaultMatches();
+
+// Do NOT export match/matchUp as standalone - forces use of env.match and env.matchUp
+// This makes it clear: env.match = v3 (UI), env.matchUp = v4 (testing)
+// Commenting out to enforce this pattern:
+// export const match = matchV3;
+// export const matchUp = matchV4;
 
 export const app: any = {
   // broadcast property removed
@@ -54,7 +71,8 @@ export const env: any = {
   receiving: 1, // Will be set from match
   edit_point_index: undefined,
   provider: undefined,
-  match: matchUp, // Keep 'match' property for backward compat in app
+  match: matchV3, // env.match = V3 UMO (drives all UI)
+  matchUp: matchV4, // env.matchUp = V4 UMO (parallel testing only, no UI)
   loading_match: false, // Flag to prevent saving during match load
 };
 
@@ -83,9 +101,11 @@ export const options = {
 };
 
 export const device: any = {
-  isStandalone: 'standalone' in window.navigator && window.navigator.standalone,
-  isIDevice: /iphone|ipod|ipad/i.test(window.navigator.userAgent),
-  isMobile: typeof window.orientation !== 'undefined',
+  isStandalone: 'standalone' in globalThis.navigator && globalThis.navigator.standalone,
+  isIDevice: /iphone|ipod|ipad/i.test(globalThis.navigator.userAgent),
+  isMobile:
+    globalThis.matchMedia('(max-width: 768px)').matches ||
+    /mobile|android|iphone|ipod|ipad/i.test(globalThis.navigator.userAgent),
   geoposition: {},
 };
 
@@ -98,8 +118,6 @@ export function clearActionEvents() {
 export function updatePositions() {
   const left_side = env.swap_sides ? 1 : 0;
   const right_side = env.swap_sides ? 0 : 1;
-  // var server_side = env.swap_sides ? 1 - env.serving : env.serving;
-  // var receiver_side = env.swap_sides ? 1 - env.receiving : env.receiving;
 
   updateMatchArchive();
 
@@ -145,7 +163,7 @@ export function updateMatchArchive(force?: boolean) {
   // add key for current match
   const match_archive = JSON.parse(browserStorage.get('match_archive') || '[]');
 
-  if (match_archive.indexOf(match_id) < 0) {
+  if (!match_archive.includes(match_id)) {
     match_archive.push(match_id);
     browserStorage.set('match_archive', JSON.stringify(match_archive));
   }
@@ -153,8 +171,8 @@ export function updateMatchArchive(force?: boolean) {
   // Build TODS matchUp from UMO (UMO is always TODS format after load/conversion)
   const match = env.match.metadata.defineMatch();
   const tournament = env.match.metadata.defineTournament();
-  const formatInfo = env.match.format.settings();
-  const matchUpFormat = (typeof formatInfo === 'object' && formatInfo.name) ? formatInfo.name : 'SET3-S:6/TB7';
+  // Use modern property accessor instead of deprecated settings() method
+  const matchUpFormat = env.match.format.code || 'SET3-S:6/TB7';
 
   // Build minimal TODS score structure
   // We save points, so UMO can reconstruct sets on load
@@ -251,8 +269,8 @@ export function updateAppState() {
 
 export function setOrientation() {
   if (device.isMobile) {
-    env.orientation = window.screen.orientation.type == 'landscape-primary' ? 'landscape' : 'portrait';
+    env.orientation = globalThis.screen.orientation.type == 'landscape-primary' ? 'landscape' : 'portrait';
   } else {
-    env.orientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
+    env.orientation = globalThis.innerWidth > globalThis.innerHeight ? 'landscape' : 'portrait';
   }
 }

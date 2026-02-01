@@ -1,8 +1,8 @@
 # Hive Eye Tracker - Project Status & Roadmap
 
-**Last Updated**: January 19, 2026  
-**Current Branch**: new-refactor  
-**Status**: Architecture Migration 90% Complete
+**Last Updated**: January 22, 2026  
+**Current Branch**: feature/v4-visualization-coverage  
+**Status**: V4 Migration - GameTree Update Issue BLOCKED
 
 ---
 
@@ -144,9 +144,38 @@ src/
 
 ---
 
+## 🔴 CURRENT BLOCKER - GameTree Auto-Update
+
+**Issue**: GameTree visualization does NOT update visually when points added during live play
+
+**Details**: See `GAMETREE_UPDATE_ISSUE.md` for full analysis
+
+**Status**: 
+- ✅ All code executes successfully
+- ✅ Event chain working perfectly  
+- ✅ Data is correct and incrementing
+- ❌ **Visual display remains frozen**
+
+**Next Session Focus**:
+- Compare with pre-V4 working code
+- Debug at gameTree library level
+- Consider alternative update strategies
+
+---
+
 ## 📋 Next Steps
 
-### Immediate - Testing & Cleanup
+### Immediate - GameTree Update Fix 🔴
+
+#### 1. Investigation Required
+- [ ] Compare with pre-V4 working code (find exact differences)
+- [ ] Review gameTree library update mechanism
+- [ ] Add logging inside gameTree library itself
+- [ ] Test alternative update patterns
+
+### V4 Migration - After GameTree Fix
+
+#### 1. Testing & Cleanup
 
 #### 1. Final Testing ⏳
 - [ ] Test all 9 page components thoroughly

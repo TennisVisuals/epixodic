@@ -202,14 +202,39 @@ export function ptsMatch() {
   };
 
   chart.update = function (opts?: any) {
+    console.log('[ptsMatch.update] Starting update');
+    
+    if (!match_data) {
+      console.warn('[ptsMatch.update] No match_data available, returning false');
+      return false;
+    }
+    
     if (events.update.begin) events.update.begin();
+    
     const sets = match_data.sets();
+    
+    if (!sets || sets.length === 0) {
+      console.warn('[ptsMatch.update] No sets available, returning false');
+      return false;
+    }
+    
     const max_width_points = Math.max(
-      ...sets.map((set, index) => set.history.points().filter((f) => f.set == index).length),
+      ...sets.map((set, index) => {
+        if (!set?.history?.points) {
+          console.warn(`[ptsMatch.update] Set ${index} missing history.points()`, set);
+          return 0;
+        }
+        
+        const setPoints = set.history.points();
+        const filtered = setPoints.filter((f) => f.set == index);
+        return filtered.length;
+      }),
     );
+    
     if (sets.length > 1) chart.options({ points: { max_width_points } });
-    sets.forEach(function (_, i: number) {
-      pts_charts[i].data(sets[i]);
+    
+    sets.forEach(function (set, i: number) {
+      pts_charts[i].data(set);
       pts_charts[i].options({ id: i });
       pts_charts[i].options({
         lines: options.lines,
@@ -221,6 +246,7 @@ export function ptsMatch() {
       pts_charts[i].events(events);
       pts_charts[i].width(options.width).height(options.height).update(opts);
     });
+    
     if (typeof update === 'function') update(opts);
     setTimeout(function () {
       if (events.update.end) events.update.end();
@@ -228,10 +254,95 @@ export function ptsMatch() {
     return true;
   };
 
-  chart.data = function (matchObject) {
+  chart.data = function (matchObject, matchObjectForComparison?) {
     if (!arguments.length) {
       return match_data;
     }
+    
+    console.log('\n========== [ptsMatch.data] COMPARISON LOG ==========');
+    console.log('[ptsMatch] PRIMARY (for rendering):', matchObject);
+    console.log('[ptsMatch] COMPARISON (V4):', matchObjectForComparison);
+    
+    // Compare primary (V3) vs comparison (V4)
+    if (matchObject && matchObjectForComparison) {
+      console.log('\n--- Comparing .sets() method ---');
+      
+      const primarySets = matchObject.sets();
+      const comparisonSets = matchObjectForComparison.sets();
+      
+      console.log('[PRIMARY] sets() returned:', primarySets);
+      console.log('[PRIMARY] sets.length:', primarySets?.length);
+      console.log('[COMPARISON] sets() returned:', comparisonSets);
+      console.log('[COMPARISON] sets.length:', comparisonSets?.length);
+      
+      if (primarySets && primarySets.length > 0 && comparisonSets && comparisonSets.length > 0) {
+        console.log('\n--- Comparing First Set Structure ---');
+        const primarySet = primarySets[0];
+        const comparisonSet = comparisonSets[0];
+        
+        console.log('[PRIMARY] first set:', primarySet);
+        console.log('[PRIMARY] has .history:', !!primarySet?.history);
+        console.log('[PRIMARY] has .history.points():', typeof primarySet?.history?.points);
+        console.log('[PRIMARY] has .history.action():', typeof primarySet?.history?.action);
+        console.log('[PRIMARY] has .complete():', typeof primarySet?.complete);
+        
+        console.log('[COMPARISON] first set:', comparisonSet);
+        console.log('[COMPARISON] has .history:', !!comparisonSet?.history);
+        console.log('[COMPARISON] has .history.points():', typeof comparisonSet?.history?.points);
+        console.log('[COMPARISON] has .history.action():', typeof comparisonSet?.history?.action);
+        console.log('[COMPARISON] has .complete():', typeof comparisonSet?.complete);
+        
+        // Compare history.action('addPoint') results
+        console.log('\n--- Comparing history.action("addPoint") ---');
+        if (primarySet.history?.action) {
+          const primaryActions = primarySet.history.action('addPoint');
+          console.log('[PRIMARY] action("addPoint") returned:', primaryActions);
+          console.log('[PRIMARY] actions length:', primaryActions?.length);
+          if (primaryActions && primaryActions.length > 0) {
+            console.log('[PRIMARY] first action:', primaryActions[0]);
+            console.log('[PRIMARY] first action.point:', primaryActions[0]?.point);
+            console.log('[PRIMARY] first action.needed:', primaryActions[0]?.needed);
+          }
+        }
+        
+        if (comparisonSet.history?.action) {
+          const comparisonActions = comparisonSet.history.action('addPoint');
+          console.log('[COMPARISON] action("addPoint") returned:', comparisonActions);
+          console.log('[COMPARISON] actions length:', comparisonActions?.length);
+          if (comparisonActions && comparisonActions.length > 0) {
+            console.log('[COMPARISON] first action:', comparisonActions[0]);
+            console.log('[COMPARISON] first action.point:', comparisonActions[0]?.point);
+            console.log('[COMPARISON] first action.needed:', comparisonActions[0]?.needed);
+          }
+        }
+        
+        // Compare history.points() results
+        console.log('\n--- Comparing history.points() ---');
+        if (primarySet.history?.points) {
+          const primaryPoints = primarySet.history.points();
+          console.log('[PRIMARY] points() returned:', primaryPoints);
+          console.log('[PRIMARY] points length:', primaryPoints?.length);
+          if (primaryPoints && primaryPoints.length > 0) {
+            console.log('[PRIMARY] first point:', primaryPoints[0]);
+            console.log('[PRIMARY] first point.set:', primaryPoints[0]?.set);
+          }
+        }
+        
+        if (comparisonSet.history?.points) {
+          const comparisonPoints = comparisonSet.history.points();
+          console.log('[COMPARISON] points() returned:', comparisonPoints);
+          console.log('[COMPARISON] points length:', comparisonPoints?.length);
+          if (comparisonPoints && comparisonPoints.length > 0) {
+            console.log('[COMPARISON] first point:', comparisonPoints[0]);
+            console.log('[COMPARISON] first point.set:', comparisonPoints[0]?.set);
+          }
+        }
+      }
+    }
+    
+    console.log('========== END COMPARISON ==========\n');
+    
+    // Use primary for rendering
     match_data = matchObject;
     chart.update();
   };
@@ -377,16 +488,24 @@ function ptsChart() {
       // resize used to disable transitions during resize operation
       update = function (_, resize?: boolean) {
         if (!set_data) {
+          console.warn(`[ptsChart ${options.id}] No set_data, returning false`);
           return false;
         }
-
+        
         root
           .transition()
           .duration(options.display.transition_time)
           .style('width', options.width + 'px')
           .style('height', options.height + 'px');
 
-        const points = set_data.history.action('addPoint').filter((f) => f.point.set == options.id);
+        const allActionPoints = set_data.history.action('addPoint');
+        const points = allActionPoints.filter((f) => f.point.set == options.id);
+        
+        if (!points || points.length === 0) {
+          console.warn(`[ptsChart ${options.id}] No points after filtering, returning false`);
+          return false;
+        }
+        
         const range_start = points[0].point.index;
 
         game_data = groupGames(points);
@@ -769,7 +888,9 @@ function ptsChart() {
             return split[split.length - 1];
           }
           const legend =
-            winner != undefined ? players[winner].participantName : `${lastName(players[0].participantName)}/${lastName(players[1].participantName)}`;
+            winner != undefined
+              ? players[winner].participantName
+              : `${lastName(players[0].participantName)}/${lastName(players[1].participantName)}`;
 
           set_winner
             .transition()
