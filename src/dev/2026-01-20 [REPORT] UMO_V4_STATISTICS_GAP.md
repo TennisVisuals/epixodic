@@ -18,6 +18,7 @@ The migration to UMO v4 is **functionally complete** for core match scoring, but
 ## What's Working ✅
 
 ### Core Functionality (100%)
+
 - ✅ Match creation and initialization
 - ✅ Point scoring (addPoint, addPoints)
 - ✅ Undo functionality
@@ -29,6 +30,7 @@ The migration to UMO v4 is **functionally complete** for core match scoring, but
 - ✅ Browser runs without errors
 
 ### Basic Statistics (20%)
+
 - ✅ Total points won
 - ✅ Max points in a row
 - ✅ Max games in a row
@@ -38,6 +40,7 @@ The migration to UMO v4 is **functionally complete** for core match scoring, but
 ## What's Missing ❌
 
 ### Detailed Statistics (80%)
+
 - ❌ Aces
 - ❌ Double faults
 - ❌ Winners (total and by stroke)
@@ -58,13 +61,14 @@ The migration to UMO v4 is **functionally complete** for core match scoring, but
 ## Root Cause Analysis
 
 ### v3 Architecture
+
 ```typescript
 // v3 Match Object stores rich point metadata
 {
   winner: 0,
   server: 1,
   result: 'Ace',              // ← Statistics source
-  stroke: 'Forehand',          // ← Statistics source  
+  stroke: 'Forehand',          // ← Statistics source
   hand: 'Right',               // ← Statistics source
   rally: [/* shots */],        // ← Statistics source
   location: 'Wide',            // ← Statistics source
@@ -74,7 +78,7 @@ The migration to UMO v4 is **functionally complete** for core match scoring, but
 
 // v3 Statistics API
 match.stats.counters(setFilter)
-  → { teams: { 
+  → { teams: {
       0: { aces: [...], winners: [...], unforcedErrors: [...] },
       1: { ... }
     }}
@@ -88,6 +92,7 @@ match.stats.calculated(setFilter)
 ```
 
 ### v4 Architecture
+
 ```typescript
 // v4 PointsEngine stores minimal data
 {
@@ -108,6 +113,7 @@ match.stats.calculated(setFilter)
 To add statistics support to the v4 adapter, we would need:
 
 ### 1. Point Metadata Storage (~200 lines)
+
 ```typescript
 // Extend addPoint to accept metadata
 interface PointMetadata {
@@ -122,20 +128,21 @@ interface PointMetadata {
 addPoint: (winner: number, metadata?: PointMetadata) => {
   // Store metadata alongside winner
   pointHistory.push({ winner, ...metadata });
-}
+};
 ```
 
 ### 2. Statistics Counters (~300 lines)
+
 ```typescript
 stats.counters(setFilter?: number) {
   // Build counters from point history
   const episodes = filterBySet(pointHistory, setFilter);
-  
+
   const teams = { 0: {}, 1: {} };
-  
+
   episodes.forEach(episode => {
     const team = episode.winner;
-    
+
     // Count by result
     if (episode.result === 'Ace') {
       teams[team].aces = teams[team].aces || [];
@@ -143,16 +150,17 @@ stats.counters(setFilter?: number) {
     }
     // ... repeat for all stat categories
   });
-  
+
   return { teams };
 }
 ```
 
 ### 3. Calculated Statistics (~400 lines)
+
 ```typescript
 stats.calculated(setFilter?: number) {
   const counters = stats.counters(setFilter);
-  
+
   return [
     {
       category: 'Aces',
@@ -181,12 +189,14 @@ stats.calculated(setFilter?: number) {
 ### Option A: Implement Statistics in v4 Adapter ⚙️
 
 **Pros:**
+
 - ✅ Complete feature parity with v3
 - ✅ Modern v4 architecture
 - ✅ Future-proof for v4 enhancements
 - ✅ Learning opportunity
 
 **Cons:**
+
 - ❌ Significant development effort (~3-4 days)
 - ❌ Duplicating v3 logic (maintenance burden)
 - ❌ Testing complexity
@@ -199,11 +209,13 @@ stats.calculated(setFilter?: number) {
 ### Option B: Wait for v4 Native Statistics 🕐
 
 **Pros:**
+
 - ✅ No duplication of effort
 - ✅ Official implementation
 - ✅ Better performance (native)
 
 **Cons:**
+
 - ❌ Unknown timeline
 - ❌ May never happen (v4 is scoring-focused)
 - ❌ Blocks migration completion
@@ -215,12 +227,14 @@ stats.calculated(setFilter?: number) {
 ### Option C: Stay on v3 for Now 🔙
 
 **Pros:**
+
 - ✅ All features working immediately
 - ✅ Zero development effort
 - ✅ Battle-tested and stable
 - ✅ Can migrate later when v4 matures
 
 **Cons:**
+
 - ❌ Miss out on v4 improvements
 - ❌ May have v3 deprecation issues later
 
@@ -231,11 +245,13 @@ stats.calculated(setFilter?: number) {
 ### Option D: Hybrid Approach 🔀
 
 **Pros:**
+
 - ✅ Use v4 for new matches (modern)
 - ✅ Keep v3 for existing matches (compatibility)
 - ✅ Gradual migration path
 
 **Cons:**
+
 - ❌ Maintain two code paths
 - ❌ Complexity
 
@@ -248,6 +264,7 @@ stats.calculated(setFilter?: number) {
 **For Production Use:** **Option C** (Stay on v3)
 
 **Rationale:**
+
 1. Statistics are a **core feature** of hive-eye
 2. v4 adapter statistics would be **duplicate effort**
 3. v3 is **stable and working**
@@ -258,6 +275,7 @@ stats.calculated(setFilter?: number) {
 **For Exploration/Learning:** **Option A** (Implement Statistics)
 
 **Rationale:**
+
 - Good learning exercise
 - Proves out v4 adapter pattern
 - May reveal other v4 limitations
@@ -267,17 +285,20 @@ stats.calculated(setFilter?: number) {
 ## Current Branch Status
 
 **UMO:** `hive-eye-update` branch
+
 - ✅ v4-umo adapter complete (scoring only)
 - ✅ All v3 APIs stubbed
 - ⚠️ Statistics return empty/minimal data
 
-**Hive-Eye:** `feature/umo-4.0` branch  
+**Hive-Eye:** `feature/umo-4.0` branch
+
 - ✅ All imports updated
 - ✅ Build succeeds
 - ✅ Browser runs
 - ⚠️ Stats page shows only basic counts
 
 **Test Coverage:**
+
 - ✅ Core functionality: 100%
 - ⚠️ Statistics: 20%
 
@@ -324,6 +345,7 @@ stats.calculated(setFilter?: number) {
 UMO v4 migration is **technically successful** - all core scoring works perfectly. The statistics gap is **architectural** - v4 is designed as a pure scoring engine without metadata tracking.
 
 **Recommended:** Stay on v3 until statistics can be properly addressed, either through:
+
 - Native v4 statistics support, or
 - Justified business case for 3-4 day adapter implementation
 

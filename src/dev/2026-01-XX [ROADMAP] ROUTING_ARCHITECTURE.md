@@ -1,4 +1,5 @@
 # Routing & Architecture Modernization Roadmap
+
 ## Hive Eye Tracker - Single Page Application Refactoring
 
 **Date**: January 2026  
@@ -12,11 +13,12 @@
 ### Problems with Current Architecture
 
 #### 1. **Monolithic HTML Structure**
+
 - **File**: `index.html` (905 lines)
 - **Issue**: All views defined inline in one massive HTML file
 - **Views embedded**:
   - `#vblack` / `#vwhite` - Vertical scoring views
-  - `#hblack` / `#hwhite` - Horizontal scoring views  
+  - `#hblack` / `#hwhite` - Horizontal scoring views
   - `#mainmenu` - Main menu
   - `#matcharchive` - Match archive list
   - `#matchformats` - Format selection
@@ -30,6 +32,7 @@
   - `#editplayer`, `#editpoint` - Modals
 
 #### 2. **ViewManager Pattern**
+
 - **File**: `src/transition/viewManager.ts`
 - **Pattern**: Manually shows/hides divs with `display: flex/none`
 - **Issues**:
@@ -41,11 +44,13 @@
   - Tight coupling between views
 
 #### 3. **Barely Used Router**
+
 - **File**: `src/router/router.ts`
 - **Status**: Exists but not integrated with viewManager
 - **Problem**: Two navigation systems that don't talk to each other
 
 #### 4. **Scattered Visualizations**
+
 - **Current locations**:
   - `src/transition/gameFish.ts`
   - `src/transition/gameTree.ts`
@@ -111,9 +116,11 @@ hive-eye-tracker/
 ## Migration Strategy
 
 ### Phase 1: Foundation Setup ✅ **COMPLETED**
+
 **Goal**: Organize existing code, pull in new visualizations
 
 #### Tasks Completed:
+
 - [x] Create `src/visualizations/` directory
 - [x] Move existing D3 visualizations to `src/visualizations/`:
   - gameFish.ts
@@ -132,14 +139,17 @@ hive-eye-tracker/
 ---
 
 ### Phase 2: Router Integration ✅ **COMPLETED**
+
 **Goal**: Make router the single source of truth for navigation
 
 #### Tasks Completed:
+
 1. **Analyzed Router** (`src/router/router.ts`)
    - Found Navigo library in use
    - Created enhanced wrapper for integration
 
 2. **Created Route Definitions**
+
    ```typescript
    // src/router/routes.ts
    export const routes = [
@@ -167,6 +177,7 @@ hive-eye-tracker/
    - Bidirectional sync ready
 
 **Files Created**:
+
 - `src/router/enhancedRouter.ts` (180 lines)
 - `src/router/routes.ts` (100 lines)
 - `src/router/guards.ts` (90 lines)
@@ -176,9 +187,11 @@ hive-eye-tracker/
 ---
 
 ### Phase 3: Component Architecture ✅ **COMPLETED**
+
 **Goal**: Create component system and first page components
 
 #### Extract Components:
+
 1. **ScoreBoard Component**
    - Extract from `#vblack` / `#hblack`
    - Props: orientation, swapSides, matchData
@@ -205,6 +218,7 @@ hive-eye-tracker/
    - Emits: pointUpdated, pointDeleted
 
 #### Component Template:
+
 ```typescript
 // src/components/ScoreBoard.ts
 export class ScoreBoard {
@@ -235,6 +249,7 @@ export class ScoreBoard {
 ---
 
 ### Phase 3 Tasks Completed:
+
 - [x] Created `BaseComponent.ts` - Abstract component class with lifecycle
 - [x] Created `BasePage.ts` - Abstract page class with component management
 - [x] Created `GameTreePage` - First functional page with RallyTree
@@ -243,6 +258,7 @@ export class ScoreBoard {
 - [x] Added page mounting/unmounting logic
 
 **Files Created**:
+
 - `src/components/BaseComponent.ts` (145 lines)
 - `src/pages/BasePage.ts` (130 lines)
 - `src/pages/GameTreePage.ts` (120 lines)
@@ -253,6 +269,7 @@ export class ScoreBoard {
 ---
 
 ### Phase 4: Page Components ✅ **COMPLETED**
+
 **Goal**: Create page-level components for all major views
 
 #### Pages Created:
@@ -290,6 +307,7 @@ export class ScoreBoard {
    - Auto-saves to localStorage
 
 7. **ScoringPage** ⏳ (Priority 1 - Deferred)
+
    ```typescript
    // src/pages/ScoringPage.ts
    import { ScoreBoard } from '../components/ScoreBoard';
@@ -303,7 +321,7 @@ export class ScoreBoard {
        // Initialize components
        this.scoreBoard = new ScoreBoard(...);
        this.courtView = new CourtView(...);
-       
+
        // Subscribe to match events
        env.match.events.addPoint(this.onPointAdded);
      }
@@ -316,16 +334,17 @@ export class ScoreBoard {
    }
    ```
 
-2. **GameTreePage** (Priority 2)
+8. **GameTreePage** (Priority 2)
    - Wraps gameTree visualization
    - **NEW**: Adds RallyTree below GameTree
    - Shares point episode data
 
-3. **StatsPage** (Priority 3)
+9. **StatsPage** (Priority 3)
    - Uses updateStats logic
    - Component-based layout
 
 **Files Created** (Phase 4):
+
 - `src/pages/StatsPage.ts` + CSS (200 lines)
 - `src/pages/MomentumPage.ts` + CSS (150 lines)
 - `src/pages/PointHistoryPage.ts` + CSS (120 lines)
@@ -335,6 +354,7 @@ export class ScoreBoard {
 **Status**: ✅ Complete - 6 of 10 views converted to page components
 
 **Remaining Views** (Using viewManager for now):
+
 - ⏳ ScoringPage (entry) - Complex court view with touch interactions
 - ⏳ MainMenuPage - Simple, low priority
 - ⏳ FormatPage (matchformat) - Format selection
@@ -343,9 +363,11 @@ export class ScoreBoard {
 ---
 
 ### Phase 5: Component Extraction & Remaining Pages ✅ **MOSTLY COMPLETE**
+
 **Goal**: Create remaining pages and prepare for viewManager deprecation
 
 #### Tasks Completed:
+
 1. **Created 3 Additional Pages** ✅
    - MainMenuPage - Modern navigation menu with cards
    - FormatPage - Match format selection
@@ -372,6 +394,7 @@ export class ScoreBoard {
    - [ ] Extract CourtView component (optional)
 
 **Files Created** (Phase 5):
+
 - `src/utils/dateUtils.ts` (200 lines)
 - `src/pages/MainMenuPage.ts` + CSS (190 lines)
 - `src/pages/FormatPage.ts` + CSS (90 lines)
@@ -380,6 +403,7 @@ export class ScoreBoard {
 **Status**: ✅ 90% Complete - 9 of 10 views converted to page components
 
 **Decision**: ScoringPage (entry view) deferred to future work due to:
+
 - Complex court visualization with touch interactions
 - Real-time score overlay
 - Gesture recognition system
@@ -391,6 +415,7 @@ export class ScoreBoard {
 ---
 
 ### Phase 6: Final Cleanup & Optimization ⏳ **READY TO START**
+
 **Goal**: Optimize remaining code and document architecture
 
 #### Tasks:
@@ -418,6 +443,7 @@ Since ScoringPage still uses viewManager, major HTML cleanup is deferred.
 The following can be done when ScoringPage is migrated:
 
 **Future index.html Structure** (when ScoringPage is migrated):
+
 ```html
 <!doctype html>
 <html lang="en">
@@ -430,7 +456,7 @@ The following can be done when ScoringPage is migrated:
   <body data-theme="light">
     <!-- Single app mount point -->
     <div id="app"></div>
-    
+
     <!-- Audio elements (keep external) -->
     <audio id="click">
       <source src="/src/assets/audio/click.mp3" type="audio/mpeg" />
@@ -443,6 +469,7 @@ The following can be done when ScoringPage is migrated:
 ```
 
 #### Migration:
+
 - All view HTML → Component templates
 - Modals → Component-based modal system
 - Toolbar → Persistent layout component
@@ -456,16 +483,19 @@ The following can be done when ScoringPage is migrated:
 #### Location: Below GameTree on Game Tree Page
 
 **What RallyTree Shows**:
+
 - Visual representation of rally structure
 - Shot patterns and sequences
 - Rally outcomes
 
 **Integration Steps**:
+
 1. **Convert to TypeScript** (optional, can keep JS)
    - Add type definitions
    - Modernize D3 v3 → v7 if needed
 
 2. **Create RallyTree Wrapper**
+
    ```typescript
    // src/visualizations/rallyTree.ts
    import RallyTree from './RallyTree.js';
@@ -491,6 +521,7 @@ The following can be done when ScoringPage is migrated:
    ```
 
 3. **Update GameTreePage**
+
    ```typescript
    // src/pages/GameTreePage.ts
    export class GameTreePage {
@@ -501,7 +532,7 @@ The following can be done when ScoringPage is migrated:
        // Split container into two sections
        const gameTreeSection = create('div', { class: 'gametree-section' });
        const rallyTreeSection = create('div', { class: 'rallytree-section' });
-       
+
        this.gameTree = charts.gametree;
        this.rallyTree = new RallyTreeViz(rallyTreeSection);
 
@@ -513,6 +544,7 @@ The following can be done when ScoringPage is migrated:
    ```
 
 4. **CSS Layout**
+
    ```css
    .game-tree-page {
      display: flex;
@@ -539,17 +571,20 @@ The following can be done when ScoringPage is migrated:
 #### Location: TBD - Separate page or embedded view
 
 **What CoronaChart Shows**:
+
 - Circular/radial visualization
 - Match progression in polar coordinates
 - Set and game relationships
 
 **Integration Steps**:
+
 1. **Analyze Dependencies**
    - Check if it needs pts.js, tava.js, or runner.js
    - Identify D3 version requirements
    - Check for external data files (setMap.json, splash.json)
 
 2. **Create Wrapper**
+
    ```typescript
    // src/visualizations/coronaChart.ts
    import CoronaChart from './coronaChart.js';
@@ -570,6 +605,7 @@ The following can be done when ScoringPage is migrated:
    ```
 
 3. **Create CoronaPage** (Later Phase)
+
    ```typescript
    // src/pages/CoronaPage.ts
    export class CoronaPage {
@@ -593,6 +629,7 @@ The following can be done when ScoringPage is migrated:
 ## Benefits of New Architecture
 
 ### Developer Experience
+
 - ✅ **Clear separation of concerns**: Pages, components, services
 - ✅ **Reusable components**: Build once, use everywhere
 - ✅ **Type safety**: TypeScript interfaces for components
@@ -600,6 +637,7 @@ The following can be done when ScoringPage is migrated:
 - ✅ **Better debugging**: Smaller, focused modules
 
 ### User Experience
+
 - ✅ **Deep linking**: Share URLs to specific views
 - ✅ **Browser history**: Back/forward buttons work
 - ✅ **Lazy loading**: Faster initial load
@@ -607,6 +645,7 @@ The following can be done when ScoringPage is migrated:
 - ✅ **Smooth transitions**: Route-based animations
 
 ### Maintenance
+
 - ✅ **Smaller files**: 100-300 lines vs 900+ line HTML
 - ✅ **Organized code**: Clear folder structure
 - ✅ **Easier onboarding**: New developers understand structure
@@ -617,17 +656,20 @@ The following can be done when ScoringPage is migrated:
 ## Risk Mitigation
 
 ### Backward Compatibility
+
 - Keep viewManager until all pages migrated
 - Support both navigation systems during transition
 - Feature flags for gradual rollout
 
 ### Testing Strategy
+
 - Test each page component independently
 - Integration tests for router navigation
 - E2E tests for critical user flows
 - Visual regression tests for layouts
 
 ### Rollback Plan
+
 - Git branches for each phase
 - Can revert to viewManager if issues
 - Keep old HTML structure until proven stable
@@ -637,6 +679,7 @@ The following can be done when ScoringPage is migrated:
 ## Success Criteria
 
 ### Phase Completion
+
 - [x] All visualizations in `src/visualizations/`
 - [x] Router handles navigation with guards
 - [x] Base component architecture established
@@ -648,6 +691,7 @@ The following can be done when ScoringPage is migrated:
 - [ ] Zero references to viewManager in codebase (40% done)
 
 ### Quality Metrics
+
 - [x] No regression in functionality ✅
 - [x] URL-based navigation working ✅
 - [x] Deep linking enabled ✅
@@ -657,6 +701,7 @@ The following can be done when ScoringPage is migrated:
 - [ ] Better Lighthouse scores (pending measurement)
 
 ### Visualization Goals
+
 - [x] RallyTree visible below GameTree ✅
 - [x] RallyTree wrapper extracts rally data ✅
 - [x] All D3 visualizations work in new architecture ✅
@@ -667,15 +712,15 @@ The following can be done when ScoringPage is migrated:
 
 ## Timeline Summary
 
-| Phase | Duration | Status | Deliverable |
-|-------|----------|--------|-------------|
-| Phase 1: Foundation | ✅ Done | Complete | Visualizations organized |
-| Phase 2: Router Integration | ✅ Done | Complete | Router with guards & routes |
-| Phase 3: Component Architecture | ✅ Done | Complete | Base classes + GameTreePage |
-| Phase 4: Page Components | ✅ Done | Complete | 6 page components created |
-| Phase 5: Remaining Pages | ✅ Done | Complete | 9 page components + date utils |
-| Phase 6: Final Cleanup | Ready | 10% | Testing & documentation |
-| **Total** | **~1 week** | **90%** | **Modern SPA** |
+| Phase                           | Duration    | Status   | Deliverable                    |
+| ------------------------------- | ----------- | -------- | ------------------------------ |
+| Phase 1: Foundation             | ✅ Done     | Complete | Visualizations organized       |
+| Phase 2: Router Integration     | ✅ Done     | Complete | Router with guards & routes    |
+| Phase 3: Component Architecture | ✅ Done     | Complete | Base classes + GameTreePage    |
+| Phase 4: Page Components        | ✅ Done     | Complete | 6 page components created      |
+| Phase 5: Remaining Pages        | ✅ Done     | Complete | 9 page components + date utils |
+| Phase 6: Final Cleanup          | Ready       | 10%      | Testing & documentation        |
+| **Total**                       | **~1 week** | **90%**  | **Modern SPA**                 |
 
 **Actual Progress**: WAY ahead of schedule! Phases 1-5 complete in ~1 week vs 8-week estimate.
 
@@ -684,8 +729,9 @@ The following can be done when ScoringPage is migrated:
 ## Next Actions
 
 ### Completed ✅
+
 1. ✅ Create visualizations directory
-2. ✅ Move existing visualizations  
+2. ✅ Move existing visualizations
 3. ✅ Copy RallyTree.js and coronaChart.js
 4. ✅ Fix import paths for moved files
 5. ✅ Test that all visualizations still work
@@ -696,6 +742,7 @@ The following can be done when ScoringPage is migrated:
 10. ✅ Integrate pages into router system
 
 ### Completed in This Session ✅
+
 1. ✅ Created visualizations directory and organized all D3 code
 2. ✅ Built enhanced router with Navigo, guards, and routes
 3. ✅ Created component architecture (BaseComponent, BasePage)
@@ -708,6 +755,7 @@ The following can be done when ScoringPage is migrated:
 10. ✅ Committed 18+ commits with detailed messages
 
 ### Next Steps (Optional Future Work)
+
 1. [ ] Test all 9 page components thoroughly
 2. [ ] Create ScoringPage (requires court component extraction)
 3. [ ] Extract ScoreBoard and CourtView components
@@ -722,18 +770,22 @@ The following can be done when ScoringPage is migrated:
 ## Additional Requirements
 
 ### Date Formatting Standardization
+
 **Requirement**: Convert all date handling from milliseconds to TODS standard 'YYYY-MM-DD' format
 
 **Current State**:
+
 - Dates stored as milliseconds (timestamp)
 - Inconsistent with TODS/tods-competition-factory standards
 
 **Target State**:
+
 - All dates in 'YYYY-MM-DD' format
 - Consistent with TODS specification
 - Better readability and interoperability
 
 **Implementation**:
+
 - [ ] Create date utility functions (formatToTODS, parseFromTODS)
 - [ ] Update match metadata date handling
 - [ ] Update archive storage date format
@@ -741,6 +793,7 @@ The following can be done when ScoringPage is migrated:
 - [ ] Update UI date displays
 
 **Files to Update**:
+
 - Match metadata (tournament dates, match dates)
 - Archive storage/retrieval
 - Match export/import

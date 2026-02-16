@@ -8,30 +8,36 @@
 ## What Changed
 
 ### Before (Issue)
+
 Logger captured **raw input** before UMO processing:
+
 ```javascript
-pointLogger.log(point);  // BEFORE addPoint
+pointLogger.log(point); // BEFORE addPoint
 env.match.addPoint(point);
 ```
 
 **Problem:** Code-only points had no winner:
+
 ```json
 { "code": "A" }  // Ace - winner unclear!
 { "code": "D" }  // Double fault - winner unclear!
 ```
 
 ### After (Fixed)
+
 Logger now captures **enriched output** after UMO processing:
+
 ```javascript
 const what = env.match.addPoint(point);
-pointLogger.log(what.point);  // AFTER addPoint - has winner!
+pointLogger.log(what.point); // AFTER addPoint - has winner!
 ```
 
 **Benefit:** All points now have explicit winner:
+
 ```json
 {
   "code": "A",
-  "winner": 0,  // ← Now explicit!
+  "winner": 0, // ← Now explicit!
   "server": 0,
   "score": "15-0"
 }
@@ -42,11 +48,13 @@ pointLogger.log(what.point);  // AFTER addPoint - has winner!
 ## Why This Matters
 
 ### Before (Ambiguous)
+
 - Had to derive winner from code + server context
 - Required match state tracking
 - Error-prone
 
 ### After (Explicit)
+
 - ✅ Winner always present
 - ✅ Self-contained data
 - ✅ No ambiguity
@@ -59,6 +67,7 @@ pointLogger.log(what.point);  // AFTER addPoint - has winner!
 **Please recapture point decorations:**
 
 1. **Pull latest code:**
+
    ```bash
    cd hive-eye-tracker
    git pull origin feature/umo-4.0
@@ -67,8 +76,9 @@ pointLogger.log(what.point);  // AFTER addPoint - has winner!
    ```
 
 2. **Clear old logs:**
+
    ```javascript
-   window.pointLogger.clear()
+   window.pointLogger.clear();
    ```
 
 3. **Play another match** (same coverage as before)
@@ -79,8 +89,9 @@ pointLogger.log(what.point);  // AFTER addPoint - has winner!
    - Various rally lengths
 
 4. **Export:**
+
    ```javascript
-   window.exportPointLogs()
+   window.exportPointLogs();
    ```
 
 5. **Replace file:**
@@ -93,6 +104,7 @@ pointLogger.log(what.point);  // AFTER addPoint - has winner!
 ## What You'll See (New Data)
 
 ### Old Format (Code-Only)
+
 ```json
 {
   "code": "A",
@@ -101,15 +113,16 @@ pointLogger.log(what.point);  // AFTER addPoint - has winner!
 ```
 
 ### New Format (Enriched)
+
 ```json
 {
   "code": "A",
-  "winner": 0,       // ← Explicit!
-  "server": 0,       // ← Added by UMO
-  "score": "15-0",   // ← Score at time
-  "set": 0,          // ← Current set
-  "game": 0,         // ← Current game
-  "index": 0,        // ← Point index
+  "winner": 0, // ← Explicit!
+  "server": 0, // ← Added by UMO
+  "score": "15-0", // ← Score at time
+  "set": 0, // ← Current set
+  "game": 0, // ← Current game
+  "index": 0, // ← Point index
   "timestamp": 1768945266347
 }
 ```
@@ -121,11 +134,13 @@ Much better! 🎾
 ## Timeline Impact
 
 **Minimal:** Should take ~5 minutes
+
 - Build: 30 seconds
 - Play match: 3-4 minutes
 - Export: 10 seconds
 
 **Benefit:** Much cleaner statistics implementation
+
 - No winner derivation logic needed
 - No server tracking required
 - Simpler, more robust code

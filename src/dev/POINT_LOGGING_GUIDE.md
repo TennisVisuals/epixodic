@@ -7,6 +7,7 @@
 ## Setup
 
 1. **Build and run hive-eye:**
+
    ```bash
    cd hive-eye-tracker
    pnpm build
@@ -29,11 +30,13 @@
 ## Capturing Point Decorations
 
 ### Goal
+
 Play through a complete match using **all possible point types** to capture the full range of metadata decorations.
 
 ### Point Types to Include
 
 #### 1. **Service Points**
+
 - ✅ Ace (1st serve)
 - ✅ Ace (2nd serve)
 - ✅ Double fault
@@ -43,6 +46,7 @@ Play through a complete match using **all possible point types** to capture the 
 - ✅ Normal rally after 2nd serve in
 
 #### 2. **Rally Outcomes**
+
 - ✅ Winner (forehand)
 - ✅ Winner (backhand)
 - ✅ Winner (volley)
@@ -56,6 +60,7 @@ Play through a complete match using **all possible point types** to capture the 
 - ✅ Out (ball out)
 
 #### 3. **Stroke Types**
+
 - ✅ Forehand groundstroke
 - ✅ Backhand groundstroke
 - ✅ Forehand volley
@@ -66,6 +71,7 @@ Play through a complete match using **all possible point types** to capture the 
 - ✅ Slice
 
 #### 4. **Special Situations**
+
 - ✅ Breakpoints
 - ✅ Game points
 - ✅ Set points
@@ -75,11 +81,13 @@ Play through a complete match using **all possible point types** to capture the 
 - ✅ Code violations/penalties (if available)
 
 #### 5. **Rally Tracking** (if enabled)
+
 - ✅ Short rally (1-3 shots)
 - ✅ Medium rally (4-9 shots)
 - ✅ Long rally (10+ shots)
 
 #### 6. **Location Tracking** (if enabled)
+
 - ✅ Serve locations (Wide, Body, T)
 - ✅ Shot locations on court
 
@@ -125,8 +133,9 @@ Every time you add a point, you'll see output like:
 ### When Done Playing
 
 1. **Run in console:**
+
    ```javascript
-   window.exportPointLogs()
+   window.exportPointLogs();
    ```
 
 2. **This will:**
@@ -220,27 +229,30 @@ Every time you add a point, you'll see output like:
 ## Additional Logging Commands
 
 ### Clear and Restart
+
 ```javascript
-window.pointLogger.clear()
+window.pointLogger.clear();
 // Play more points
-window.exportPointLogs()
+window.exportPointLogs();
 ```
 
 ### Disable During Load
+
 ```javascript
 // Disable logging
-window.pointLogger.disable()
+window.pointLogger.disable();
 
 // Load a saved match (won't log old points)
 // ... load match ...
 
 // Re-enable for new points
-window.pointLogger.enable()
+window.pointLogger.enable();
 ```
 
 ### Check Current Logs
+
 ```javascript
-window.pointLogger.export()
+window.pointLogger.export();
 ```
 
 ---
@@ -248,27 +260,30 @@ window.pointLogger.export()
 ## Troubleshooting
 
 ### Not Seeing Console Output?
+
 - Check console filter (should allow all messages)
 - Make sure you're on the right tab
 - Refresh page and check for initialization message
 
 ### Download Not Working?
+
 - Check browser download permissions
 - Try manually copying from console: `window.pointLogger.export()`
 
 ### Want to Log More Matches?
+
 ```javascript
 // Export first match
-window.exportPointLogs()
+window.exportPointLogs();
 
 // Clear
-window.pointLogger.clear()
+window.pointLogger.clear();
 
 // Start new match
 // ... play ...
 
 // Export second match with different filename
-window.pointLogger.download('match-2.json')
+window.pointLogger.download('match-2.json');
 ```
 
 ---
@@ -287,17 +302,20 @@ Once you have the JSON file:
 ## What We're Looking For
 
 ### Critical Fields (Must Have)
+
 - ✅ `winner` - Who won the point (0 or 1)
 - ✅ `result` - How the point ended
 - ✅ `server` - Who served (derive from match state if not present)
 
 ### Important Fields (Statistics)
+
 - ✅ `stroke` - Type of shot (forehand, backhand, etc.)
 - ✅ `hand` - Hand used
 - ✅ `serve` - 1st or 2nd serve
 - ✅ `breakpoint` - Was it a breakpoint?
 
 ### Optional Fields (Enhanced Stats)
+
 - ⚠️ `rally` - Shot sequence
 - ⚠️ `location` - Court position
 - ⚠️ `code` - UMO point code

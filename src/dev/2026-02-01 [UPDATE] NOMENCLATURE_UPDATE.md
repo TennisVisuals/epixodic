@@ -9,6 +9,7 @@
 ## Executive Summary
 
 Updated all UMO v4 data model code to use `matchUp` instead of `match` to:
+
 1. Align with TODS nomenclature
 2. Disambiguate from `match()` functions that check equality
 3. Maintain consistency with CourtHive/factory ecosystem
@@ -20,11 +21,13 @@ Updated all UMO v4 data model code to use `matchUp` instead of `match` to:
 ### Type Definitions (`types/UMOv4.ts`)
 
 **Interfaces Renamed**:
+
 - `MatchFormat` → `MatchUpFormat`
-- `MatchState` → `MatchUpState` 
+- `MatchState` → `MatchUpState`
 - `UMOv4Match` → `UMOv4MatchUp`
 
 **Fields Renamed**:
+
 - `matchId` → `matchUpId`
 - `format` → `matchUpFormat` (in UMOv4MatchUp)
 - `matchComplete` → `matchUpComplete`
@@ -32,6 +35,7 @@ Updated all UMO v4 data model code to use `matchUp` instead of `match` to:
 - `matchpoint` → `matchUpPoint`
 
 **Comments Updated**:
+
 - "Match-wide" → "MatchUp-wide" (in point indexing comments)
 - "Sets won in match" → "Sets won in matchUp"
 - All other match references updated
@@ -39,6 +43,7 @@ Updated all UMO v4 data model code to use `matchUp` instead of `match` to:
 ### Data Generators
 
 **sampleMatch.ts**:
+
 - `generateSampleMatchV4()` → `generateSampleMatchUpV4()`
 - Returns `UMOv4MatchUp` instead of `UMOv4Match`
 - All property names updated (`matchUpId`, `matchUpFormat`, etc.)
@@ -47,19 +52,23 @@ Updated all UMO v4 data model code to use `matchUp` instead of `match` to:
 - All `matchWinner` → `matchUpWinner`
 
 **sampleGame.ts**:
+
 - All `matchpoint` → `matchUpPoint`
 - All `matchComplete` → `matchUpComplete`
 - All `matchWinner` → `matchUpWinner`
 
 **sampleGames.ts**:
+
 - All `matchpoint` → `matchUpPoint`
-- All `matchComplete` → `matchUpComplete`  
+- All `matchComplete` → `matchUpComplete`
 - All `matchWinner` → `matchUpWinner`
 
 ### Additional Improvements
 
 #### Rally Length Distribution
+
 Updated `generateRally()` in sampleMatch.ts to use realistic distribution:
+
 - **Short rallies (2-5 shots)**: 60% - Most common
 - **Medium rallies (6-10 shots)**: 30%
 - **Long rallies (11-15 shots)**: 10% - Rare
@@ -67,7 +76,9 @@ Updated `generateRally()` in sampleMatch.ts to use realistic distribution:
 This creates more realistic data for RallyTree visualization.
 
 #### Color Variations (gameFish)
+
 Added 3 new color-themed stories to gameFish:
+
 - **CustomColorsBlue**: Purple/Blue theme (like hive-eye-tracker)
 - **CustomColorsTeal**: Teal/Orange theme (fresh, vibrant)
 - **CustomColorsGreen**: Green/Red theme (classic sports)
@@ -82,7 +93,7 @@ Addresses user feedback requesting more pleasing color variations beyond red/bla
 
 **Tennis Open Data Standards (TODS)** uses `matchUp` instead of `match`:
 
-1. **Disambiguation**: 
+1. **Disambiguation**:
    - `match` is an overloaded term in code (equality checking, regex matching)
    - `matchUp` is unambiguous - clearly refers to a tennis competition
 
@@ -126,17 +137,21 @@ participants: [{
 ## Files Changed
 
 ### Type Definitions (1)
+
 - `src/visualizations/standalone/types/UMOv4.ts`
 
 ### Data Generators (3)
+
 - `src/visualizations/standalone/data/sampleMatch.ts`
 - `src/visualizations/standalone/data/sampleGame.ts`
 - `src/visualizations/standalone/data/sampleGames.ts`
 
 ### Stories (1)
+
 - `src/visualizations/standalone/gameFish.stories.ts` (added color variations)
 
 ### Documentation (1)
+
 - `NOMENCLATURE_UPDATE.md` (this file)
 
 ---
@@ -146,6 +161,7 @@ participants: [{
 ### For External Users
 
 **Function Name Change**:
+
 ```typescript
 // OLD
 import { generateSampleMatchV4 } from './data/sampleMatch';
@@ -157,6 +173,7 @@ const matchUp = generateSampleMatchUpV4();
 ```
 
 **Type Name Changes**:
+
 ```typescript
 // OLD
 import type { UMOv4Match, MatchFormat, MatchState } from './types/UMOv4';
@@ -166,6 +183,7 @@ import type { UMOv4MatchUp, MatchUpFormat, MatchUpState } from './types/UMOv4';
 ```
 
 **Property Name Changes**:
+
 ```typescript
 // OLD
 const match: UMOv4Match = {
@@ -189,16 +207,17 @@ const matchUp: UMOv4MatchUp = {
 ```
 
 **Episode Property Changes**:
+
 ```typescript
 // OLD
-episode.point.matchpoint
-episode.context.matchComplete
-episode.context.matchWinner
+episode.point.matchpoint;
+episode.context.matchComplete;
+episode.context.matchWinner;
 
 // NEW
-episode.point.matchUpPoint
-episode.context.matchUpComplete
-episode.context.matchUpWinner
+episode.point.matchUpPoint;
+episode.context.matchUpComplete;
+episode.context.matchUpWinner;
 ```
 
 ### For Internal Visualizations
@@ -247,17 +266,20 @@ No changes required to adapter - it reads from the new UMO v4 structure automati
 ## User Feedback Addressed
 
 ### 1. Nomenclature (DONE ✅)
+
 - [x] Updated all `match` → `matchUp` for TODS alignment
 - [x] Disambiguates from `match()` functions
 - [x] Consistent with CourtHive/factory
 
 ### 2. gameFish Colors (DONE ✅)
+
 - [x] Added Blue/Purple theme (like hive-eye-tracker)
 - [x] Added Teal/Orange theme
 - [x] Added Green/Red theme
 - [x] All with rally display and grid
 
 ### 3. Rally Distribution (DONE ✅)
+
 - [x] Updated `generateRally()` with realistic distribution
 - [x] Short rallies (2-5): 60%
 - [x] Medium rallies (6-10): 30%
@@ -265,6 +287,7 @@ No changes required to adapter - it reads from the new UMO v4 structure automati
 - [x] Should reduce/eliminate empty rows in RallyTree
 
 ### 4. No-Ad Scoring Note
+
 - User noted 40-15 → Game progression is correct
 - No-ad scoring was working as designed before migration
 - No changes needed
@@ -274,6 +297,7 @@ No changes required to adapter - it reads from the new UMO v4 structure automati
 ## Testing
 
 ### Build Status: ✅ PASSING
+
 ```
 Storybook build completed successfully
 ✓ 690 modules transformed
@@ -282,6 +306,7 @@ Storybook build completed successfully
 ```
 
 ### Manual Testing Required
+
 - [ ] Verify `generateSampleMatchUpV4()` works
 - [ ] Verify new color themes in gameFish
 - [ ] Verify rally distribution improves RallyTree
@@ -292,12 +317,14 @@ Storybook build completed successfully
 ## Next Steps
 
 ### Immediate
+
 1. User re-verification in Storybook
 2. Test new color themes
 3. Verify rally distribution
 4. Check RallyTree for empty rows
 
 ### Future
+
 1. Update documentation with matchUp nomenclature
 2. Update examples in README
 3. Update migration docs
@@ -308,6 +335,7 @@ Storybook build completed successfully
 ## Documentation Updates Needed
 
 Files that reference "match" and need updates:
+
 - [ ] `DATA_MODEL_MIGRATION.md`
 - [ ] `VERIFICATION_CHECKLIST.md`
 - [ ] `UMO_V4_DATA_MIGRATION_COMPLETE.md`
@@ -323,7 +351,7 @@ Files that reference "match" and need updates:
 ✅ Color variations added to gameFish  
 ✅ Realistic rally distribution implemented  
 ✅ Build successful  
-✅ Ready for re-verification  
+✅ Ready for re-verification
 
 **Breaking Changes**: Function and type names changed, but adapters maintain backward compatibility for visualizations.
 

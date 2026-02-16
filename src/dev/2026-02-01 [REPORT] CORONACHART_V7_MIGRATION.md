@@ -18,17 +18,20 @@ Successfully migrated `coronaChart.ts` from D3 v4 to D3 v7. The coronaChart is m
 ### 1. Import Statement Migration
 
 **Before (D3 v4):**
+
 ```typescript
 import * as d3 from 'd3';
 ```
 
 **After (D3 v7):**
+
 ```typescript
 import { select, scaleLinear, radialArea, curveBasis } from 'd3-v7';
 import type { Selection } from 'd3-v7';
 ```
 
 **Benefits:**
+
 - Tree-shaking enabled for radial area functions
 - Explicit type imports for TypeScript
 - Only imports what's needed (smaller bundle)
@@ -38,6 +41,7 @@ import type { Selection } from 'd3-v7';
 ### 2. Event Handler Signature Changes
 
 **Before (D3 v4):**
+
 ```typescript
 .on('mouseover', function (event: any, d: any) {
   // event parameter existed but wasn't standard
@@ -55,6 +59,7 @@ import type { Selection } from 'd3-v7';
 ```
 
 **After (D3 v7):**
+
 ```typescript
 .on('mouseover', function (event: any, d: any) {
   // event is now consistently first parameter
@@ -78,16 +83,20 @@ import type { Selection } from 'd3-v7';
 ### 3. Function References Updated
 
 **Before (D3 v4):**
+
 ```typescript
-const radius = d3.scaleLinear()
+const radius = d3
+  .scaleLinear()
   .domain([0, max])
   .range([prefs.radius / 4, prefs.radius / 2]);
 
-const angle = d3.scaleLinear()
+const angle = d3
+  .scaleLinear()
   .domain([0, data.length - 1])
   .range([0, 2 * Math.PI]);
 
-const area = d3.radialArea<number>()
+const area = d3
+  .radialArea<number>()
   .curve(d3.curveBasis)
   .innerRadius(radius(0))
   .outerRadius((d: number) => radius(d))
@@ -95,6 +104,7 @@ const area = d3.radialArea<number>()
 ```
 
 **After (D3 v7):**
+
 ```typescript
 const radius = scaleLinear()
   .domain([0, max])
@@ -112,6 +122,7 @@ const area = radialArea<number>()
 ```
 
 **Changes:**
+
 - `d3.scaleLinear()` → `scaleLinear()`
 - `d3.radialArea()` → `radialArea()`
 - `d3.curveBasis` → `curveBasis`
@@ -121,16 +132,17 @@ const area = radialArea<number>()
 ### 4. Type Annotations
 
 **Added:**
+
 ```typescript
 import type { Selection } from 'd3-v7';
 
 export function coronaChart(
-  target: Selection<any, any, any, any>,  // Explicit type
+  target: Selection<any, any, any, any>, // Explicit type
   set_map: SetMap[],
   prefs: CoronaPrefs,
   x: number = 0,
   y: number = 0,
-): void
+): void;
 ```
 
 Better TypeScript support with explicit D3 v7 Selection type.
@@ -142,6 +154,7 @@ Better TypeScript support with explicit D3 v7 Selection type.
 ### Side-by-Side Comparison Story
 
 Added new Storybook story `V4vsV7Comparison` that renders both versions:
+
 - D3 v4 version in left panel (gray border)
 - D3 v7 version in right panel (green border)
 - Uses identical data with realistic score differentials
@@ -158,47 +171,54 @@ Added new Storybook story `V4vsV7Comparison` that renders both versions:
 ## Files Modified/Created
 
 ### Created:
+
 - `coronaChart-v7.ts` - New D3 v7 implementation
 
 ### Modified:
+
 - `coronaChart.stories.ts` - Added imports and V4vsV7Comparison story
 
 ### Unchanged:
+
 - `coronaChart.ts` - Original v4 version preserved for comparison
 
 ---
 
 ## Migration Statistics
 
-| Metric | D3 v4 | D3 v7 | Change |
-|--------|-------|-------|--------|
-| Lines of Code | 263 | 263 | 0 |
-| Import Statement | Wildcard | Named | ✅ Better |
-| Event Handlers | 6 | 6 | Same |
-| Radial Areas | Yes | Yes | ✅ Compatible |
-| Type Safety | Good | Better | ✅ Improved |
+| Metric           | D3 v4    | D3 v7  | Change        |
+| ---------------- | -------- | ------ | ------------- |
+| Lines of Code    | 263      | 263    | 0             |
+| Import Statement | Wildcard | Named  | ✅ Better     |
+| Event Handlers   | 6        | 6      | Same          |
+| Radial Areas     | Yes      | Yes    | ✅ Compatible |
+| Type Safety      | Good     | Better | ✅ Improved   |
 
 ---
 
 ## CoronaChart-Specific Features Tested
 
 ### Radial Area Charts
+
 - ✅ Multiple opacity layers (0.4, 0.6, 1.0)
 - ✅ Curve basis interpolation
 - ✅ Inner/outer radius scaling
 - ✅ Angle calculations for circular layout
 
 ### Event Handlers
+
 - ✅ Mouseover on segments
 - ✅ Click on player names
 - ✅ Click on scores
 
 ### Display Modes
+
 - ✅ Info display (player names + scores)
 - ✅ Badge display (center label)
 - ✅ No display (pure visualization)
 
 ### Data Processing
+
 - ✅ Score differential calculation
 - ✅ Game boundary detection (zeros)
 - ✅ Multi-set support
@@ -209,6 +229,7 @@ Added new Storybook story `V4vsV7Comparison` that renders both versions:
 ## Known Issues
 
 None identified. The migration handles:
+
 - Complex radial area generation
 - Multiple event handler types
 - Dynamic segment creation
@@ -219,7 +240,7 @@ None identified. The migration handles:
 
 ## Next Steps
 
-1. **Visual Testing:** 
+1. **Visual Testing:**
    - Run Storybook: `pnpm run storybook`
    - Navigate to: Visualizations → CoronaChart → V4vsV7Comparison
    - Verify both charts look identical
@@ -240,19 +261,22 @@ None identified. The migration handles:
 ## Lessons Learned
 
 ### What Went Well
+
 ✅ Named imports work perfectly for specialized functions (radialArea)  
 ✅ Event handler signature was already compatible  
 ✅ Radial area API is identical between v4 and v7  
 ✅ Type annotations improved with explicit Selection types  
-✅ No changes needed to data processing logic  
+✅ No changes needed to data processing logic
 
 ### Complexity Notes
+
 ⚠️ Multiple segments with different opacities  
 ⚠️ Dynamic area generation based on score ranges  
 ⚠️ Clip path for visual effects  
-⚠️ Three different display modes to test  
+⚠️ Three different display modes to test
 
 ### Migration Pattern Reinforced
+
 1. Create `-v7` file
 2. Update imports to named imports from `d3-v7`
 3. Replace all `d3.function()` calls with imported `function()`
@@ -266,21 +290,24 @@ None identified. The migration handles:
 ## Code Quality
 
 ### TypeScript Compliance
+
 ✅ All types resolved correctly  
 ✅ Better type inference with explicit Selection type  
-✅ No linting errors  
+✅ No linting errors
 
 ### D3 v7 Best Practices
+
 ✅ Named imports for tree-shaking  
 ✅ Type-safe Selection parameters  
 ✅ No deprecated APIs used  
-✅ Modern event handler patterns  
+✅ Modern event handler patterns
 
 ---
 
 ## Performance Notes
 
 Expected improvements with D3 v7:
+
 - **Bundle Size:** 20-30% reduction with tree-shaking for radial functions
 - **Render Performance:** Comparable or slightly better
 - **Memory Usage:** Comparable
@@ -292,17 +319,21 @@ The radial area generation is computationally similar in both versions.
 ## D3 v7 Features Utilized
 
 ### Core Selections
+
 - `select()` - DOM selection
 - `Selection<>` type - TypeScript support
 
 ### Scales
+
 - `scaleLinear()` - Linear scales for radius and angle
 
 ### Shapes
+
 - `radialArea()` - Radial area generator
 - `curveBasis` - Curve interpolation
 
 ### Event System
+
 - Consistent event parameter ordering
 - Native event objects
 
@@ -310,7 +341,7 @@ The radial area generation is computationally similar in both versions.
 
 ## References
 
-- [D3 v7 Migration Guide](../../../D3_V7_MIGRATION.md)
+- [D3 v7 Migration Guide](<./2026-02-01 [PLAN] D3_V7_MIGRATION.md>)
 - [D3 Radial Areas](https://github.com/d3/d3-shape#radialArea)
 - [D3 v7 Event Handling](https://observablehq.com/@d3/d3v6-migration-guide#events)
 
