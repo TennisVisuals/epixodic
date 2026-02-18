@@ -1,19 +1,17 @@
 /**
  * Game Tree Page
  *
- * Displays the game tree visualization with RallyTree below it.
+ * Displays the game tree visualization.
  * This is the first page component created in the migration.
  */
 
-import { RallyTreeViz } from '../visualizations/rallyTreeWrapper';
-import { gameTree } from '../visualizations/gameTree';
+import { gameTree } from '@tennisvisuals/scoring-visualizations';
 import { BasePage, PageOptions } from './BasePage';
-import { env } from '../transition/env';
+import { env, getEpisodes, getNoAd } from '../transition/env';
 import * as d3 from 'd3';
 
 export class GameTreePage extends BasePage {
   private gameTreeContainer: HTMLElement | null = null;
-  private rallyTree: RallyTreeViz | null = null;
 
   constructor(container: HTMLElement, options: PageOptions = {}) {
     super(container, options);
@@ -51,19 +49,15 @@ export class GameTreePage extends BasePage {
       return;
     }
 
-    // Use V4's history.action('addPoint') API which now includes game/set metadata
-    const v4_transformed_episodes = env.matchUp.history.action('addPoint');
+    const episodes_for_visualization = getEpisodes();
 
-    let episodes_for_visualization = v4_transformed_episodes;
-
-    const noAd = env.match.format.structure?.setFormat?.NoAD || false;
+    const noAd = getNoAd();
 
     // Always create a fresh chart instance - the library may not support reuse
     console.log('[HVE] GameTree - Creating fresh chart instance');
     const freshGameTree = gameTree();
 
-    // Get player names from match metadata
-    const players = env.match.metadata.players();
+    const players = env.metadata.players;
 
     // Configure with options from configureViz.ts
     const pcolors = { players: ['#a55194', '#6b6ecf'] };
@@ -141,11 +135,6 @@ export class GameTreePage extends BasePage {
   protected async onBeforeUnmount(): Promise<void> {
     console.log('GameTreePage: Unmounting...');
 
-    // Cleanup rally tree
-    if (this.rallyTree) {
-      this.rallyTree.destroy();
-      this.rallyTree = null;
-    }
   }
 
   /**

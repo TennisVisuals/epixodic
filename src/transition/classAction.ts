@@ -45,7 +45,7 @@ export function classAction(element: any) {
     },
     fault(side: number) {
       if (side != env.serving) return undefined;
-      if (env.serve2nd) return { code: 'D' };
+      if (env.serve2nd) return { winner: 1 - side, result: 'Double Fault', code: 'D' };
       const player_side = env.swap_sides ? 1 - side : side;
       changeValue(`.fault.display_${player_side}_serving`, DOUBLE_FAULT);
       changeValue(`.fault.modeerr_player${player_side}`, DOUBLE_FAULT);
@@ -56,10 +56,10 @@ export function classAction(element: any) {
       // Broadcasting removed
     },
     doubleFault(side: number) {
-      return side != env.serving ? undefined : { code: 'd' };
+      return side != env.serving ? undefined : { winner: 1 - side, result: 'Double Fault', code: 'd' };
     },
     ace(side: number) {
-      return side != env.serving ? undefined : env.serve2nd ? { code: 'a' } : { code: 'A' };
+      return side != env.serving ? undefined : { winner: side, result: 'Ace', code: env.serve2nd ? 'a' : 'A' };
     },
     winner(side: number) {
       return { winner: side, result: 'Winner' };
@@ -147,36 +147,43 @@ export function classAction(element: any) {
     // perhaps refactor to defer adding point until
     // stroke/result action, if any; then decorate point not necessary
     // would require a global variable, perhaps 'pip' for point-in-progress
-    
-    // Clone point for V4 BEFORE V3 processes it (V3's pointParser mutates by adding 'code')
-    // V4 should derive code independently from winner/server if needed
-    const pointForV4 = {...point};
-    
-    // V3 addPoint - drives UI (may mutate point object by adding 'code')
-    const what = env.match.addPoint(point);
-    
-    // V4 addPoint - parallel testing (no UI interaction, receives clean data)
-    try {
-      env.matchUp.addPoint(pointForV4);
-      console.log('[HVE] V4 addPoint shadow call succeeded');
-    } catch (e) {
-      console.error('[HVE] V4 addPoint shadow call FAILED:', e);
+
+    // Capture game count before addPoint to detect game completion
+    const setsBefore = env.engine.getState().score?.sets || [];
+    const gameCountBefore = setsBefore.reduce((sum: number, s: any) => sum + (s.side1Score || 0) + (s.side2Score || 0), 0);
+
+    // Add point via ScoringEngine (returns void)
+    // Let the engine derive the server based on matchUpFormat rules (handles tiebreaks, NOAD, etc.)
+    const addPointOpts: any = { winner: point.winner, result: point.result };
+    // Only pass server for the very first point to respect user's initial server choice
+    const enginePoints = env.engine.getState().history?.points || [];
+    if (enginePoints.length === 0) addPointOpts.server = env.serving;
+    env.engine.addPoint(addPointOpts);
+
+    // Sync env.serving from the engine's derived server
+    const stateAfterPoint = env.engine.getState();
+    const storedPoints = stateAfterPoint.history?.points || [];
+    if (storedPoints.length > 0) {
+      env.serving = storedPoints[storedPoints.length - 1].server ?? env.serving;
+      env.receiving = 1 - env.serving;
     }
-    
-    // Log point decoration AFTER addPoint so we get the enriched point with winner
-    // This ensures winner is always explicitly captured
-    pointLogger.log(what.point || point);
+
+    const matchContinues = !env.engine.isComplete();
+    const setsAfter = stateAfterPoint.score?.sets || [];
+    const gameCountAfter = setsAfter.reduce((sum: number, s: any) => sum + (s.side1Score || 0) + (s.side2Score || 0), 0);
+    const gameJustCompleted = gameCountAfter > gameCountBefore;
+
+    pointLogger.log(point);
 
     if (
       settings.track_shot_types &&
-      what.result &&
-      what.point.result &&
-      ['Penalty', 'Ace', 'Double Fault'].indexOf(what.point.result) < 0
+      matchContinues &&
+      point.result &&
+      ['Penalty', 'Ace', 'Double Fault'].indexOf(point.result) < 0
     ) {
       strokeSlider(slider_side);
     } else {
-      checkMatchEnd(what);
-      // Broadcasting removed
+      checkMatchEnd({ game: { complete: gameJustCompleted } });
     }
 
     env.rally = 0;
@@ -215,11 +222,11 @@ function styleButton(id: string) {
 }
 
 function checkStartTime() {
-  const points = env.match.history.points();
+  const points = env.engine.getState().history?.points || [];
   if (points.length == 0) {
     // if no points, define new start time
     const date = new Date();
-    env.match.metadata.defineMatch({ date: date.valueOf() });
+    Object.assign(env.metadata.match, { date: date.valueOf() });
   }
 }
 

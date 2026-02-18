@@ -1,11 +1,11 @@
-import { env, options, settings, updateMatchArchive, updatePositions } from './env';
+import { env, options, settings, updateMatchArchive, updatePositions, getScoreForDisplay, getSetsToWin, getEpisodes, getNextServer, updateParticipant, definePlayer } from './env';
 import { browserStorage } from './browserStorage';
 import { groupGames } from './groupGames';
 import { closeModal } from './modals';
-import { vizUpdate } from './configureViz';
+import { vizUpdate, updateChartData } from './configureViz';
 
 export function updateScore() {
-  const score = env.match.score();
+  const score = getScoreForDisplay();
   const sets_counter = score.counters.sets;
   const games_counter = score.counters.games;
   const points = score.points.split('-');
@@ -35,8 +35,7 @@ export function updateScore() {
   display_set_1.forEach((element) => (element.innerHTML = sets_counter[right_side]));
 
   const sets = score.components.sets;
-  // FACTORY-FIRST: Use modern setsToWin accessor
-  const setsToWin = env.match.format.setsToWin;
+  const setsToWin = getSetsToWin();
   const max_games = setsToWin == 1 ? 0 : setsToWin > 2 ? 4 : 2;
   [0, 1, 2, 3, 4].forEach((index) => {
     if (!sets || (sets && !sets[index])) {
@@ -66,7 +65,7 @@ export function updateScore() {
 }
 
 export function loadDetails() {
-  const players = env.match.metadata.players();
+  const players = env.metadata.players;
   players.forEach((player: any, index: number) => {
     const attributes = ['hand', 'entry', 'seed', 'draw_position', 'ioc', 'rank'];
     attributes.forEach((detail) => {
@@ -76,7 +75,7 @@ export function loadDetails() {
     });
   });
 
-  const match_details = env.match.metadata.defineMatch();
+  const match_details = env.metadata.match;
   const m_attrs = ['court', 'umpire'];
   m_attrs.forEach((attribute) => {
     const target_id = `match_${attribute}`;
@@ -84,7 +83,7 @@ export function loadDetails() {
     if (tid) tid.value = match_details[attribute] || '';
   });
 
-  const tournament = env.match.metadata.defineTournament();
+  const tournament = env.metadata.tournament;
   const t_attrs = ['name', 'start_date', 'tour', 'rank', 'surface', 'in_out', 'draw', 'draw_size', 'round'];
   t_attrs.forEach((attribute) => {
     const target_id = `tournament_${attribute}`;
@@ -100,23 +99,22 @@ export function stateChangeEvent() {
   updateState();
   updateScore();
   visibleButtons();
-  
-  // Notify current page to update visualizations
-  const router = (window as any).appRouter; // Router is exposed as appRouter, not router
-  console.log('[HVE] stateChangeEvent - router exists:', !!router);
+
+  // Update embedded chart data (entry view charts from configureViz)
+  updateChartData();
+
+  // Notify current page component to update visualizations
+  const router = (window as any).appRouter;
   if (router) {
     const currentPage = router.getCurrentPage();
-    console.log('[HVE] stateChangeEvent - currentPage exists:', !!currentPage);
-    console.log('[HVE] stateChangeEvent - has updateVisualizations:', typeof currentPage?.updateVisualizations);
     if (currentPage && typeof currentPage.updateVisualizations === 'function') {
-      console.log('[HVE] stateChangeEvent - Calling currentPage.updateVisualizations()');
       currentPage.updateVisualizations();
     }
   }
 }
 
 export function visibleButtons() {
-  const points = env.match.history.action('addPoint');
+  const points = getEpisodes();
   const match_archive = JSON.parse(browserStorage.get('match_archive') || '[]');
   Array.from(document.querySelectorAll('.view_stats')).forEach(
     (div: any) => (div.style.display = points.length > 0 ? 'inline' : 'none'),
@@ -141,7 +139,7 @@ export function visibleButtons() {
   });
   const last_point = points.length ? points[points.length - 1] : undefined;
   const status_message = statusMessage();
-  env.match.status = status_message;
+  env.status = status_message;
   Array.from(document.querySelectorAll('.status_message')).forEach((div) => (div.innerHTML = status_message));
 
   function statusMessage() {
@@ -157,7 +155,7 @@ export function visibleButtons() {
 }
 
 export function updateState() {
-  if (env.match.nextTeamServing() != env.serving) setTimeout(() => swapServer(), 400);
+  if (getNextServer() != env.serving) setTimeout(() => swapServer(), 400);
   resetButtons();
   updatePositions();
   updateScore(); // CRITICAL: Update score display when points are added
@@ -197,8 +195,8 @@ export function resetButtons() {
 }
 
 export function swapServer() {
-  env.serving = env.match.nextTeamServing();
-  env.receiving = env.match.nextTeamReceiving();
+  env.serving = getNextServer();
+  env.receiving = 1 - getNextServer();
 
   if (settings.auto_swap_sides) {
     const games = groupGames();
@@ -292,15 +290,15 @@ export function changePlayerName() {
     };
     
     try {
-      env.match.metadata.updateParticipant(update);
+      updateParticipant(update);
     } catch (error: any) {
       if (error.message?.includes('No participant found')) {
         // Participant doesn't exist yet, create it with definePlayer
         const index = sideNumber - 1;
-        env.match.metadata.definePlayer({ 
-          index, 
-          firstName: standardGivenName, 
-          lastName: standardFamilyName 
+        definePlayer({
+          index,
+          firstName: standardGivenName,
+          lastName: standardFamilyName
         });
       } else {
         throw error;

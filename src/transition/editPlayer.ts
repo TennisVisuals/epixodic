@@ -7,7 +7,7 @@ export function editPlayer(element: any) {
   closeModal();
   const editPlayerDisplay = document.getElementById('editplayer');
   if (editPlayerDisplay) editPlayerDisplay.style.display = 'flex';
-  const player = env.match.metadata.players(env.edit_player);
+  const player = env.metadata.players[env.edit_player];
   const playerName: any = document.getElementById('playername');
   // Use participantName (modern TODS format)
   if (playerName) playerName.value = player.participantName || '';

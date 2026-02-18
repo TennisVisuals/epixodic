@@ -1,18 +1,18 @@
 import { browserStorage } from './browserStorage';
 import { stateChangeEvent } from './displayUpdate';
 import { loadMatch } from './loadMatch';
-import { env } from './env';
+import { env, getEpisodes } from './env';
 
 export function editPoint(index: number) {
   env.edit_point_index = index;
-  const episodes = env.match.history.action('addPoint');
+  const episodes = getEpisodes();
   env.edit_point = episodes[index].point;
   env.edit_point_result = env.edit_point.result;
   let score = env.edit_point.server ? env.edit_point.score.split('-').reverse().join('-') : env.edit_point.score;
   if (score == '0-0') score = 'Gamepoint';
   const epSGP = document.getElementById('ep_sgp');
   if (epSGP) epSGP.innerHTML = `Set: ${env.edit_point.set + 1}, Game: ${env.edit_point.game + 1}, Point: ${score}`;
-  const players = env.match.metadata.players();
+  const players = env.metadata.players;
   const player_select = Array.from(document.querySelectorAll('.select_player'));
   player_select.forEach((select: any) =>
     players.forEach(

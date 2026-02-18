@@ -1,18 +1,18 @@
-import { env, updateMatchArchive, updatePositions } from './env';
+import { env, updateMatchArchive, updatePositions, updateParticipant, definePlayer } from './env';
 import { loadDetails } from './displayUpdate';
 
 export function updatePlayer() {
   const playerUpdate = updatePlayerDetails();
-  
+
   try {
-    env.match.metadata.updateParticipant(playerUpdate);
+    updateParticipant(playerUpdate);
   } catch (error: any) {
     if (error.message?.includes('No participant found')) {
       // Participant doesn't exist yet, create it with definePlayer
       const index = playerUpdate.sideNumber - 1;
       const firstName = playerUpdate.person?.standardGivenName || 'Player';
       const lastName = playerUpdate.person?.standardFamilyName || String(playerUpdate.sideNumber);
-      env.match.metadata.definePlayer({ index, firstName, lastName });
+      definePlayer({ index, firstName, lastName });
     } else {
       throw error;
     }

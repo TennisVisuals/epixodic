@@ -50,17 +50,7 @@ export function undoAction() {
     env.lets = 0;
     resetButtons();
   } else {
-    // V3 undo - drives UI
-    const undo = env.match.undo();
-    
-    // V4 undo - parallel testing
-    try {
-      env.matchUp.undo();
-      console.log('[HVE] V4 undo shadow call succeeded');
-    } catch (e) {
-      console.error('[HVE] V4 undo shadow call FAILED:', e);
-    }
-    
+    const undo = env.engine.undo();
     // Broadcasting removed
     if (undo) env.undone.push(undo);
     updateMatchArchive(true);
@@ -71,24 +61,18 @@ export function redoAction() {
   if (!env.undone.length) return;
   const point = env.undone.pop();
   pointLogger.log(point);
-  
-  // V3 addPoint - drives UI
-  env.match.addPoint(point);
-  
-  // V4 addPoint - parallel testing
-  try {
-    env.matchUp.addPoint(point);
-    console.log('[HVE] V4 addPoint (redo) shadow call succeeded');
-  } catch (e) {
-    console.error('[HVE] V4 addPoint (redo) shadow call FAILED:', e);
-  }
-  
+
+  // Pass server when redoing — the point has engine-derived server value
+  const opts: any = { winner: point.winner, result: point.result };
+  if (point.server !== undefined) opts.server = point.server;
+  env.engine.addPoint(opts);
   // Broadcasting removed
 }
 export function changeServer() {
   console.log('changeServer');
-  if (!env.match.history.points().length) {
-    env.match.set.firstService(1 - env.serving);
+  const points = env.engine.getState().history?.points || [];
+  if (!points.length) {
+    env.serving = 1 - env.serving;
     updateState();
     viewManager('entry');
   }

@@ -1,9 +1,9 @@
 import { rallyCount } from '../functions/legacyRally';
-import { env } from './env';
+import { env, getEpisodes } from './env';
 
 export function displayPointHistory() {
   const games = groupGames();
-  const players = env.match.metadata.players();
+  const players = env.metadata.players;
   let html = '';
   if (!games.length) return false;
   games.forEach((game: any) => {
@@ -23,7 +23,7 @@ export function displayPointHistory() {
 }
 
 function groupGames() {
-  const point_episodes = env.match.history.action('addPoint');
+  const point_episodes = getEpisodes();
   const games: any = [{ points: [] }];
   let game_counter = 0;
   let current_game = 0;
@@ -113,7 +113,7 @@ function pointEntry(point: any, players: any[]) {
 }
 
 function matchDuration() {
-  const points = env.match.history.points();
+  const points = env.engine.getState().history?.points || [];
   
   // Filter out points without valid timestamps
   const timestamps = points

@@ -8,6 +8,6 @@ export function updateMatchDetails() {
     const value = target.value;
     if (value) match_details[attribute] = value;
   });
-  env.match.metadata.defineMatch(match_details);
+  Object.assign(env.metadata.match, match_details);
   updateMatchArchive();
 }

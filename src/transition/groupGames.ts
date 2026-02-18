@@ -1,7 +1,7 @@
-import { env } from './env';
+import { env, getEpisodes } from './env';
 
 export function groupGames(point_episodes?: any[]) {
-  point_episodes = point_episodes || env.match.history.action('addPoint');
+  point_episodes = point_episodes || getEpisodes();
   const games: any = [{ points: [] }];
   let game_counter = 0;
   let current_game = 0;

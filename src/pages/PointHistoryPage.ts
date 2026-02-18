@@ -55,45 +55,13 @@ export class PointHistoryPage extends BasePage {
   }
 
   private renderHistory(): void {
-    console.log('[HVE] PointHistory - renderHistory() called');
-    if (!this.historyContainer) {
-      console.error('[HVE] PointHistory - historyContainer is null!');
-      return;
-    }
+    if (!this.historyContainer) return;
 
-    // V3 data (drives visualization)
-    const points = env.match.history.points();
-    console.log('[HVE] PointHistory - V3 returned points:', points.length);
-    if (points.length > 0) {
-      console.log('[HVE] PointHistory - V3 first point sample:', {
-        winner: points[0].winner,
-        server: points[0].server,
-        result: points[0].result,
-        score: points[0].score
-      });
-    }
-    
-    // V4 data (parallel testing)
-    const v4_points = env.matchUp.history?.points || [];
-    console.log('[HVE] PointHistory - V4 returned points:', v4_points.length);
-    if (v4_points.length > 0) {
-      console.log('[HVE] PointHistory - V4 first point sample:', {
-        winner: v4_points[0].winner,
-        server: v4_points[0].server,
-        result: v4_points[0].result,
-        pointNumber: v4_points[0].pointNumber
-      });
-    }
-    
-    console.log('[HVE] PointHistory - Count match:', points.length === v4_points.length);
-    console.log('[HVE] PointHistory - Calling displayPointHistory() with', points.length, 'points');
+    const points = env.engine.getState().history?.points || [];
+    console.log('[HVE] PointHistory - Rendering', points.length, 'points');
 
-    // Use existing displayPointHistory function
-    // This function updates the DOM directly
+    // Use existing displayPointHistory function (updates DOM directly)
     displayPointHistory();
-    
-    console.log('[HVE] PointHistory - ✅ Visualization rendering COMPLETE');
-    console.log(`PointHistoryPage: Rendered ${points.length} points`);
   }
 
   protected async onBeforeUnmount(): Promise<void> {

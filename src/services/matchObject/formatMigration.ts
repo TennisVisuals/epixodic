@@ -1,7 +1,7 @@
 // Format Migration Helper
 // Converts legacy UMO format codes to Factory matchUpFormatCode standards
 
-import { convertLegacyToFactory } from '@tennisvisuals/universal-match-object/formats';
+// Legacy UMO import removed - LEGACY_TO_FACTORY mapping table covers all cases
 
 /**
  * Complete mapping of legacy UMO format codes to Factory format codes
@@ -92,12 +92,6 @@ export function migrateFormat(legacyCode: string): string {
   // Use mapping table first
   if (legacyCode in LEGACY_TO_FACTORY) {
     return LEGACY_TO_FACTORY[legacyCode];
-  }
-
-  // Fall back to converter function (handles edge cases)
-  const converted = convertLegacyToFactory(legacyCode);
-  if (converted) {
-    return converted;
   }
 
   // If all else fails, return original (will be caught in validation)

@@ -8,9 +8,7 @@ import { viewManager } from './viewManager';
 import { SwipeList } from './swipeList';
 import { loadMatch } from './loadMatch';
 import { UUID } from './UUID';
-import { env } from './env';
-// Use v3 UMO - v4 testing done via env.matchUp shadow
-import matchObject from '@tennisvisuals/universal-match-object';
+import { env, resetEngine, definePlayer } from './env';
 
 export function displayMatchArchive(params?: any) {
   const active = params?.active;
@@ -100,22 +98,17 @@ function deleteMatch(match_id: string) {
 }
 
 export function resetMatch(matchUpId?: string) {
-  console.log('[HVE] resetMatch called - creating fresh V3 and V4 matches');
-  
-  // Create fresh V3 match (drives UI)
-  env.match = matchObject.Match({ matchUpFormat: 'SET3-S:6/TB7' });
-  env.match.metadata.definePlayer({ index: 0, firstName: 'Player', lastName: 'One' });
-  env.match.metadata.definePlayer({ index: 1, firstName: 'Player', lastName: 'Two' });
-  
-  // Create fresh V4 match (shadow for testing)
-  // TODO: Import MatchV4 if we want to reset v4 too
-  // For now, leave env.matchUp as-is since we're not using it yet
+  console.log('[HVE] resetMatch called - creating fresh engine');
+
+  resetEngine('SET3-S:6/TB7');
+  definePlayer({ index: 0, firstName: 'Player', lastName: 'One' });
+  definePlayer({ index: 1, firstName: 'Player', lastName: 'Two' });
 
   loadDetails();
   updateScore();
   const date = Date.now();
   matchUpId = matchUpId || UUID();
-  env.match.metadata.defineMatch({ matchUpId, date });
+  Object.assign(env.metadata.match, { matchUpId, date });
   browserStorage.set('current_match', matchUpId);
   stateChangeEvent();
 }

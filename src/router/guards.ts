@@ -20,8 +20,8 @@ export type NavigationGuard = (to: any, from: any) => GuardResult | boolean;
  * Used to prevent navigation to stats/charts when no data exists
  */
 export function hasPoints(): GuardResult {
-  const points = env.match.history.points();
-  
+  const points = env.engine.getState().history?.points || [];
+
   if (points.length === 0) {
     return {
       allow: false,
@@ -38,8 +38,8 @@ export function hasPoints(): GuardResult {
  * Format can only be changed before first point
  */
 export function canChangeFormat(): GuardResult {
-  const points = env.match.history.points();
-  
+  const points = env.engine.getState().history?.points || [];
+
   if (points.length > 0) {
     return {
       allow: false,

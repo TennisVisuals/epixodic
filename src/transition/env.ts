@@ -1,50 +1,45 @@
 import { browserStorage } from './browserStorage';
 import { firstAndLast } from './utilities';
-import { migrateMatchData } from '../services/matchObject/formatMigration';
+import { scoreGovernor, participantTypes, participantRoles, matchUpTypes } from 'tods-competition-factory';
+import { buildEpisodes } from '@tennisvisuals/scoring-visualizations';
 
-// UMO v3: Standard match object (drives UI)
-import matchObjectV3 from '@tennisvisuals/universal-match-object';
-
-// UMO v4: Shadow match for parallel testing (no UI interaction)
-import { Match as MatchV4 } from '@tennisvisuals/universal-match-object/v4-umo';
-
-import { participantTypes, participantRoles, matchUpTypes } from 'tods-competition-factory';
-
+const { ScoringEngine } = scoreGovernor;
 const { INDIVIDUAL } = participantTypes;
 const { COMPETITOR } = participantRoles;
 const { SINGLES } = matchUpTypes;
 
 export const charts: any = {};
 
-// Create initial matches - V3 FIRST (drives UI), then V4 (shadow for testing)
-function createDefaultMatches() {
-  console.log('[HVE] Creating default matches - env.match (v3) + env.matchUp (v4)');
-  
-  // V3 Match - drives UI via env.match
-  const matchV3 = matchObjectV3.Match({ matchUpFormat: 'SET3-S:6/TB7' });
-  matchV3.metadata.definePlayer({ index: 0, firstName: 'Player', lastName: 'One' });
-  matchV3.metadata.definePlayer({ index: 1, firstName: 'Player', lastName: 'Two' });
-  
-  // V4 Match - shadow for testing via env.matchUp
-  const matchV4 = MatchV4({ matchUpFormat: 'SET3-S:6/TB7' });
-  matchV4.metadata.definePlayer({ index: 0, firstName: 'Player', lastName: 'One' });
-  matchV4.metadata.definePlayer({ index: 1, firstName: 'Player', lastName: 'Two' });
-  
-  console.log('[HVE] Default matches created - env.match (v3) and env.matchUp (v4) ready');
-  
-  return { matchV3, matchV4 };
+// ── ScoringEngine ──────────────────────────────────────────────────────
+function createEngine(format = 'SET3-S:6/TB7') {
+  return new ScoringEngine({ matchUpFormat: format });
 }
 
-const { matchV3, matchV4 } = createDefaultMatches();
-
-// Do NOT export match/matchUp as standalone - forces use of env.match and env.matchUp
-// This makes it clear: env.match = v3 (UI), env.matchUp = v4 (testing)
-// Commenting out to enforce this pattern:
-// export const match = matchV3;
-// export const matchUp = matchV4;
+// ── Metadata Store ─────────────────────────────────────────────────────
+function createDefaultMetadata() {
+  return {
+    players: [
+      {
+        participantName: 'Player One',
+        participantId: 'player_0',
+        participantType: INDIVIDUAL,
+        participantRole: COMPETITOR,
+        person: { standardGivenName: 'Player', standardFamilyName: 'One' },
+      },
+      {
+        participantName: 'Player Two',
+        participantId: 'player_1',
+        participantType: INDIVIDUAL,
+        participantRole: COMPETITOR,
+        person: { standardGivenName: 'Player', standardFamilyName: 'Two' },
+      },
+    ] as any[],
+    match: {} as any,
+    tournament: {} as any,
+  };
+}
 
 export const app: any = {
-  // broadcast property removed
   user_uuid: undefined,
 };
 
@@ -64,16 +59,16 @@ export const env: any = {
   serve2nd: false,
   rally_mode: false,
   edit_player: undefined,
-  match_swap: false, // automatic swap
-  swap_sides: false, // user initiated swap
+  match_swap: false,
+  swap_sides: false,
   orientation: 'vertical',
-  serving: 0, // Will be set from match
-  receiving: 1, // Will be set from match
+  serving: 0,
+  receiving: 1,
   edit_point_index: undefined,
   provider: undefined,
-  match: matchV3, // env.match = V3 UMO (drives all UI)
-  matchUp: matchV4, // env.matchUp = V4 UMO (parallel testing only, no UI)
-  loading_match: false, // Flag to prevent saving during match load
+  engine: createEngine(),
+  metadata: createDefaultMetadata(),
+  loading_match: false,
 };
 
 const c1 = 'rgb(64, 168, 75)';
@@ -111,25 +106,126 @@ export const device: any = {
 
 export const default_players = ['Player One', 'Player Two'];
 
-export function clearActionEvents() {
-  env.match.events.clearEvents();
+// ── Helper: Get episodes from engine state ────────────────────────────
+export function getEpisodes(): any[] {
+  return buildEpisodes(env.engine.getState());
 }
 
+// ── Helper: Get point display value ───────────────────────────────────
+const POINT_DISPLAY = ['0', '15', '30', '40'];
+function pointDisplay(p: number, isTiebreak: boolean): string {
+  if (isTiebreak) return String(p);
+  if (p >= 0 && p < 4) return POINT_DISPLAY[p];
+  if (p >= 4) return 'AD';
+  return String(p);
+}
+
+// ── Helper: Get score for display (compatible with updateScore) ───────
+export function getScoreForDisplay() {
+  const state = env.engine.getState();
+  const engineScore = env.engine.getScore();
+  const sets = state.score?.sets || [];
+
+  const side1SetWins = sets.filter((s: any) => s.winningSide === 1).length;
+  const side2SetWins = sets.filter((s: any) => s.winningSide === 2).length;
+
+  // Check if current game is a tiebreak
+  const currentSet = sets.length > 0 ? sets[sets.length - 1] : null;
+  const isTiebreak = currentSet?.side1TiebreakScore !== undefined || currentSet?.side2TiebreakScore !== undefined;
+
+  const p1Display = pointDisplay(engineScore.points[0], isTiebreak);
+  const p2Display = pointDisplay(engineScore.points[1], isTiebreak);
+
+  return {
+    counters: {
+      sets: [side1SetWins, side2SetWins],
+      games: engineScore.games,
+    },
+    points: `${p1Display}-${p2Display}`,
+    components: {
+      sets: sets.map((s: any) => ({
+        games: [s.side1Score || 0, s.side2Score || 0],
+      })),
+    },
+  };
+}
+
+// ── Helper: Get setsToWin from format string ──────────────────────────
+export function getSetsToWin(): number {
+  const format = env.engine.getFormat();
+  const match = format.match(/^SET(\d+)/);
+  if (match) return Math.ceil(parseInt(match[1]) / 2);
+  return 1; // Single set format
+}
+
+// ── Helper: Get current server from engine state ─────────────────────
+// The ScoringEngine derives server based on matchUpFormat rules
+// (handles tiebreaks, NOAD, game alternation, etc.)
+export function getNextServer(): number {
+  const state = env.engine.getState();
+  const points = state.history?.points || [];
+  if (points.length === 0) return env.serving;
+
+  // Read server from the last stored point — the engine derived it
+  return points[points.length - 1].server ?? env.serving;
+}
+
+// ── Helper: Check if format uses NoAD ─────────────────────────────────
+export function getNoAd(): boolean {
+  const format = env.engine.getFormat();
+  return format.includes('NOAD');
+}
+
+// ── Metadata Helpers ──────────────────────────────────────────────────
+export function definePlayer(opts: { index: number; firstName: string; lastName: string }) {
+  const player = env.metadata.players[opts.index] || {};
+  player.participantName = `${opts.firstName} ${opts.lastName}`.trim();
+  player.person = {
+    ...player.person,
+    standardGivenName: opts.firstName,
+    standardFamilyName: opts.lastName,
+  };
+  player.participantId = player.participantId || `player_${opts.index}`;
+  player.participantType = INDIVIDUAL;
+  player.participantRole = COMPETITOR;
+  env.metadata.players[opts.index] = player;
+}
+
+export function updateParticipant(update: any) {
+  const index = (update.sideNumber || 1) - 1;
+  const player = env.metadata.players[index] || {};
+  if (update.person) {
+    player.person = { ...player.person, ...update.person };
+    const given = update.person.standardGivenName || player.person.standardGivenName || '';
+    const family = update.person.standardFamilyName || player.person.standardFamilyName || '';
+    player.participantName = `${given} ${family}`.trim();
+  }
+  // Copy other attributes
+  const skipKeys = ['sideNumber', 'person'];
+  Object.keys(update).forEach((key) => {
+    if (!skipKeys.includes(key)) player[key] = update[key];
+  });
+  env.metadata.players[index] = player;
+}
+
+// ── No-ops (replaced functionality) ──────────────────────────────────
+export function clearActionEvents() {
+  // No-op: events system removed with UMO
+}
+
+// ── Position and Archive ─────────────────────────────────────────────
 export function updatePositions() {
   const left_side = env.swap_sides ? 1 : 0;
   const right_side = env.swap_sides ? 0 : 1;
 
   updateMatchArchive();
 
-  // CRITICAL: Use env.match not matchUp! env.match gets replaced when loading,
-  // but matchUp is a global constant that never changes
-  const player_names = env.match.metadata.players();
+  const player_names = env.metadata.players;
   const p1 = document.getElementById('playerone');
   const p2 = document.getElementById('playertwo');
   if (p1) p1.innerHTML = firstAndLast(player_names[left_side].participantName || '');
   if (p2) p2.innerHTML = firstAndLast(player_names[right_side].participantName || '');
 
-  // new way
   const display_player_0 = Array.from(document.querySelectorAll('.display_player_0'));
   display_player_0.forEach((element) => (element.innerHTML = player_names[left_side].participantName || ''));
   const display_player_1 = Array.from(document.querySelectorAll('.display_player_1'));
@@ -137,53 +233,32 @@ export function updatePositions() {
 }
 
 export function updateMatchArchive(force?: boolean) {
-  // Don't save while loading a match (prevents overwriting during load)
-  if (env.loading_match) {
-    return;
-  }
+  if (env.loading_match) return;
 
   const match_id = browserStorage.get('current_match');
-  if (!match_id) {
-    return;
-  }
+  if (!match_id) return;
 
-  // CRITICAL: Use env.match not matchUp
-  const players = env.match.metadata.players();
-  const matchPoints = env.match.history.points();
+  const players = env.metadata.players;
+  const state = env.engine.getState();
+  const matchPoints = state.history?.points || [];
 
   const save =
     force ||
     matchPoints.length ||
     (players[0].participantName != default_players[0] && players[1].participantName != default_players[1]);
 
-  if (!save) {
-    return;
-  }
+  if (!save) return;
 
-  // add key for current match
   const match_archive = JSON.parse(browserStorage.get('match_archive') || '[]');
-
   if (!match_archive.includes(match_id)) {
     match_archive.push(match_id);
     browserStorage.set('match_archive', JSON.stringify(match_archive));
   }
 
-  // Build TODS matchUp from UMO (UMO is always TODS format after load/conversion)
-  const match = env.match.metadata.defineMatch();
-  const tournament = env.match.metadata.defineTournament();
-  // Use modern property accessor instead of deprecated settings() method
-  const matchUpFormat = env.match.format.code || 'SET3-S:6/TB7';
+  const matchUpFormat = env.engine.getFormat();
+  const scoreboard = env.engine.getScoreboard();
+  const sets = state.score?.sets || [];
 
-  // Build minimal TODS score structure
-  // We save points, so UMO can reconstruct sets on load
-  const scoreboard = env.match.scoreboard();
-  const score = {
-    sets: [], // Will be reconstructed from points on load
-    scoreStringSide1: scoreboard,
-    scoreStringSide2: scoreboard, // TODO: flip for side2 perspective
-  };
-
-  // Build TODS sides from players (sideNumber 1, 2)
   const sides = players.map((player: any, index: number) => ({
     sideNumber: index + 1,
     participantId: player.participantId,
@@ -199,52 +274,43 @@ export function updateMatchArchive(force?: boolean) {
     },
   }));
 
-  // Add points detail to score object (TODS format)
-  const todsScore = {
-    ...score,
-    points: matchPoints,
-  };
-
-  // TODS matchUp structure - always save as TODS (no legacy fallbacks)
   const todsMatchUp = {
-    tournamentId: tournament?.tournamentId || match?.tournamentId,
+    tournamentId: env.metadata.tournament?.tournamentId || env.metadata.match?.tournamentId,
     matchUpId: match_id,
-    matchUpFormat: matchUpFormat,
+    matchUpFormat,
     matchUpType: SINGLES,
-    sides: sides,
-    score: todsScore,
-    // App-specific data (not part of TODS matchUp spec, but needed for app)
+    sides,
+    score: {
+      sets,
+      points: matchPoints,
+      scoreStringSide1: scoreboard,
+      scoreStringSide2: scoreboard,
+    },
     _appData: {
-      scoreboard: env.match.scoreboard(),
-      first_service: env.match.set.firstService(),
+      scoreboard,
+      first_service: env.serving,
     },
   };
 
   browserStorage.set(match_id, JSON.stringify(todsMatchUp));
 }
 
-// Add function to load and auto-migrate stored matches
 export function loadStoredMatch(match_id: string): any {
   const stored = browserStorage.get(match_id);
   if (!stored) return null;
 
   try {
-    const matchData = JSON.parse(stored);
-
-    // Auto-migrate if this is a legacy match (not TODS-native or Factory-migrated)
-    if (!matchData._tods_native && !matchData._factory_migrated) {
-      const migrated = migrateMatchData(matchData);
-      // Save the migrated version with TODS flag
-      migrated._tods_native = true;
-      browserStorage.set(match_id, JSON.stringify(migrated));
-      return migrated;
-    }
-
-    return matchData;
+    return JSON.parse(stored);
   } catch (e) {
     console.error('Error loading match:', e);
     return null;
   }
+}
+
+// ── Engine Reset Helper ──────────────────────────────────────────────
+export function resetEngine(format = 'SET3-S:6/TB7') {
+  env.engine = createEngine(format);
+  env.metadata = createDefaultMetadata();
 }
 
 export function restoreAppState() {

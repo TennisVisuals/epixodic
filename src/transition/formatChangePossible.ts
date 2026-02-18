@@ -1,14 +1,15 @@
-import { env } from './env';
+import { env, getEpisodes } from './env';
 
 export function formatChangePossible() {
-  const advantages = env.match.history
-    .score()
-    .flatMap((s) => s.split('-'))
+  const episodes = getEpisodes();
+  // Check if any episode has advantage scoring (score contains 'A')
+  const advantages = episodes
+    .map((ep: any) => ep.point?.score || '')
+    .flatMap((s: string) => s.split('-'))
     .includes('A');
   if (advantages) return false;
-  const common = env.match.history.common();
-  if (common.length == 0) return true;
-  const last = common[common.length - 1];
+  if (episodes.length == 0) return true;
+  const last = episodes[episodes.length - 1];
   return last.set.complete;
 
   // TODO: implement when umo can propagate changes to children...

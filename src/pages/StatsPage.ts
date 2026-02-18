@@ -7,7 +7,7 @@
 
 import { BasePage, PageOptions } from './BasePage';
 import { env, options } from '../transition/env';
-import { simpleChart } from '../visualizations/simpleChart';
+import { simpleChart } from '@tennisvisuals/scoring-visualizations';
 
 export class StatsPage extends BasePage {
   private statsContainer: HTMLElement | null = null;
@@ -53,16 +53,7 @@ export class StatsPage extends BasePage {
     this.statsContainer.innerHTML = '';
     this.charts = [];
 
-    // V3 data (drives visualization)
-    const sets = env.match.sets().length;
-    console.log('[HVE] StatsPage - V3 returned sets:', sets);
-    
-    // V4 data (parallel testing)
-    const v4_sets = env.matchUp.score?.sets?.length || 0;
-    console.log('[HVE] StatsPage - V4 returned sets:', v4_sets);
-    
-    console.log('[HVE] StatsPage - Set count match:', sets === v4_sets);
-    console.log('[HVE] StatsPage - Rendering stats with', sets, 'sets');
+    const sets = env.engine.getState().score?.sets?.length || 0;
     
     let html = '';
 
@@ -100,13 +91,7 @@ export class StatsPage extends BasePage {
     const chartsContainer = this.statsContainer?.querySelector('.stats-charts-container');
     if (!chartsContainer) return;
 
-    // Reset stats calculation
-    if (env.match.metadata.resetStats) {
-      env.match.metadata.resetStats();
-    }
-
-    // Use legacy updateStats instead of calculateStats (which doesn't exist)
-    // TODO: Implement proper stats calculation in UMO or use existing counters
+    // Use legacy updateStats for stats display
     const { updateStats } = await import('../transition/updateStats');
     updateStats();
     

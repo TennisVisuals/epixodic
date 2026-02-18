@@ -1,10 +1,8 @@
-import { env, updateMatchArchive } from './env';
+import { env, updateMatchArchive, resetEngine } from './env';
 import { updateScore } from './displayUpdate';
 import { viewManager } from './viewManager';
 import { findUpClass } from './utilities';
 import { getFormatName } from '../services/matchObject/formatMigration';
-// Use v3 UMO - v4 testing done via env.matchUp shadow
-import matchObject from '@tennisvisuals/universal-match-object';
 
 export function changeFormat(element: Element) {
   const selectionContainer = findUpClass(element, 'mf_format');
@@ -13,16 +11,14 @@ export function changeFormat(element: Element) {
 
     if (!selectedFormat) return;
 
-    const pointsPlayed = env.match.history.points().length;
+    const pointsPlayed = (env.engine.getState().history?.points || []).length;
 
     if (pointsPlayed === 0) {
-      console.log('[HVE] changeFormat creating new v3 match with format:', selectedFormat);
-      env.match = matchObject.Match({ matchUpFormat: selectedFormat });
-      // TODO: Also create v4 matchUp when we need parallel testing
-      // env.matchUp = MatchV4({ matchUpFormat: selectedFormat });
+      console.log('[HVE] changeFormat creating new engine with format:', selectedFormat);
+      resetEngine(selectedFormat);
     } else {
-      // Points already played - just update format code
-      env.match.format.changeFormat(selectedFormat);
+      // Points already played - format change mid-match not supported
+      console.warn('[HVE] Format change mid-match not supported with ScoringEngine');
     }
 
     // Update UI with format name

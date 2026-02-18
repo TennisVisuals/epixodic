@@ -1,10 +1,7 @@
 import { changeDisplay, viewManager } from './viewManager';
-import { charts, env, setOrientation } from './env';
-import { momentumChart } from '../visualizations/momentumChart';
+import { charts, env, setOrientation, getEpisodes } from './env';
+import { gameTree, gameFish, momentumChart, ptsMatch } from '@tennisvisuals/scoring-visualizations';
 import { groupGames } from './groupGames';
-import { gameTree } from '../visualizations/gameTree';
-import { ptsMatch } from '../visualizations/ptsChart';
-import { gameFish } from '../visualizations/gameFish';
 
 import * as d3 from 'd3';
 
@@ -60,14 +57,16 @@ export function configureViz() {
     },
   };
   charts.gametree.options(options);
-  d3.select('#gameTreeChart').call(charts.gametree);
+  // Don't bind to DOM here — #gametree is hidden during init, causing negative dimensions.
+  // Binding is deferred to first activation via ensureGameTreeChart().
 
   charts.pts_match = ptsMatch();
   charts.pts_match.options({
     margins: { top: 40, bottom: 20 },
     display: { sizeToFit: true },
   });
-  charts.pts_match.data(env.match);
+  const episodes = getEpisodes();
+  charts.pts_match.data(episodes);
   d3.select('#PTSChart').call(charts.pts_match);
 }
 
@@ -96,6 +95,42 @@ export function showGameFish(index?: number) {
   window.scrollTo(0, 0);
 }
 
+let gametreeBound = false;
+
+export function ensureGameTreeChart() {
+  if (!gametreeBound && charts.gametree) {
+    d3.select('#gameTreeChart').call(charts.gametree);
+    gametreeBound = true;
+  }
+}
+
+function isVisible(id: string): boolean {
+  const el = document.getElementById(id);
+  return !!el && el.offsetHeight > 0;
+}
+
+export function updateChartData() {
+  if (env.loading_match) return;
+
+  const episodes = getEpisodes();
+  if (!episodes || episodes.length === 0) return;
+
+  if (charts.gametree && gametreeBound && isVisible('gameTreeChart')) {
+    charts.gametree.data(episodes);
+    charts.gametree.update({});
+  }
+
+  if (charts.mc && isVisible('momentumChart')) {
+    charts.mc.data(episodes);
+    charts.mc.update({});
+  }
+
+  if (charts.pts_match && isVisible('PTSChart')) {
+    charts.pts_match.data(episodes);
+    charts.pts_match.update({});
+  }
+}
+
 export function vizUpdate() {
   const direction = env.orientation == 'landscape' ? 'horizontal' : 'vertical';
 
@@ -108,17 +143,17 @@ export function vizUpdate() {
   } else if (env.view == 'momentum' && direction == 'horizontal') {
     changeDisplay('none', 'momentum');
     changeDisplay('flex', 'pts');
-    // Pass updated match objects for comparison logging before updating
-    charts.pts_match.data(env.match, env.matchUp);
+    const ptsEpisodes = getEpisodes();
+    charts.pts_match.data(ptsEpisodes);
     charts.pts_match.update({ sizeToFit: true });
     env.view = 'pts';
   }
 
   if (charts.gamefish) charts.gamefish.update();
 
-  const players = env.match.metadata.players();
+  const players = env.metadata.players;
 
-  if (charts.gametree) {
+  if (charts.gametree && gametreeBound) {
     charts.gametree.options({
       labels: {
         Player: players[0].participantName,

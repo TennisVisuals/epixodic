@@ -4,8 +4,7 @@ import { getAvailableFormats } from '../services/matchObject/formatMigration';
 export function displayFormats() {
   // Use Factory formats from migration helper
   const formats = getAvailableFormats();
-  // FACTORY-FIRST: Use modern code accessor
-  const current = env.match.format.code;
+  const current = env.engine.getFormat();
   
   let html = '';
   if (!formats.length) return false;

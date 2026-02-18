@@ -19,6 +19,6 @@ export function updateTournamentDetails() {
     const value = target.value;
     if (value) tournament[attribute] = value.trim();
   });
-  env.match.metadata.defineTournament(tournament);
+  Object.assign(env.metadata.tournament, tournament);
   updateMatchArchive();
 }

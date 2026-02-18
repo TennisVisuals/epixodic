@@ -6,7 +6,7 @@
  */
 
 import { BasePage, PageOptions } from './BasePage';
-import { env, charts } from '../transition/env';
+import { env, charts, getEpisodes } from '../transition/env';
 
 export class MomentumPage extends BasePage {
   private currentOrientation: 'portrait' | 'landscape' = 'portrait';
@@ -77,64 +77,28 @@ export class MomentumPage extends BasePage {
   }
 
   private renderMomentumChart(): void {
-    console.log('[HVE] MomentumChart - renderMomentumChart() called');
-
-    // V3 data (drives visualization)
-    const point_episodes = env.match.history.action('addPoint');
-    console.log('[HVE] MomentumChart - V3 returned episodes:', point_episodes.length);
-
-    // V4 data (parallel testing)
-    const v4_point_episodes =
-      env.matchUp.history?.points?.map((point, index) => ({
-        action: 'addPoint',
-        point: point,
-        index: index,
-      })) || [];
-    console.log('[HVE] MomentumChart - V4 returned points:', v4_point_episodes.length);
-
-    console.log('[HVE] MomentumChart - Count match:', point_episodes.length === v4_point_episodes.length);
-    console.log('[HVE] MomentumChart - Passing to visualization:', point_episodes.length, 'episodes');
+    const point_episodes = getEpisodes();
 
     if (!charts.mc) {
-      console.error('[HVE] MomentumChart - ❌ FAILED: charts.mc not initialized');
       console.warn('Momentum chart not initialized');
       return;
     }
 
-    // Configure momentum chart
-    console.log('[HVE] MomentumChart - Setting data and calling update()');
     charts.mc.width(globalThis.window.innerWidth).height(820);
     charts.mc.data(point_episodes).update();
     charts.mc.update();
-
-    console.log('[HVE] MomentumChart - ✅ Visualization rendering COMPLETE');
-    console.log(`MomentumPage: Rendered momentum chart with ${point_episodes.length} points`);
   }
 
   private renderPtsChart(): void {
-    console.log('[HVE] PtsChart - renderPtsChart() called');
-
-    // V3 data (drives visualization)
-    const point_episodes = env.match.history.action('addPoint');
-    console.log('[HVE] PtsChart - V3 returned episodes:', point_episodes.length);
-
-    // V4 data (parallel testing)
-    const v4_point_episodes = env.matchUp.history.action('addPoint');
-    console.log({ point_episodes, v4_point_episodes });
+    const point_episodes = getEpisodes();
 
     if (!charts.pts_match) {
-      console.error('[HVE] PtsChart - ❌ FAILED: charts.pts_match not initialized');
       console.warn('PTS chart not initialized');
       return;
     }
 
-    // Configure pts chart
-    console.log('[HVE] PtsChart - Setting data and calling update()');
     charts.pts_match.width(globalThis.window.innerWidth * 0.9).height(800);
     charts.pts_match.data(point_episodes).update();
-
-    console.log('[HVE] PtsChart - ✅ Visualization rendering COMPLETE');
-    console.log(`MomentumPage: Rendered PTS chart with ${point_episodes.length} points`);
   }
 
   private setupResizeObserver(): void {

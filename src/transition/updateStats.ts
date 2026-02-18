@@ -1,36 +1,79 @@
-import { simpleChart } from '../visualizations/simpleChart';
+import { simpleChart, computeMatchStatsFromMatchUp } from '@tennisvisuals/scoring-visualizations';
 import { viewManager } from './viewManager';
-import { env, options } from './env';
+import { env, options, getEpisodes } from './env';
+
+// Convert StatObject[] from computeMatchStatsFromMatchUp to the legacy display format
+function convertStatsToLegacyFormat(statObjects: any[]): any[] {
+  return statObjects.map((stat: any) => {
+    const [n0, n1] = stat.numerator;
+    const hasDenom = stat.denominator && (stat.denominator[0] > 0 || stat.denominator[1] > 0);
+    const hasPct = stat.pct && (stat.pct[0] > 0 || stat.pct[1] > 0);
+
+    let display0: string, display1: string;
+    let value0: number, value1: number;
+
+    if (hasPct) {
+      display0 = `${stat.pct[0]}% (${n0}/${stat.denominator[0]})`;
+      display1 = `${stat.pct[1]}% (${n1}/${stat.denominator[1]})`;
+      value0 = stat.pct[0];
+      value1 = stat.pct[1];
+    } else if (hasDenom) {
+      display0 = `${n0}/${stat.denominator[0]}`;
+      display1 = `${n1}/${stat.denominator[1]}`;
+      value0 = n0;
+      value1 = n1;
+    } else {
+      display0 = String(n0);
+      display1 = String(n1);
+      value0 = n0;
+      value1 = n1;
+    }
+
+    return {
+      category: stat.name,
+      teams: [
+        { display: display0, value: value0, numerators: hasDenom ? [stat.name] : undefined },
+        { display: display1, value: value1, numerators: hasDenom ? [stat.name] : undefined },
+      ],
+    };
+  });
+}
+
+// Derive hand/stroke counters from engine history points
+function deriveCounters(setFilter?: number): { teams: any[] } {
+  const episodes = getEpisodes();
+  const teams: any[] = [{}, {}];
+
+  episodes.forEach((episode: any) => {
+    const point = episode.point;
+    if (setFilter !== undefined && point.set !== setFilter) return;
+    if (!point.hand) return;
+
+    const hand = point.hand; // 'Forehand' or 'Backhand'
+    // Determine which team this finishing shot belongs to
+    // For winners/aces, it's the winner; for errors, it's the loser (1 - winner)
+    const isWinnerShot = ['Winner', 'Ace'].includes(point.result);
+    const shotBy = isWinnerShot ? point.winner : 1 - point.winner;
+
+    if (!teams[shotBy][hand]) teams[shotBy][hand] = [];
+    teams[shotBy][hand].push({ point });
+  });
+
+  return { teams };
+}
 
 export function updateStats(element?: Element) {
   const setNumber = element ? element.getAttribute('setNumber') : undefined;
   const set_filter = setNumber ? parseInt(setNumber) : undefined;
   let html = '';
   const charts: any[] = [];
-  const sets = env.match.sets().length;
+  const sets = (env.engine.getState().score?.sets || []).length;
   let statselectors = `<div class='updateStats s_set'>Match</div>`;
-  
-  // Use V4 stats (fixes handed stats that were broken in V3)
-  const stats = env.matchUp.stats.calculated(set_filter);
-  
-  console.log('\n========== [HVE] V4 STATISTICS COMPARISON ==========');
-  console.log('[HVE] V4 stats.calculated returned', stats?.length, 'statistics:');
-  stats?.forEach((stat: any) => {
-    console.log(`  - ${stat.category}: ${stat.teams[0].display} - ${stat.teams[1].display}`);
-  });
-  
-  // V3 stats.calculated - parallel for comparison
-  try {
-    const v3Stats = env.match.stats.calculated(set_filter);
-    console.log('\n[HVE] V3 stats.calculated returned', v3Stats?.length, 'statistics:');
-    v3Stats?.forEach((stat: any) => {
-      console.log(`  - ${stat.category}: ${stat.teams[0].display} - ${stat.teams[1].display}`);
-    });
-    console.log('========== END STATISTICS COMPARISON ==========\n');
-  } catch (e) {
-    console.error('[HVE] V3 stats.calculated FAILED:', e);
-  }
-  
+
+  // Compute stats from engine state using scoring-visualizations
+  const rawStats = computeMatchStatsFromMatchUp(env.engine.getState());
+  const stats = convertStatsToLegacyFormat(rawStats);
+
   const stripModifiers = (text: string) => text.match(/[A-Za-z0-9_]/g)?.join('');
   if (stats?.length && Array.isArray(stats)) {
     // generate & display match/set view selectors
@@ -124,36 +167,10 @@ export function updateStats(element?: Element) {
       }
     });
 
-    // Use V4 counters (includes proper Forehand/Backhand grouping)
-    const countersObj = env.matchUp.stats.counters(set_filter);
+    // Derive hand/stroke counters from engine history points
+    const countersObj = deriveCounters(set_filter);
     const counters = countersObj.teams;
-    
-    console.log('[HVE] V4 Counters analysis:');
-    console.log('  Team 0 categories:', Object.keys(counters[0] || {}));
-    console.log('  Team 1 categories:', Object.keys(counters[1] || {}));
-    
-    // Check for serve-related counters
-    console.log('  Team 0 serves1stIn:', counters[0]?.serves1stIn?.length || 0);
-    console.log('  Team 0 serves1stWon:', counters[0]?.serves1stWon?.length || 0);
-    console.log('  Team 0 pointsServed:', counters[0]?.pointsServed?.length || 0);
-    console.log('  Team 0 winners:', counters[0]?.winners?.length || 0);
-    console.log('  Team 0 forcedErrors:', counters[0]?.forcedErrors?.length || 0);
-    
-    // Sample point to see metadata
-    if (counters[0]?.pointsWon?.length > 0) {
-      console.log('  Sample point from Team 0:', counters[0].pointsWon[0]);
-    }
-    
-    // V3 stats.counters - parallel for comparison
-    try {
-      const v3Counters = env.match.stats.counters(set_filter);
-      console.log('\n[HVE] V3 Counters analysis:');
-      console.log('  Team 0 categories:', Object.keys(v3Counters.teams[0] || {}));
-      console.log('[HVE] V3 stats.counters parallel call');
-    } catch (e) {
-      console.error('[HVE] V3 stats.counters FAILED:', e);
-    }
-    
+
     // Check if counters exist and have data before accessing
     if (counters && counters[0] && counters[1] && 
         (counters[0].Backhand || counters[0].Forehand || counters[1].Backhand || counters[1].Forehand)) {
@@ -226,18 +243,8 @@ export function updateStats(element?: Element) {
 }
 
 function addCharts(charts: any[]) {
-  // Use V4 counters for chart rendering
-  const counters = env.matchUp.stats.counters();
-  
-  // V3 stats.counters - parallel for comparison
-  try {
-    // const v3Counters = env.match.stats.counters();
-    env.match.stats.counters();
-    console.log('[HVE] V3 stats.counters (addCharts) parallel call');
-  } catch (e) {
-    console.error('[HVE] V3 stats.counters (addCharts) FAILED:', e);
-  }
-  
+  const counters = deriveCounters();
+
   const stripModifiers = (text: string) => text.match(/[A-Za-z0-9]/g)?.join('');
   if (!counters) return;
   charts.forEach((chart) => {
@@ -246,13 +253,10 @@ function addCharts(charts: any[]) {
       const team = counters.teams[key];
       const numerators = chart.numerators.split(',').map((numerator: any) => stripModifiers(numerator));
       const episodes = [].concat(...numerators.map((numerator: any) => team[numerator]));
-      
-      // V4 returns points directly, V3 wraps them in episodes
+
       const points = episodes
         .map((episode: any) => {
           if (!episode) return undefined;
-          // If it has a 'point' property, it's V3 episode structure
-          // Otherwise it's V4 direct point structure
           return episode.point ? episode.point : episode;
         })
         .filter((f) => f)

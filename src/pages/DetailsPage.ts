@@ -6,7 +6,7 @@
  */
 
 import { BasePage, PageOptions } from './BasePage';
-import { env } from '../transition/env';
+import { env, definePlayer } from '../transition/env';
 import { formatToTODS, getTodayTODS } from '../utils/dateUtils';
 
 export class DetailsPage extends BasePage {
@@ -56,9 +56,9 @@ export class DetailsPage extends BasePage {
   private renderDetailsForm(): void {
     if (!this.detailsContainer) return;
 
-    const players = env.match.metadata.players();
-    const matchInfo = env.match.metadata.defineMatch();
-    const tournamentInfo = env.match.metadata.defineTournament();
+    const players = env.metadata.players;
+    const matchInfo = env.metadata.match;
+    const tournamentInfo = env.metadata.tournament;
 
     // Player Details Section
     const playersSection = this.createSection('Players', [
@@ -175,18 +175,18 @@ export class DetailsPage extends BasePage {
   }
 
   private getMatchDate(): string {
-    const matchInfo = env.match.metadata.defineMatch();
-    
+    const matchInfo = env.metadata.match;
+
     // If date exists and is in TODS format, return it
     if (matchInfo?.matchDate && typeof matchInfo.matchDate === 'string') {
       return matchInfo.matchDate;
     }
-    
+
     // If it's a timestamp, convert to TODS format
     if (typeof matchInfo?.matchDate === 'number') {
       return formatToTODS(matchInfo.matchDate);
     }
-    
+
     // Default to today
     return getTodayTODS();
   }
@@ -195,7 +195,7 @@ export class DetailsPage extends BasePage {
     const [firstName, ...lastNameParts] = name.split(' ');
     const lastName = lastNameParts.join(' ');
 
-    env.match.metadata.definePlayer({
+    definePlayer({
       index,
       firstName: firstName || '',
       lastName: lastName || '',
@@ -205,53 +205,27 @@ export class DetailsPage extends BasePage {
   }
 
   private updateMatchDate(date: string): void {
-    // Store in TODS format (YYYY-MM-DD)
-    const matchInfo = env.match.metadata.defineMatch();
-    env.match.metadata.defineMatch({
-      ...matchInfo,
-      matchDate: date,
-    });
-
+    Object.assign(env.metadata.match, { matchDate: date });
     console.log('Updated match date:', date);
   }
 
   private updateMatchRound(round: string): void {
-    const matchInfo = env.match.metadata.defineMatch();
-    env.match.metadata.defineMatch({
-      ...matchInfo,
-      roundName: round,
-    });
-
+    Object.assign(env.metadata.match, { roundName: round });
     console.log('Updated match round:', round);
   }
 
   private updateMatchCourt(court: string): void {
-    const matchInfo = env.match.metadata.defineMatch();
-    env.match.metadata.defineMatch({
-      ...matchInfo,
-      courtName: court,
-    });
-
+    Object.assign(env.metadata.match, { courtName: court });
     console.log('Updated match court:', court);
   }
 
   private updateTournamentName(name: string): void {
-    const tournamentInfo = env.match.metadata.defineTournament();
-    env.match.metadata.defineTournament({
-      ...tournamentInfo,
-      tournamentName: name,
-    });
-
+    Object.assign(env.metadata.tournament, { tournamentName: name });
     console.log('Updated tournament name:', name);
   }
 
   private updateTournamentCategory(category: string): void {
-    const tournamentInfo = env.match.metadata.defineTournament();
-    env.match.metadata.defineTournament({
-      ...tournamentInfo,
-      category,
-    });
-
+    Object.assign(env.metadata.tournament, { category });
     console.log('Updated tournament category:', category);
   }
 
