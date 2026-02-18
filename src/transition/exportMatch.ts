@@ -1,5 +1,5 @@
 import { browserStorage } from '../state/browserStorage';
-import { closeModal } from './modals';
+import { closeModal } from '../modals/modals';
 
 export function exportMatch(element: any) {
   const match_id = element.getAttribute('matchId');

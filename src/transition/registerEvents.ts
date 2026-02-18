@@ -14,10 +14,10 @@ import { toggleChart } from './toggleChart';
 import { updateStats } from './updateStats';
 import { updatePoint } from './editPoint';
 import { editPlayer } from './editPlayer';
-import { modalHelp } from './modalHelp';
-import { modalInfo } from './modalInfo';
+import { modalHelp } from '../modals/modalHelp';
+import { modalInfo } from '../modals/modalInfo';
 import { updateAppState } from '../state/env';
-import { closeModal } from './modals';
+import { closeModal } from '../modals/modals';
 import {
   outcomeEntry,
   matchArchive,

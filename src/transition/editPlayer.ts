@@ -1,4 +1,4 @@
-import { closeModal } from './modals';
+import { closeModal } from '../modals/modals';
 import { env } from '../state/env';
 
 export function editPlayer(element: any) {

@@ -9,9 +9,9 @@ import { changeDisplay } from './viewManager';
 import { touchManager } from '../events/touchManager';
 import { defineActionEvents } from './events';
 import { generateRange } from '../utils/utilities';
-import { modalHelp } from './modalHelp';
+import { modalHelp } from '../modals/modalHelp';
 import { loadMatch } from './loadMatch';
-import { closeModal } from './modals';
+import { closeModal } from '../modals/modals';
 import clipboard from 'clipboard';
 import { tools } from 'tods-competition-factory';
 import {
