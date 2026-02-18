@@ -119,14 +119,14 @@ function pointDisplayPair(p1: number, p2: number, isTiebreak: boolean): [string,
   // Before deuce: use standard progression
   if (p1 < 4 && p2 < 4) return [POINT_DISPLAY[p1], POINT_DISPLAY[p2]];
 
-  // One side won the game outright (threshold met with min difference)
-  if (p1 < 4 || p2 < 4) {
-    return [p1 < 4 ? POINT_DISPLAY[p1] : 'G', p2 < 4 ? POINT_DISPLAY[p2] : 'G'];
+  // At or past deuce (both players have reached 40)
+  if (p1 >= 3 && p2 >= 3) {
+    if (p1 === p2) return ['40', '40'];
+    return p1 > p2 ? ['AD', '40'] : ['40', 'AD'];
   }
 
-  // Both at or above deuce
-  if (p1 === p2) return ['40', '40'];
-  return p1 > p2 ? ['AD', '40'] : ['40', 'AD'];
+  // One side won the game outright (reached 4+ while opponent below 40)
+  return [p1 >= 4 ? 'G' : POINT_DISPLAY[p1], p2 >= 4 ? 'G' : POINT_DISPLAY[p2]];
 }
 
 // ── Helper: Get score for display (compatible with updateScore) ───────
