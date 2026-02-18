@@ -792,7 +792,7 @@ body {
   width: 2em;
   height: 0;
   padding-bottom: 2em;
-  background-image: url('../..//assets/icons/sprite.png');
+  background-image: url('../assets/icons/sprite.png');
   background-size: 100%;
 }
 
