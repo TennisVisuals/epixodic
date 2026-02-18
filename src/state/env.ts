@@ -233,6 +233,7 @@ export function definePlayer(opts: { index: number; firstName: string; lastName:
   player.participantType = INDIVIDUAL;
   player.participantRole = COMPETITOR;
   env.metadata.players[opts.index] = player;
+  syncParticipantToEngine(opts.index, player);
 }
 
 export function updateParticipant(update: any) {
@@ -250,6 +251,29 @@ export function updateParticipant(update: any) {
     if (!skipKeys.includes(key)) player[key] = update[key];
   });
   env.metadata.players[index] = player;
+  syncParticipantToEngine(index, player);
+}
+
+function syncParticipantToEngine(index: number, player: any) {
+  const side = env.engine.getState().sides?.[index];
+  if (side) {
+    side.participant = {
+      participantId: player.participantId,
+      participantName: player.participantName,
+      participantType: player.participantType || INDIVIDUAL,
+      participantRole: player.participantRole || COMPETITOR,
+      person: player.person,
+    };
+  }
+}
+
+/** Read participant names from the engine state (source of truth) */
+export function getParticipantNames(): [string, string] {
+  const sides = env.engine.getState().sides;
+  return [
+    sides?.[0]?.participant?.participantName || 'Player 1',
+    sides?.[1]?.participant?.participantName || 'Player 2',
+  ];
 }
 
 // ── No-ops (replaced functionality) ──────────────────────────────────

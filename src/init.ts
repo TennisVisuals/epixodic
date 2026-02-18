@@ -56,7 +56,7 @@ export function init() {
       queryString[pair[0]].push(pair[1]);
     }
   }
-  history.pushState('', document.title, window.location.pathname);
+  history.pushState('', document.title, window.location.pathname + window.location.hash);
 
   touchManager.disableDrag();
   registerEvents();

@@ -1,5 +1,5 @@
 import { changeDisplay } from './viewManager';
-import { charts, env, setOrientation, getEpisodes } from '../state/env';
+import { charts, env, setOrientation, getEpisodes, getParticipantNames } from '../state/env';
 import { gameTree, gameFish, momentumChart, ptsMatch } from '@tennisvisuals/scoring-visualizations';
 import { groupGames } from '../engine/groupGames';
 
@@ -151,14 +151,11 @@ export function vizUpdate() {
 
   if (charts.gamefish) charts.gamefish.update();
 
-  const players = env.metadata.players;
+  const [player, opponent] = getParticipantNames();
 
   if (charts.gametree && gametreeBound) {
     charts.gametree.options({
-      labels: {
-        Player: players[0].participantName,
-        Opponent: players[1].participantName,
-      },
+      labels: { Player: player, Opponent: opponent },
     });
     charts.gametree.update({ sizeToFit: true });
   }

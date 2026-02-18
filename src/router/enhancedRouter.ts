@@ -185,6 +185,7 @@ export class EnhancedRouter {
       'momentum',
       'pts',
       'gametree',
+      'gamefish',
       'toolbar',
     ];
 
