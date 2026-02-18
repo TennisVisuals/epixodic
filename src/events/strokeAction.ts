@@ -1,6 +1,6 @@
 import { stateChangeEvent } from '../display/displayUpdate';
 import { checkMatchEnd } from '../engine/checkMatchEnd';
-import { strokeSlider } from '../events/strokeSlider';
+import { strokeSlider } from './strokeSlider';
 import { env, getEpisodes } from '../state/env';
 
 export function strokeAction(element: any) {

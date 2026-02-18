@@ -1,7 +1,7 @@
 import { loadDetails, stateChangeEvent, updateScore } from '../display/displayUpdate';
 import { clearActionEvents, env, updatePositions, resetEngine, definePlayer, updateParticipant } from '../state/env';
 import { browserStorage } from '../state/browserStorage';
-import { defineActionEvents } from './events';
+import { defineActionEvents } from '../events/events';
 import { viewManager } from '../display/viewManager';
 import { isJSON } from '../utils/utilities';
 import { tools } from 'tods-competition-factory';

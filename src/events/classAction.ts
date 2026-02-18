@@ -2,7 +2,7 @@ import { stateChangeEvent, updateState, visibleButtons } from '../display/displa
 import { resetButton, resetStyles } from './events';
 import { checkMatchEnd } from '../engine/checkMatchEnd';
 import { buttons, env, settings } from '../state/env';
-import { strokeSlider } from '../events/strokeSlider';
+import { strokeSlider } from './strokeSlider';
 import { DOUBLE_FAULT } from '../utils/constants';
 import { pointLogger } from '../services/pointLogger';
 

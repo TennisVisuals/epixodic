@@ -3,11 +3,11 @@ import { configureViz, orientationEvent, vizUpdate } from '../display/configureV
 import { setInitialState } from '../config/initialState';
 import { setDev } from '../services/helpers/setDev';
 import { browserStorage } from '../state/browserStorage';
-import { registerEvents } from './registerEvents';
+import { registerEvents } from '../events/registerEvents';
 import { newMatch } from './displayMatchArchive';
 import { changeDisplay } from '../display/viewManager';
 import { touchManager } from '../events/touchManager';
-import { defineActionEvents } from './events';
+import { defineActionEvents } from '../events/events';
 import { generateRange } from '../utils/utilities';
 import { modalHelp } from '../modals/modalHelp';
 import { loadMatch } from './loadMatch';
