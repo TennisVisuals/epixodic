@@ -1,4 +1,4 @@
-import { findUpClass } from './utilities';
+import { findUpClass } from '../utils/utilities';
 
 export function toggleChart(element: Element) {
   const container = findUpClass(element, 'statrow');

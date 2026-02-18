@@ -1,4 +1,4 @@
-import { browserStorage } from './browserStorage';
+import { browserStorage } from '../state/browserStorage';
 import { stateChangeEvent } from './displayUpdate';
 import { loadMatch } from './loadMatch';
 import { env, getEpisodes } from './env';

@@ -1,5 +1,5 @@
 import { version } from '../config/version';
-import { showModal } from './utilities';
+import { showModal } from '../utils/utilities';
 
 export function modalInfo() {
   const modaltext = `

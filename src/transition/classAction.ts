@@ -2,8 +2,8 @@ import { stateChangeEvent, updateState, visibleButtons } from './displayUpdate';
 import { resetButton, resetStyles } from './events';
 import { checkMatchEnd } from './checkMatchEnd';
 import { buttons, env, settings } from './env';
-import { strokeSlider } from './strokeSlider';
-import { DOUBLE_FAULT } from './constants';
+import { strokeSlider } from '../events/strokeSlider';
+import { DOUBLE_FAULT } from '../utils/constants';
 import { pointLogger } from '../services/pointLogger';
 
 const toggles: any = {};

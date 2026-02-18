@@ -1,5 +1,5 @@
-import { browserStorage } from './browserStorage';
-import { firstAndLast } from './utilities';
+import { browserStorage } from '../state/browserStorage';
+import { firstAndLast } from '../utils/utilities';
 import { scoreGovernor, participantTypes, participantRoles, matchUpTypes } from 'tods-competition-factory';
 import { buildEpisodes } from '@tennisvisuals/scoring-visualizations';
 

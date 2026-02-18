@@ -3,7 +3,7 @@ import { pointLogger } from '../services/pointLogger';
 import { env, options, updateMatchArchive } from './env';
 import { viewManager } from './viewManager';
 import { showGameFish } from './configureViz';
-import { findUpClass } from './utilities';
+import { findUpClass } from '../utils/utilities';
 import { editPoint } from './editPoint';
 
 export function viewGameFish(element: any) {

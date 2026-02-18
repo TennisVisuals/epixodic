@@ -1,7 +1,7 @@
 import { env, updateMatchArchive, resetEngine } from './env';
 import { updateScore } from './displayUpdate';
 import { viewManager } from './viewManager';
-import { findUpClass } from './utilities';
+import { findUpClass } from '../utils/utilities';
 import { getFormatName } from '../services/matchObject/formatMigration';
 
 export function changeFormat(element: Element) {

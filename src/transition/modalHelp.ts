@@ -1,5 +1,5 @@
 import pointsImage from '../assets/icons/points.jpg';
-import { showModal } from './utilities';
+import { showModal } from '../utils/utilities';
 
 export function modalHelp(quick_start?: boolean) {
   const quick = `

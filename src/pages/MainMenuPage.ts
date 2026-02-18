@@ -7,7 +7,7 @@
 
 import { BasePage, PageOptions } from './BasePage';
 import { env, options } from '../transition/env';
-import { browserStorage } from '../transition/browserStorage';
+import { browserStorage } from '../state/browserStorage';
 import { formatChangePossible } from '../transition/formatChangePossible';
 
 export class MainMenuPage extends BasePage {

@@ -3,7 +3,7 @@ import { updateMatchDetails } from './updateMatchDetails';
 import { editMatchDetails } from './displayUpdate';
 import { newMatch } from './displayMatchArchive';
 import { updateDetails } from './updateDetails';
-import { eventManager } from './eventManager';
+import { eventManager } from '../events/eventManager';
 import { closeGameFish } from './configureViz';
 import { strokeAction } from './strokeAction';
 import { updatePlayer } from './updatePlayer';

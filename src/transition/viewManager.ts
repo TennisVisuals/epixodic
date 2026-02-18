@@ -1,10 +1,10 @@
 import { formatChangePossible } from './formatChangePossible';
 import { displayPointHistory } from './displayPointHistory';
 import { displayMatchArchive } from './displayMatchArchive';
-import { browserStorage } from './browserStorage';
+import { browserStorage } from '../state/browserStorage';
 import { displayFormats } from './displayFormats';
-import { strokeSlider } from './strokeSlider';
-import { touchManager } from './touchManager';
+import { strokeSlider } from '../events/strokeSlider';
+import { touchManager } from '../events/touchManager';
 import { env, options, charts, getEpisodes, getNoAd } from './env';
 import { ensureGameTreeChart } from './configureViz';
 import { updateStats } from './updateStats';

@@ -1,4 +1,4 @@
-import { browserStorage } from './browserStorage';
+import { browserStorage } from '../state/browserStorage';
 import { closeModal } from './modals';
 
 export function exportMatch(element: any) {

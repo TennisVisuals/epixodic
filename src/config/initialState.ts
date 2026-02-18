@@ -1,4 +1,4 @@
-import { browserStorage } from '../transition/browserStorage';
+import { browserStorage } from '../state/browserStorage';
 import { setWindow } from './setWindow';
 import { env } from '../transition/env';
 import { version } from './version';

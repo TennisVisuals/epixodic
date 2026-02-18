@@ -1,5 +1,5 @@
-import { browserStorage } from './browserStorage';
-import { showModal } from './utilities';
+import { browserStorage } from '../state/browserStorage';
+import { showModal } from '../utils/utilities';
 import { device } from './env';
 
 export function modalExport(match_id: any) {

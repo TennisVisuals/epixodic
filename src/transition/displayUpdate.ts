@@ -1,5 +1,5 @@
 import { env, options, settings, updateMatchArchive, updatePositions, getScoreForDisplay, getSetsToWin, getEpisodes, getNextServer, updateParticipant, definePlayer } from './env';
-import { browserStorage } from './browserStorage';
+import { browserStorage } from '../state/browserStorage';
 import { groupGames } from './groupGames';
 import { closeModal } from './modals';
 import { vizUpdate, updateChartData } from './configureViz';

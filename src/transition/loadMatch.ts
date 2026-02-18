@@ -1,9 +1,9 @@
 import { loadDetails, stateChangeEvent, updateScore } from './displayUpdate';
 import { clearActionEvents, env, updatePositions, resetEngine, definePlayer, updateParticipant } from './env';
-import { browserStorage } from './browserStorage';
+import { browserStorage } from '../state/browserStorage';
 import { defineActionEvents } from './events';
 import { viewManager } from './viewManager';
-import { isJSON } from './utilities';
+import { isJSON } from '../utils/utilities';
 import { tools } from 'tods-competition-factory';
 
 function initializeLegacyMatch(match_data: any) {

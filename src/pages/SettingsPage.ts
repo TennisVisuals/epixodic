@@ -7,7 +7,7 @@
 
 import { BasePage, PageOptions } from './BasePage';
 import { settings, options } from '../transition/env';
-import { browserStorage } from '../transition/browserStorage';
+import { browserStorage } from '../state/browserStorage';
 
 export class SettingsPage extends BasePage {
   private settingsContainer: HTMLElement | null = null;

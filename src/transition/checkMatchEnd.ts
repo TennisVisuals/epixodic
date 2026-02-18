@@ -1,5 +1,5 @@
 import { showGameFish } from './configureViz';
-import { showModal } from './utilities';
+import { showModal } from '../utils/utilities';
 import { env, settings } from './env';
 
 export function checkMatchEnd(action?: any) {
