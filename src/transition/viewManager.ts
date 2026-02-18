@@ -7,7 +7,7 @@ import { strokeSlider } from '../events/strokeSlider';
 import { touchManager } from '../events/touchManager';
 import { env, options, charts, getEpisodes, getNoAd } from '../state/env';
 import { ensureGameTreeChart } from './configureViz';
-import { updateStats } from './updateStats';
+import { updateStats } from '../match/updateStats';
 
 export const changeDisplay = (display: string, id: string) => {
   const element = document.getElementById(id);

@@ -1,5 +1,5 @@
 import { env, updateMatchArchive, updatePositions, updateParticipant, definePlayer } from '../state/env';
-import { loadDetails } from './displayUpdate';
+import { loadDetails } from '../transition/displayUpdate';
 
 export function updatePlayer() {
   const playerUpdate = updatePlayerDetails();

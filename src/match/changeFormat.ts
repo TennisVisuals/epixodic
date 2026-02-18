@@ -1,6 +1,6 @@
 import { env, updateMatchArchive, resetEngine } from '../state/env';
-import { updateScore } from './displayUpdate';
-import { viewManager } from './viewManager';
+import { updateScore } from '../transition/displayUpdate';
+import { viewManager } from '../transition/viewManager';
 import { findUpClass } from '../utils/utilities';
 import { getFormatName } from '../services/matchObject/formatMigration';
 

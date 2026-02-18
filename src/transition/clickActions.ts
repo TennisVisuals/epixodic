@@ -4,7 +4,7 @@ import { env, options, updateMatchArchive } from '../state/env';
 import { viewManager } from './viewManager';
 import { showGameFish } from './configureViz';
 import { findUpClass } from '../utils/utilities';
-import { editPoint } from './editPoint';
+import { editPoint } from '../match/editPoint';
 
 export function viewGameFish(element: any) {
   const gameIndex: number = parseInt(element.getAttribute('gameIndex') ?? 0);

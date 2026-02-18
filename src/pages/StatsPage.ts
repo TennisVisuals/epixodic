@@ -92,7 +92,7 @@ export class StatsPage extends BasePage {
     if (!chartsContainer) return;
 
     // Use legacy updateStats for stats display
-    const { updateStats } = await import('../transition/updateStats');
+    const { updateStats } = await import('../match/updateStats');
     updateStats();
     
     // For now, skip rendering charts since updateStats handles the display
