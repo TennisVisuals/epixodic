@@ -1,4 +1,4 @@
-import { showGameFish } from './configureViz';
+import { showGameFish } from '../transition/configureViz';
 import { showModal } from '../utils/utilities';
 import { env, settings } from '../state/env';
 

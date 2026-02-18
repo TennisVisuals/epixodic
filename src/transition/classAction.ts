@@ -1,6 +1,6 @@
 import { stateChangeEvent, updateState, visibleButtons } from './displayUpdate';
 import { resetButton, resetStyles } from './events';
-import { checkMatchEnd } from './checkMatchEnd';
+import { checkMatchEnd } from '../engine/checkMatchEnd';
 import { buttons, env, settings } from '../state/env';
 import { strokeSlider } from '../events/strokeSlider';
 import { DOUBLE_FAULT } from '../utils/constants';

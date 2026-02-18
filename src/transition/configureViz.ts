@@ -1,7 +1,7 @@
 import { changeDisplay, viewManager } from './viewManager';
 import { charts, env, setOrientation, getEpisodes } from '../state/env';
 import { gameTree, gameFish, momentumChart, ptsMatch } from '@tennisvisuals/scoring-visualizations';
-import { groupGames } from './groupGames';
+import { groupGames } from '../engine/groupGames';
 
 import * as d3 from 'd3';
 

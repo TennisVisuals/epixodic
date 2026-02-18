@@ -1,4 +1,4 @@
-import { formatChangePossible } from './formatChangePossible';
+import { formatChangePossible } from '../engine/formatChangePossible';
 import { displayPointHistory } from './displayPointHistory';
 import { displayMatchArchive } from './displayMatchArchive';
 import { browserStorage } from '../state/browserStorage';

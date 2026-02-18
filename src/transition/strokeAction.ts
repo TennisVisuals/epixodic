@@ -1,5 +1,5 @@
 import { stateChangeEvent } from './displayUpdate';
-import { checkMatchEnd } from './checkMatchEnd';
+import { checkMatchEnd } from '../engine/checkMatchEnd';
 import { strokeSlider } from '../events/strokeSlider';
 import { env, getEpisodes } from '../state/env';
 

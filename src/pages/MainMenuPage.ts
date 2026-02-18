@@ -8,7 +8,7 @@
 import { BasePage, PageOptions } from './BasePage';
 import { env, options } from '../state/env';
 import { browserStorage } from '../state/browserStorage';
-import { formatChangePossible } from '../transition/formatChangePossible';
+import { formatChangePossible } from '../engine/formatChangePossible';
 
 export class MainMenuPage extends BasePage {
   constructor(container: HTMLElement, options: PageOptions = {}) {
