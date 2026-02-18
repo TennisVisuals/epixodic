@@ -111,13 +111,22 @@ export function getEpisodes(): any[] {
   return buildEpisodes(env.engine.getState());
 }
 
-// ── Helper: Get point display value ───────────────────────────────────
+// ── Helper: Get point display values ─────────────────────────────────
 const POINT_DISPLAY = ['0', '15', '30', '40'];
-function pointDisplay(p: number, isTiebreak: boolean): string {
-  if (isTiebreak) return String(p);
-  if (p >= 0 && p < 4) return POINT_DISPLAY[p];
-  if (p >= 4) return 'AD';
-  return String(p);
+function pointDisplayPair(p1: number, p2: number, isTiebreak: boolean): [string, string] {
+  if (isTiebreak) return [String(p1), String(p2)];
+
+  // Before deuce: use standard progression
+  if (p1 < 4 && p2 < 4) return [POINT_DISPLAY[p1], POINT_DISPLAY[p2]];
+
+  // One side won the game outright (threshold met with min difference)
+  if (p1 < 4 || p2 < 4) {
+    return [p1 < 4 ? POINT_DISPLAY[p1] : 'G', p2 < 4 ? POINT_DISPLAY[p2] : 'G'];
+  }
+
+  // Both at or above deuce
+  if (p1 === p2) return ['40', '40'];
+  return p1 > p2 ? ['AD', '40'] : ['40', 'AD'];
 }
 
 // ── Helper: Get score for display (compatible with updateScore) ───────
@@ -133,8 +142,7 @@ export function getScoreForDisplay() {
   const currentSet = sets.length > 0 ? sets[sets.length - 1] : null;
   const isTiebreak = currentSet?.side1TiebreakScore !== undefined || currentSet?.side2TiebreakScore !== undefined;
 
-  const p1Display = pointDisplay(engineScore.points[0], isTiebreak);
-  const p2Display = pointDisplay(engineScore.points[1], isTiebreak);
+  const [p1Display, p2Display] = pointDisplayPair(engineScore.points[0], engineScore.points[1], isTiebreak);
 
   return {
     counters: {

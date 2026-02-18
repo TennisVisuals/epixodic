@@ -7,7 +7,7 @@ import { modalExport } from './modalExport';
 import { viewManager } from './viewManager';
 import { SwipeList } from './swipeList';
 import { loadMatch } from './loadMatch';
-import { UUID } from './UUID';
+import { tools } from 'tods-competition-factory';
 import { env, resetEngine, definePlayer } from './env';
 
 export function displayMatchArchive(params?: any) {
@@ -107,7 +107,7 @@ export function resetMatch(matchUpId?: string) {
   loadDetails();
   updateScore();
   const date = Date.now();
-  matchUpId = matchUpId || UUID();
+  matchUpId = matchUpId || tools.UUID();
   Object.assign(env.metadata.match, { matchUpId, date });
   browserStorage.set('current_match', matchUpId);
   stateChangeEvent();

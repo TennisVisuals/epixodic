@@ -4,7 +4,7 @@ import { browserStorage } from './browserStorage';
 import { defineActionEvents } from './events';
 import { viewManager } from './viewManager';
 import { isJSON } from './utilities';
-import { UUID } from './UUID';
+import { tools } from 'tods-competition-factory';
 
 function initializeLegacyMatch(match_data: any) {
   env.engine.reset();
@@ -12,7 +12,7 @@ function initializeLegacyMatch(match_data: any) {
   definePlayer({ index: 1, firstName: 'Player', lastName: '2' });
 
   if (match_data.match && !match_data.match.muid) {
-    match_data.match.muid = UUID();
+    match_data.match.muid = tools.UUID();
   }
 }
 

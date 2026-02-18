@@ -13,7 +13,7 @@ import { modalHelp } from './modalHelp';
 import { loadMatch } from './loadMatch';
 import { closeModal } from './modals';
 import clipboard from 'clipboard';
-import { UUID } from './UUID';
+import { tools } from 'tods-competition-factory';
 import {
   changePlayerName,
   checkPlayerName,
@@ -23,7 +23,7 @@ import {
   visibleButtons,
 } from './displayUpdate';
 
-import iocCodes from './ioc_codes.json';
+import iocCodes from '../assets/ioc_codes.json';
 
 export function init() {
   setDev();
@@ -117,7 +117,7 @@ export function init() {
 
 function checkUserUUID() {
   if (!app.user_uuid) {
-    app.user_uuid = UUID();
+    app.user_uuid = tools.UUID();
     updateAppState();
   }
 }

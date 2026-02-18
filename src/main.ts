@@ -1,4 +1,6 @@
-import './transition/css/courtHive.css';
+import './styles/courtHive.css';
+import './styles/swipeList.css';
+import './styles/icons.css';
 import { init } from './transition/init';
 import { router as enhancedRouter } from './router/enhancedRouter';
 
