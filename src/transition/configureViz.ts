@@ -1,5 +1,5 @@
 import { changeDisplay, viewManager } from './viewManager';
-import { charts, env, setOrientation, getEpisodes } from './env';
+import { charts, env, setOrientation, getEpisodes } from '../state/env';
 import { gameTree, gameFish, momentumChart, ptsMatch } from '@tennisvisuals/scoring-visualizations';
 import { groupGames } from './groupGames';
 

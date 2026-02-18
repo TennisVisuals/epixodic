@@ -8,7 +8,7 @@ import { viewManager } from './viewManager';
 import { SwipeList } from '../display/swipeList';
 import { loadMatch } from './loadMatch';
 import { tools } from 'tods-competition-factory';
-import { env, resetEngine, definePlayer } from './env';
+import { env, resetEngine, definePlayer } from '../state/env';
 
 export function displayMatchArchive(params?: any) {
   const active = params?.active;

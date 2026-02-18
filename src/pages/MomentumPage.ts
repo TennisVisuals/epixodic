@@ -6,7 +6,7 @@
  */
 
 import { BasePage, PageOptions } from './BasePage';
-import { env, charts, getEpisodes } from '../transition/env';
+import { env, charts, getEpisodes } from '../state/env';
 
 export class MomentumPage extends BasePage {
   private currentOrientation: 'portrait' | 'landscape' = 'portrait';

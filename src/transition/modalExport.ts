@@ -1,6 +1,6 @@
 import { browserStorage } from '../state/browserStorage';
 import { showModal } from '../utils/utilities';
-import { device } from './env';
+import { device } from '../state/env';
 
 export function modalExport(match_id: any) {
   match_id = match_id || browserStorage.get('current_match');

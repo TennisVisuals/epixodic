@@ -1,5 +1,5 @@
 import { stateChangeEvent, swapServer } from './displayUpdate';
-import { buttons, env, updatePositions, getNextServer } from './env';
+import { buttons, env, updatePositions, getNextServer } from '../state/env';
 
 export function defineActionEvents() {
   // No-op: events system removed with UMO

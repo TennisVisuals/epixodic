@@ -1,5 +1,5 @@
 import { rallyCount } from '../functions/legacyRally';
-import { env, getEpisodes } from './env';
+import { env, getEpisodes } from '../state/env';
 
 export function displayPointHistory() {
   const games = groupGames();

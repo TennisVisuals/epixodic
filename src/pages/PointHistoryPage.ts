@@ -6,7 +6,7 @@
  */
 
 import { BasePage, PageOptions } from './BasePage';
-import { env } from '../transition/env';
+import { env } from '../state/env';
 import { displayPointHistory } from '../transition/displayPointHistory';
 
 export class PointHistoryPage extends BasePage {

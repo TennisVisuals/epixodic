@@ -1,7 +1,7 @@
 import { browserStorage } from '../state/browserStorage';
 import { stateChangeEvent } from './displayUpdate';
 import { loadMatch } from './loadMatch';
-import { env, getEpisodes } from './env';
+import { env, getEpisodes } from '../state/env';
 
 export function editPoint(index: number) {
   env.edit_point_index = index;

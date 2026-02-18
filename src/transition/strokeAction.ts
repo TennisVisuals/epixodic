@@ -1,7 +1,7 @@
 import { stateChangeEvent } from './displayUpdate';
 import { checkMatchEnd } from './checkMatchEnd';
 import { strokeSlider } from '../events/strokeSlider';
-import { env, getEpisodes } from './env';
+import { env, getEpisodes } from '../state/env';
 
 export function strokeAction(element: any) {
   const hand: string = element.getAttribute('hand');

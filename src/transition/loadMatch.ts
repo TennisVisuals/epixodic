@@ -1,5 +1,5 @@
 import { loadDetails, stateChangeEvent, updateScore } from './displayUpdate';
-import { clearActionEvents, env, updatePositions, resetEngine, definePlayer, updateParticipant } from './env';
+import { clearActionEvents, env, updatePositions, resetEngine, definePlayer, updateParticipant } from '../state/env';
 import { browserStorage } from '../state/browserStorage';
 import { defineActionEvents } from './events';
 import { viewManager } from './viewManager';

@@ -1,5 +1,5 @@
 import { closeModal } from './modals';
-import { env } from './env';
+import { env } from '../state/env';
 
 export function editPlayer(element: any) {
   const index = parseInt(element.getAttribute('playerIndex') ?? 0);

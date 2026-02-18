@@ -1,4 +1,4 @@
-import { env, options, settings, updateMatchArchive, updatePositions, getScoreForDisplay, getSetsToWin, getEpisodes, getNextServer, updateParticipant, definePlayer } from './env';
+import { env, options, settings, updateMatchArchive, updatePositions, getScoreForDisplay, getSetsToWin, getEpisodes, getNextServer, updateParticipant, definePlayer } from '../state/env';
 import { browserStorage } from '../state/browserStorage';
 import { groupGames } from './groupGames';
 import { closeModal } from './modals';

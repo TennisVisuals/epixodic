@@ -1,4 +1,4 @@
-import { app, restoreAppState, setOrientation, updateAppState } from './env';
+import { app, restoreAppState, setOrientation, updateAppState } from '../state/env';
 import { configureViz, orientationEvent, vizUpdate } from './configureViz';
 import { setInitialState } from '../config/initialState';
 import { setDev } from '../services/helpers/setDev';

@@ -1,4 +1,4 @@
-import { env } from './env';
+import { env } from '../state/env';
 import { getAvailableFormats } from '../services/matchObject/formatMigration';
 
 export function displayFormats() {

@@ -1,4 +1,4 @@
-import { env, updateMatchArchive, updatePositions, updateParticipant, definePlayer } from './env';
+import { env, updateMatchArchive, updatePositions, updateParticipant, definePlayer } from '../state/env';
 import { loadDetails } from './displayUpdate';
 
 export function updatePlayer() {

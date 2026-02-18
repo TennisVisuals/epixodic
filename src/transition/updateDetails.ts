@@ -1,7 +1,7 @@
 import { updateTournamentDetails } from './updateTournamentDetails';
 import { updateMatchDetails } from './updateMatchDetails';
 import { browserStorage } from '../state/browserStorage';
-import { env } from './env';
+import { env } from '../state/env';
 
 export function updateDetails() {
   updateTournamentDetails();

@@ -6,7 +6,7 @@
  */
 
 import { BasePage, PageOptions } from './BasePage';
-import { settings, options } from '../transition/env';
+import { settings, options } from '../state/env';
 import { browserStorage } from '../state/browserStorage';
 
 export class SettingsPage extends BasePage {

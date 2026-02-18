@@ -1,4 +1,4 @@
-import { env, updateMatchArchive } from './env';
+import { env, updateMatchArchive } from '../state/env';
 
 export function updateTournamentDetails() {
   const tournament = {};

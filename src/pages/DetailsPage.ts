@@ -6,7 +6,7 @@
  */
 
 import { BasePage, PageOptions } from './BasePage';
-import { env, definePlayer } from '../transition/env';
+import { env, definePlayer } from '../state/env';
 import { formatToTODS, getTodayTODS } from '../utils/dateUtils';
 
 export class DetailsPage extends BasePage {

@@ -1,6 +1,6 @@
 import { simpleChart, computeMatchStatsFromMatchUp } from '@tennisvisuals/scoring-visualizations';
 import { viewManager } from './viewManager';
-import { env, options, getEpisodes } from './env';
+import { env, options, getEpisodes } from '../state/env';
 
 // Convert StatObject[] from computeMatchStatsFromMatchUp to the legacy display format
 function convertStatsToLegacyFormat(statObjects: any[]): any[] {

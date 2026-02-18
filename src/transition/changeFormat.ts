@@ -1,4 +1,4 @@
-import { env, updateMatchArchive, resetEngine } from './env';
+import { env, updateMatchArchive, resetEngine } from '../state/env';
 import { updateScore } from './displayUpdate';
 import { viewManager } from './viewManager';
 import { findUpClass } from '../utils/utilities';

@@ -5,7 +5,7 @@
  * Guards can redirect to other routes or block navigation entirely.
  */
 
-import { env } from '../transition/env';
+import { env } from '../state/env';
 
 export interface GuardResult {
   allow: boolean;

@@ -6,7 +6,7 @@
  */
 
 import { BasePage, PageOptions } from './BasePage';
-import { env, options } from '../transition/env';
+import { env, options } from '../state/env';
 import { browserStorage } from '../state/browserStorage';
 import { formatChangePossible } from '../transition/formatChangePossible';
 

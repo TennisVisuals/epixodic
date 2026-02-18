@@ -1,6 +1,6 @@
 import { showGameFish } from './configureViz';
 import { showModal } from '../utils/utilities';
-import { env, settings } from './env';
+import { env, settings } from '../state/env';
 
 export function checkMatchEnd(action?: any) {
   if (env.engine.isComplete()) {

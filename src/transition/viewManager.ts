@@ -5,7 +5,7 @@ import { browserStorage } from '../state/browserStorage';
 import { displayFormats } from './displayFormats';
 import { strokeSlider } from '../events/strokeSlider';
 import { touchManager } from '../events/touchManager';
-import { env, options, charts, getEpisodes, getNoAd } from './env';
+import { env, options, charts, getEpisodes, getNoAd } from '../state/env';
 import { ensureGameTreeChart } from './configureViz';
 import { updateStats } from './updateStats';
 

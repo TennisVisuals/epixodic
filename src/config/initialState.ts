@@ -1,6 +1,6 @@
 import { browserStorage } from '../state/browserStorage';
 import { setWindow } from './setWindow';
-import { env } from '../transition/env';
+import { env } from '../state/env';
 import { version } from './version';
 
 import 'bulma/css/bulma.css';

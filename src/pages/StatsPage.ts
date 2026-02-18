@@ -6,7 +6,7 @@
  */
 
 import { BasePage, PageOptions } from './BasePage';
-import { env, options } from '../transition/env';
+import { env, options } from '../state/env';
 import { simpleChart } from '@tennisvisuals/scoring-visualizations';
 
 export class StatsPage extends BasePage {

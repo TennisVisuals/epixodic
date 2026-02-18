@@ -16,7 +16,7 @@ import { updatePoint } from './editPoint';
 import { editPlayer } from './editPlayer';
 import { modalHelp } from './modalHelp';
 import { modalInfo } from './modalInfo';
-import { updateAppState } from './env';
+import { updateAppState } from '../state/env';
 import { closeModal } from './modals';
 import {
   outcomeEntry,

@@ -7,7 +7,7 @@
 
 import { gameTree } from '@tennisvisuals/scoring-visualizations';
 import { BasePage, PageOptions } from './BasePage';
-import { env, getEpisodes, getNoAd } from '../transition/env';
+import { env, getEpisodes, getNoAd } from '../state/env';
 import * as d3 from 'd3';
 
 export class GameTreePage extends BasePage {

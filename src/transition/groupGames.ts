@@ -1,4 +1,4 @@
-import { env, getEpisodes } from './env';
+import { env, getEpisodes } from '../state/env';
 
 export function groupGames(point_episodes?: any[]) {
   point_episodes = point_episodes || getEpisodes();
