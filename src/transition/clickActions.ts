@@ -1,8 +1,8 @@
-import { resetButtons, setCourtSide, swapServer, updateState, visibleButtons } from './displayUpdate';
+import { resetButtons, setCourtSide, swapServer, updateState, visibleButtons } from '../display/displayUpdate';
 import { pointLogger } from '../services/pointLogger';
 import { env, options, updateMatchArchive } from '../state/env';
-import { viewManager } from './viewManager';
-import { showGameFish } from './configureViz';
+import { viewManager } from '../display/viewManager';
+import { showGameFish } from '../display/configureViz';
 import { findUpClass } from '../utils/utilities';
 import { editPoint } from '../match/editPoint';
 

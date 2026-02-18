@@ -1,4 +1,4 @@
-import { stateChangeEvent, swapServer } from './displayUpdate';
+import { stateChangeEvent, swapServer } from '../display/displayUpdate';
 import { buttons, env, updatePositions, getNextServer } from '../state/env';
 
 export function defineActionEvents() {

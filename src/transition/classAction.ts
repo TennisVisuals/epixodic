@@ -1,4 +1,4 @@
-import { stateChangeEvent, updateState, visibleButtons } from './displayUpdate';
+import { stateChangeEvent, updateState, visibleButtons } from '../display/displayUpdate';
 import { resetButton, resetStyles } from './events';
 import { checkMatchEnd } from '../engine/checkMatchEnd';
 import { buttons, env, settings } from '../state/env';

@@ -1,4 +1,4 @@
-import { viewManager } from '../../transition/viewManager';
+import { viewManager } from '../../display/viewManager';
 import { submitCredentials } from '../messaging/authApi';
 import { app, env } from '../../state/env';
 import { version } from '../../config/version';

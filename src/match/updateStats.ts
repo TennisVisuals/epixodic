@@ -1,5 +1,5 @@
 import { simpleChart, computeMatchStatsFromMatchUp } from '@tennisvisuals/scoring-visualizations';
-import { viewManager } from '../transition/viewManager';
+import { viewManager } from '../display/viewManager';
 import { env, options, getEpisodes } from '../state/env';
 
 // Convert StatObject[] from computeMatchStatsFromMatchUp to the legacy display format

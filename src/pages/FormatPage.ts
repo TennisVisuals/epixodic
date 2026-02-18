@@ -6,7 +6,7 @@
  */
 
 import { BasePage, PageOptions } from './BasePage';
-import { displayFormats } from '../transition/displayFormats';
+import { displayFormats } from '../display/displayFormats';
 
 export class FormatPage extends BasePage {
   private formatContainer: HTMLElement | null = null;

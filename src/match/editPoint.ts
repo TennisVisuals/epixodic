@@ -1,5 +1,5 @@
 import { browserStorage } from '../state/browserStorage';
-import { stateChangeEvent } from '../transition/displayUpdate';
+import { stateChangeEvent } from '../display/displayUpdate';
 import { loadMatch } from '../transition/loadMatch';
 import { env, getEpisodes } from '../state/env';
 

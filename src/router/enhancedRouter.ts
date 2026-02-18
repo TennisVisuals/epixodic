@@ -11,7 +11,7 @@
 import Navigo from 'navigo';
 import { routes, getPathForView } from './routes';
 import { executeGuard } from './guards';
-import { viewManager } from '../transition/viewManager';
+import { viewManager } from '../display/viewManager';
 
 // Import page components
 import { GameTreePage } from '../pages/GameTreePage';

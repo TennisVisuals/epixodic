@@ -1,10 +1,10 @@
-import { loadDetails, stateChangeEvent, updateScore } from './displayUpdate';
+import { loadDetails, stateChangeEvent, updateScore } from '../display/displayUpdate';
 import exportImage from '../assets/icons/exportwhite.png';
 import recycleImage from '../assets/icons/recycle.png';
 import { findUpClass, firstAndLast } from '../utils/utilities';
 import { browserStorage } from '../state/browserStorage';
 import { modalExport } from '../modals/modalExport';
-import { viewManager } from './viewManager';
+import { viewManager } from '../display/viewManager';
 import { SwipeList } from '../display/swipeList';
 import { loadMatch } from './loadMatch';
 import { tools } from 'tods-competition-factory';

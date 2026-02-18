@@ -1,4 +1,4 @@
-import { stateChangeEvent } from './displayUpdate';
+import { stateChangeEvent } from '../display/displayUpdate';
 import { checkMatchEnd } from '../engine/checkMatchEnd';
 import { strokeSlider } from '../events/strokeSlider';
 import { env, getEpisodes } from '../state/env';

@@ -1,11 +1,11 @@
 import { app, restoreAppState, setOrientation, updateAppState } from '../state/env';
-import { configureViz, orientationEvent, vizUpdate } from './configureViz';
+import { configureViz, orientationEvent, vizUpdate } from '../display/configureViz';
 import { setInitialState } from '../config/initialState';
 import { setDev } from '../services/helpers/setDev';
 import { browserStorage } from '../state/browserStorage';
 import { registerEvents } from './registerEvents';
 import { newMatch } from './displayMatchArchive';
-import { changeDisplay } from './viewManager';
+import { changeDisplay } from '../display/viewManager';
 import { touchManager } from '../events/touchManager';
 import { defineActionEvents } from './events';
 import { generateRange } from '../utils/utilities';
@@ -21,7 +21,7 @@ import {
   resetButtons,
   swapServer,
   visibleButtons,
-} from './displayUpdate';
+} from '../display/displayUpdate';
 
 import iocCodes from '../assets/ioc_codes.json';
 

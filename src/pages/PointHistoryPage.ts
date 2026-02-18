@@ -7,7 +7,7 @@
 
 import { BasePage, PageOptions } from './BasePage';
 import { env } from '../state/env';
-import { displayPointHistory } from '../transition/displayPointHistory';
+import { displayPointHistory } from '../display/displayPointHistory';
 
 export class PointHistoryPage extends BasePage {
   private historyContainer: HTMLElement | null = null;
