@@ -1,8 +1,8 @@
 import { loadDetails, stateChangeEvent, updateScore } from '../display/displayUpdate';
 import { clearActionEvents, env, updatePositions, resetEngine, definePlayer, updateParticipant } from '../state/env';
+import { setCurrentMatchUpId } from '../state/matchContext';
 import { browserStorage } from '../state/browserStorage';
 import { defineActionEvents } from '../events/events';
-import { viewManager } from '../display/viewManager';
 import { isJSON } from '../utils/utilities';
 import { tools } from 'tods-competition-factory';
 
@@ -83,18 +83,16 @@ function loadTODSSides(sides: any[]) {
   console.log('[HVE] Finished loading participants');
 }
 
-export function loadMatch(match_id: string, view = 'entry') {
+export function loadMatch(match_id: string): boolean {
   if (!match_id) {
-    viewManager('entry');
-    return;
+    return false;
   }
 
   const json = browserStorage.get(match_id);
   const match_data = json && isJSON(json) && match_id ? JSON.parse(browserStorage.get(match_id) ?? '[]') : undefined;
 
   if (!match_data) {
-    viewManager('entry');
-    return;
+    return false;
   }
 
   env.loading_match = true;
@@ -105,7 +103,7 @@ export function loadMatch(match_id: string, view = 'entry') {
   }
 
   clearActionEvents();
-  browserStorage.set('current_match', match_id);
+  setCurrentMatchUpId(match_id);
   
   loadMatchMetadata(match_data);
 
@@ -142,5 +140,5 @@ export function loadMatch(match_id: string, view = 'entry') {
   defineActionEvents();
 
   env.loading_match = false;
-  viewManager(view);
+  return true;
 }

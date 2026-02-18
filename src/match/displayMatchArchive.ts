@@ -1,12 +1,12 @@
 import { loadDetails, stateChangeEvent, updateScore } from '../display/displayUpdate';
+import { setCurrentMatchUpId } from '../state/matchContext';
 import exportImage from '../assets/icons/exportwhite.png';
 import recycleImage from '../assets/icons/recycle.png';
 import { findUpClass, firstAndLast } from '../utils/utilities';
 import { browserStorage } from '../state/browserStorage';
 import { modalExport } from '../modals/modalExport';
-import { viewManager } from '../display/viewManager';
+import { matchPath } from '../router/routes';
 import { SwipeList } from '../display/swipeList';
-import { loadMatch } from './loadMatch';
 import { tools } from 'tods-competition-factory';
 import { env, resetEngine, definePlayer } from '../state/env';
 
@@ -62,7 +62,9 @@ export function displayMatchArchive(params?: any) {
       const matchId = p?.dataset.matchId;
       const selected_match = findUpClass(e.target, 'mh_match');
       if (selected_match) {
-        return loadMatch(matchId);
+        const router = (window as any).appRouter;
+        router?.navigate(matchPath(matchId, 'scoring'));
+        return;
       }
 
       if (e?.target?.className?.indexOf('img_export') >= 0 || e.target.className == 'export_icon') {
@@ -109,7 +111,7 @@ export function resetMatch(matchUpId?: string) {
   const date = Date.now();
   matchUpId = matchUpId || tools.UUID();
   Object.assign(env.metadata.match, { matchUpId, date });
-  browserStorage.set('current_match', matchUpId);
+  setCurrentMatchUpId(matchUpId);
   stateChangeEvent();
 }
 
@@ -119,13 +121,15 @@ export function newMatch(force_format?: boolean | Element) {
   // If called as event handler, force_format will be an Element
   // Only use 'entry' view if explicitly passed boolean true
   const shouldSkipFormatSelection = typeof force_format === 'boolean' && force_format === true;
-  const view = shouldSkipFormatSelection ? 'entry' : 'matchformat';
+  const view = shouldSkipFormatSelection ? 'scoring' : 'format';
 
   console.log('[HVE] View to show:', view);
   console.log('[HVE] Will skip format selection?', shouldSkipFormatSelection);
   console.log('[HVE] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-  viewManager(view);
+  const matchUpId = env.metadata.match?.matchUpId;
+  const router = (window as any).appRouter;
+  router?.navigate(matchPath(matchUpId, view));
 }
 
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

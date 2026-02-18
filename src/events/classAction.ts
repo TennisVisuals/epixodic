@@ -188,7 +188,6 @@ export function classAction(element: any) {
 
     env.rally = 0;
     env.lets = 0;
-    env.undone = [];
     
     // Call stateChangeEvent instead of updateState to trigger page updates
     // stateChangeEvent calls updateState internally + notifies current page

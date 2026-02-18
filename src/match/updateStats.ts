@@ -1,5 +1,6 @@
 import { simpleChart, computeMatchStatsFromMatchUp } from '@tennisvisuals/scoring-visualizations';
-import { viewManager } from '../display/viewManager';
+import { getCurrentMatchUpId } from '../state/matchContext';
+import { matchPath } from '../router/routes';
 import { env, options, getEpisodes } from '../state/env';
 
 // Convert StatObject[] from computeMatchStatsFromMatchUp to the legacy display format
@@ -238,7 +239,8 @@ export function updateStats(element?: Element) {
     if (statLines) statLines.innerHTML = html;
     addCharts(charts);
   } else {
-    viewManager('entry');
+    const router = (window as any).appRouter;
+    router?.navigate(matchPath(getCurrentMatchUpId(), 'scoring'));
   }
 }
 

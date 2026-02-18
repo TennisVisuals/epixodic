@@ -1,4 +1,4 @@
-import { changeDisplay, viewManager } from './viewManager';
+import { changeDisplay } from './viewManager';
 import { charts, env, setOrientation, getEpisodes } from '../state/env';
 import { gameTree, gameFish, momentumChart, ptsMatch } from '@tennisvisuals/scoring-visualizations';
 import { groupGames } from '../engine/groupGames';
@@ -167,5 +167,6 @@ export function vizUpdate() {
 export function orientationEvent() {
   setOrientation();
   vizUpdate();
-  viewManager();
+  const router = (window as any).appRouter;
+  if (router) router.refreshCurrentView();
 }

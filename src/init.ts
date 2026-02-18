@@ -5,7 +5,6 @@ import { setDev } from './services/helpers/setDev';
 import { browserStorage } from './state/browserStorage';
 import { registerEvents } from './events/registerEvents';
 import { newMatch } from './match/displayMatchArchive';
-import { changeDisplay } from './display/viewManager';
 import { touchManager } from './events/touchManager';
 import { defineActionEvents } from './events/events';
 import { generateRange } from './utils/utilities';
@@ -63,7 +62,8 @@ export function init() {
   registerEvents();
 
   // dismiss notification of requirements
-  changeDisplay('none', 'welcome');
+  const welcomeEl = document.getElementById('welcome');
+  if (welcomeEl) welcomeEl.style.display = 'none';
 
   // initialize clipboard
   const clip = new clipboard('.c2c');
@@ -103,7 +103,6 @@ export function init() {
   loadDetails();
 
   setOrientation();
-  loadCurrent();
   configureViz();
   vizUpdate();
 

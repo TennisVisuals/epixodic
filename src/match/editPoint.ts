@@ -1,5 +1,6 @@
 import { browserStorage } from '../state/browserStorage';
 import { stateChangeEvent } from '../display/displayUpdate';
+import { matchPath } from '../router/routes';
 import { loadMatch } from './loadMatch';
 import { env, getEpisodes } from '../state/env';
 
@@ -86,7 +87,9 @@ export function updatePoint() {
   stateChangeEvent();
   const current_match_id = browserStorage.get('current_match');
   if (current_match_id) {
-    loadMatch(current_match_id, 'pointhistory');
+    loadMatch(current_match_id);
+    const router = (window as any).appRouter;
+    router?.navigate(matchPath(current_match_id, 'history'));
     const editPointDisplay = document.getElementById('editpoint');
     if (editPointDisplay) editPointDisplay.style.display = 'none';
   }

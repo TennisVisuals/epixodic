@@ -25,11 +25,11 @@ export function hasPoints(): GuardResult {
   if (points.length === 0) {
     return {
       allow: false,
-      redirect: '/',
+      redirect: 'scoring',
       message: 'No points recorded yet. Start scoring to view statistics.',
     };
   }
-  
+
   return { allow: true };
 }
 
@@ -43,11 +43,11 @@ export function canChangeFormat(): GuardResult {
   if (points.length > 0) {
     return {
       allow: false,
-      redirect: '/',
+      redirect: 'scoring',
       message: 'Cannot change format after points have been recorded.',
     };
   }
-  
+
   return { allow: true };
 }
 

@@ -1,7 +1,7 @@
-import { resetButtons, setCourtSide, swapServer, updateState, visibleButtons } from '../display/displayUpdate';
-import { pointLogger } from '../services/pointLogger';
+import { resetButtons, setCourtSide, stateChangeEvent, swapServer, updateState, visibleButtons } from '../display/displayUpdate';
+import { getCurrentMatchUpId } from '../state/matchContext';
 import { env, options, updateMatchArchive } from '../state/env';
-import { viewManager } from '../display/viewManager';
+import { matchPath } from '../router/routes';
 import { showGameFish } from '../display/configureViz';
 import { findUpClass } from '../utils/utilities';
 import { editPoint } from '../match/editPoint';
@@ -15,32 +15,34 @@ export function viewEditPoint(element: any) {
   const pointIndex = parseInt(parent?.getAttribute('pointIndex') ?? 0);
   editPoint(pointIndex);
 }
+const getRouter = () => (window as any).appRouter;
+
 export function viewStats() {
-  viewManager('stats');
+  getRouter()?.navigate(matchPath(getCurrentMatchUpId(), 'stats'));
 }
 export function viewMatchFormat() {
-  viewManager('matchformat');
+  getRouter()?.navigate(matchPath(getCurrentMatchUpId(), 'format'));
 }
 export function viewGameTree() {
-  viewManager('gametree');
+  getRouter()?.navigate(matchPath(getCurrentMatchUpId(), 'tree'));
 }
 export function viewMomentum() {
-  viewManager('momentum');
+  getRouter()?.navigate(matchPath(getCurrentMatchUpId(), 'momentum'));
 }
 export function viewPointHistory() {
-  viewManager('pointhistory');
+  getRouter()?.navigate(matchPath(getCurrentMatchUpId(), 'history'));
 }
 export function settings() {
-  viewManager('settings');
+  getRouter()?.navigate('/settings');
 }
 export function matchArchive() {
-  viewManager('matcharchive');
+  getRouter()?.navigate('/archive');
 }
 export function outcomeEntry() {
-  viewManager('entry');
+  getRouter()?.navigate(matchPath(getCurrentMatchUpId(), 'scoring'));
 }
 export function mainMenu() {
-  viewManager('mainmenu');
+  getRouter()?.navigate('/');
 }
 export function undoAction() {
   if (env.serve2nd || env.rally_mode) {
@@ -50,23 +52,22 @@ export function undoAction() {
     env.lets = 0;
     resetButtons();
   } else {
-    const undo = env.engine.undo();
-    // Broadcasting removed
-    if (undo) env.undone.push(undo);
-    updateMatchArchive(true);
+    const success = env.engine.undo();
+    if (success) {
+      updateMatchArchive(true);
+      stateChangeEvent();
+    }
   }
   visibleButtons();
 }
 export function redoAction() {
-  if (!env.undone.length) return;
-  const point = env.undone.pop();
-  pointLogger.log(point);
-
-  // Pass server when redoing — the point has engine-derived server value
-  const opts: any = { winner: point.winner, result: point.result };
-  if (point.server !== undefined) opts.server = point.server;
-  env.engine.addPoint(opts);
-  // Broadcasting removed
+  if (!env.engine.canRedo()) return;
+  const success = env.engine.redo();
+  if (success) {
+    updateMatchArchive(true);
+    stateChangeEvent();
+  }
+  visibleButtons();
 }
 export function changeServer() {
   console.log('changeServer');
@@ -74,7 +75,7 @@ export function changeServer() {
   if (!points.length) {
     env.serving = 1 - env.serving;
     updateState();
-    viewManager('entry');
+    getRouter()?.navigate(matchPath(getCurrentMatchUpId(), 'scoring'));
   }
 }
 export function swapAction() {
@@ -82,6 +83,7 @@ export function swapAction() {
   options.user_swap = !options.user_swap;
   setCourtSide();
   swapServer();
+  stateChangeEvent();
 }
 /*
 export function menuAction(obj, action) {

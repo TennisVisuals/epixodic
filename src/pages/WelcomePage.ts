@@ -1,11 +1,11 @@
 import { ViewPage } from './ViewPage';
 
-export class SettingsPage extends ViewPage {
+export class WelcomePage extends ViewPage {
   protected activate(): void {
-    this.show('settings');
+    this.show('welcome');
   }
 
   protected deactivate(): void {
-    this.hide('settings');
+    this.hide('welcome');
   }
 }

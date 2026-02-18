@@ -166,16 +166,52 @@ export function getSetsToWin(): number {
   return 1; // Single set format
 }
 
-// ── Helper: Get current server from engine state ─────────────────────
-// The ScoringEngine derives server based on matchUpFormat rules
-// (handles tiebreaks, NOAD, game alternation, etc.)
+// ── Helper: Get server for the NEXT point ────────────────────────────
+// Predicts who will serve the upcoming point based on engine state.
+// At game boundaries (score 0-0), the server alternates from the last game.
+// Within tiebreaks, handles the 2-point rotation pattern.
 export function getNextServer(): number {
   const state = env.engine.getState();
   const points = state.history?.points || [];
   if (points.length === 0) return env.serving;
 
-  // Read server from the last stored point — the engine derived it
-  return points[points.length - 1].server ?? env.serving;
+  const lastPoint = points[points.length - 1];
+  const lastServer = lastPoint.server ?? env.serving;
+  const engineScore = env.engine.getScore();
+
+  // At a game boundary (current game score is 0-0 after a completed game),
+  // the server alternates from the previous game's server.
+  if (engineScore.points[0] === 0 && engineScore.points[1] === 0) {
+    return 1 - lastServer;
+  }
+
+  // Check for tiebreak: games equal at the tiebreak threshold
+  const sets = state.score?.sets || [];
+  const currentSet = sets.length > 0 ? sets[sets.length - 1] : null;
+  const side1Games = currentSet?.side1Score || 0;
+  const side2Games = currentSet?.side2Score || 0;
+
+  if (side1Games === side2Games && side1Games > 0) {
+    const tiebreakAt = parseTiebreakAt(env.engine.getFormat());
+    if (tiebreakAt !== null && side1Games === tiebreakAt) {
+      // In a tiebreak: server changes after 1st point, then every 2 points
+      const totalTBPoints = engineScore.points[0] + engineScore.points[1];
+      if (totalTBPoints % 2 === 1) {
+        return 1 - lastServer;
+      }
+      return lastServer;
+    }
+  }
+
+  // Regular game: server stays the same throughout
+  return lastServer;
+}
+
+// Parse tiebreakAt value from format string (e.g. "SET3-S:6/TB7" → 6)
+function parseTiebreakAt(format: string): number | null {
+  if (!format.includes('/TB') && !format.includes('TB')) return null;
+  const match = format.match(/S:(\d+)/);
+  return match ? parseInt(match[1]) : null;
 }
 
 // ── Helper: Check if format uses NoAD ─────────────────────────────────

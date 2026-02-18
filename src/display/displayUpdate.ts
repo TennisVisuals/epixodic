@@ -92,24 +92,32 @@ export function loadDetails() {
   });
 }
 
+let inStateChange = false;
+
 export function stateChangeEvent() {
-  updateMatchArchive();
-  env.serve2nd = false;
-  env.rally_mode = false;
-  updateState();
-  updateScore();
-  visibleButtons();
+  if (inStateChange) return; // Prevent recursive calls (swapServer → setCourtSide chain)
+  inStateChange = true;
+  try {
+    updateMatchArchive();
+    env.serve2nd = false;
+    env.rally_mode = false;
+    updateState();
+    updateScore();
+    visibleButtons();
 
-  // Update embedded chart data (entry view charts from configureViz)
-  updateChartData();
+    // Update embedded chart data (entry view charts from configureViz)
+    updateChartData();
 
-  // Notify current page component to update visualizations
-  const router = (window as any).appRouter;
-  if (router) {
-    const currentPage = router.getCurrentPage();
-    if (currentPage && typeof currentPage.updateVisualizations === 'function') {
-      currentPage.updateVisualizations();
+    // Notify current page component to update visualizations
+    const router = (window as any).appRouter;
+    if (router) {
+      const currentPage = router.getCurrentPage();
+      if (currentPage && typeof currentPage.updateVisualizations === 'function') {
+        currentPage.updateVisualizations();
+      }
     }
+  } finally {
+    inStateChange = false;
   }
 }
 
@@ -135,7 +143,7 @@ export function visibleButtons() {
     div.style.display = points.length > 0 || env.serve2nd || env.rally_mode ? 'flex' : 'none';
   });
   Array.from(document.querySelectorAll('.redo')).forEach((div: any) => {
-    div.style.display = env.undone.length ? 'flex' : 'none';
+    div.style.display = env.engine.canRedo() ? 'flex' : 'none';
   });
   const last_point = points.length ? points[points.length - 1] : undefined;
   const status_message = statusMessage();
@@ -144,10 +152,12 @@ export function visibleButtons() {
 
   function statusMessage() {
     if (last_point) {
+      const server = last_point.point.server;
+      const receiver = 1 - server;
+      // Check needed state (after this point) to determine what the NEXT point situation is
       if (last_point.needed.points_to_set && Math.min(...last_point.needed.points_to_set) == 1) return 'SET POINT';
-      if (last_point.point.breakpoint) return 'BREAK POINT';
-      if (last_point.needed.points_to_game && last_point.needed.points_to_game[last_point.point.server] == 1)
-        return 'GAME POINT';
+      if (last_point.needed.points_to_game && last_point.needed.points_to_game[receiver] == 1) return 'BREAK POINT';
+      if (last_point.needed.points_to_game && last_point.needed.points_to_game[server] == 1) return 'GAME POINT';
     }
     if (env.lets) return `Lets: ${env.lets}`;
     return '';
@@ -155,7 +165,7 @@ export function visibleButtons() {
 }
 
 export function updateState() {
-  if (getNextServer() != env.serving) setTimeout(() => swapServer(), 400);
+  if (getNextServer() != env.serving) swapServer();
   resetButtons();
   updatePositions();
   updateScore(); // CRITICAL: Update score display when points are added
@@ -250,7 +260,6 @@ function swapSides(number: number) {
 export function setCourtSide() {
   env.swap_sides = env.match_swap;
   if (options.user_swap) env.swap_sides = !env.swap_sides;
-  stateChangeEvent();
 }
 
 function changeTextColor(classes: string, value: any) {

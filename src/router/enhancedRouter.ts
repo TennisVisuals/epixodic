@@ -2,18 +2,24 @@
  * Enhanced Router
  *
  * Wraps Navigo with additional features:
- * - Integration with viewManager (during transition)
+ * - Match-context routes: /match/:matchUpId/:view
+ * - Page components (ViewPage subclasses) for all views
  * - Navigation guards
  * - Route parameter handling
  * - History management
  */
 
 import Navigo from 'navigo';
-import { routes, getPathForView } from './routes';
+import { routes, VIEW_MAP, GUARDED_VIEWS, matchPath, getPathForView } from './routes';
 import { executeGuard } from './guards';
-import { viewManager } from '../display/viewManager';
+import { getCurrentMatchUpId, isMatchLoaded } from '../state/matchContext';
+import { loadMatch } from '../match/loadMatch';
+import { browserStorage } from '../state/browserStorage';
+import { newMatch } from '../match/displayMatchArchive';
+import { resetButtons, swapServer, visibleButtons } from '../display/displayUpdate';
+import { strokeSlider } from '../events/strokeSlider';
+import { env, options } from '../state/env';
 
-// Import page components
 import { GameTreePage } from '../pages/GameTreePage';
 import { StatsPage } from '../pages/StatsPage';
 import { MomentumPage } from '../pages/MomentumPage';
@@ -23,23 +29,25 @@ import { SettingsPage } from '../pages/SettingsPage';
 import { MainMenuPage } from '../pages/MainMenuPage';
 import { FormatPage } from '../pages/FormatPage';
 import { DetailsPage } from '../pages/DetailsPage';
+import { EntryPage } from '../pages/EntryPage';
+import { WelcomePage } from '../pages/WelcomePage';
+import type { ViewPage } from '../pages/ViewPage';
 
 export class EnhancedRouter {
   private navigo: Navigo;
   private currentRoute: string = '/';
   private isNavigating: boolean = false;
-  private currentPage: any = null; // Current page component instance
-  private pageComponents: Map<string, any> = new Map(); // Page component registry
+  private currentPage: ViewPage | null = null;
+  private pageComponents: Map<string, new () => ViewPage> = new Map();
 
   /**
    * Get current page instance (for updates from external events)
    */
-  getCurrentPage(): any {
+  getCurrentPage(): ViewPage | null {
     return this.currentPage;
   }
 
   constructor() {
-    // Initialize Navigo with hash-based routing
     const useHash = true;
     this.navigo = new Navigo(useHash ? '/' : '/', {
       hash: useHash,
@@ -50,11 +58,9 @@ export class EnhancedRouter {
   }
 
   /**
-   * Register page components for views
-   * PHASE 3: As we create page components, add them here
+   * Register all page components by their internal view names
    */
   private registerPageComponents() {
-    // Phase 4-5: Page components implemented
     this.pageComponents.set('gametree', GameTreePage);
     this.pageComponents.set('stats', StatsPage);
     this.pageComponents.set('momentum', MomentumPage);
@@ -64,35 +70,87 @@ export class EnhancedRouter {
     this.pageComponents.set('mainmenu', MainMenuPage);
     this.pageComponents.set('matchformat', FormatPage);
     this.pageComponents.set('matchdetails', DetailsPage);
-
-    // TODO: Only ScoringPage remains (most complex - court view with touch)
-    // this.pageComponents.set('entry', ScoringPage);
-    // this.pageComponents.set('welcome', WelcomePage);
+    this.pageComponents.set('entry', EntryPage);
+    this.pageComponents.set('welcome', WelcomePage);
   }
 
   /**
-   * Setup all routes from routes.ts
+   * Setup all routes
    */
   private setupRoutes() {
+    // Match-context routes: /match/:matchUpId/:view and /match/:matchUpId
+    this.navigo.on('/match/:matchUpId/:view', (match) => {
+      this.handleMatchRoute(match);
+    });
+
+    this.navigo.on('/match/:matchUpId', (match) => {
+      this.handleMatchRoute(match);
+    });
+
+    // Non-match routes
     routes.forEach((route) => {
       this.navigo.on(route.path, (params) => {
         this.handleNavigation(route.path, route.view, route.guard, params);
       });
     });
 
-    // 404 handler - do nothing, let viewManager handle it
+    // 404 handler
     this.navigo.notFound(() => {
-      // Silent - viewManager will handle the view
+      // Navigate to root
+      this.navigate('/');
     });
   }
 
   /**
-   * Handle navigation with guards and viewManager integration
+   * Handle match-context route: /match/:matchUpId/:view?
+   */
+  private async handleMatchRoute(match: any) {
+    if (this.isNavigating) return;
+
+    const matchUpId = match?.data?.matchUpId;
+    const viewSegment = match?.data?.view || 'scoring';
+    const internalView = VIEW_MAP[viewSegment] || 'entry';
+
+    if (!matchUpId) {
+      this.navigate('/archive');
+      return;
+    }
+
+    // Load match if not already loaded
+    if (!isMatchLoaded(matchUpId)) {
+      const success = loadMatch(matchUpId);
+      if (!success) {
+        this.navigate('/archive');
+        return;
+      }
+      swapServer();
+      resetButtons();
+      visibleButtons();
+    }
+
+    // Check guard
+    const guardName = GUARDED_VIEWS[viewSegment];
+    if (guardName) {
+      const guardResult = executeGuard(guardName, { path: match.url, view: internalView }, { path: this.currentRoute });
+      if (!guardResult.allow) {
+        if (guardResult.message) {
+          console.warn(guardResult.message);
+        }
+        this.navigate(matchPath(matchUpId, 'scoring'));
+        return;
+      }
+    }
+
+    this.currentRoute = `/match/${matchUpId}/${viewSegment}`;
+    await this.mountPageComponent(internalView);
+  }
+
+  /**
+   * Handle non-match navigation with guards
    */
   private async handleNavigation(path: string, view: string, guardName?: string, params?: any) {
     if (this.isNavigating) return;
 
-    // Execute guard if present
     if (guardName) {
       const guardResult = executeGuard(guardName, { path, view, params }, { path: this.currentRoute });
 
@@ -107,112 +165,87 @@ export class EnhancedRouter {
       }
     }
 
-    // Update current route
     this.currentRoute = path;
-
-    this.isNavigating = true;
-
-    // PHASE 3: Check if we have a page component for this view
-    const PageComponent = this.pageComponents.get(view);
-
-    if (PageComponent) {
-      // Use new page component system
-      await this.mountPageComponent(PageComponent, view, params);
-    } else {
-      // Fall back to viewManager for views not yet migrated
-      viewManager(view, params);
-    }
-
-    this.isNavigating = false;
+    await this.mountPageComponent(view);
   }
 
   /**
-   * Mount a page component
+   * Hide all known view containers as a clean slate before showing a new view
    */
-  private async mountPageComponent(PageComponent: any, view: string, params?: any) {
-    // Use viewManager to hide all other views properly
-    const allViews = [
-      'gametree',
-      'stats',
-      'momentum',
-      'pointhistory',
-      'entry',
+  private hideAllViews() {
+    const containerIds = [
       'mainmenu',
+      'pointhistory',
       'matcharchive',
       'matchformats',
       'settings',
       'welcome',
       'matchdetails',
+      'statsscreen',
+      'momentum',
+      'pts',
+      'gametree',
+      'toolbar',
     ];
 
-    // Deactivate all views EXCEPT the one we're mounting
-    allViews
-      .filter((v) => v !== view)
-      .forEach((v) => {
-        try {
-          viewManager(v, { activate: false });
-        } catch (e) {
-          // Ignore errors from views that don't exist
-        }
-      });
+    // Also hide the dynamic entry view containers
+    if (options.horizontal_view) containerIds.push(options.horizontal_view);
+    if (options.vertical_view) containerIds.push(options.vertical_view);
 
-    // Unmount current page if exists
-    if (this.currentPage) {
-      await this.currentPage.unmount();
-      this.currentPage = null;
+    for (const id of containerIds) {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
     }
-
-    // Get or create container for page
-    const containerId = this.getContainerIdForView(view);
-    let container = document.getElementById(containerId);
-
-    if (!container) {
-      container = document.getElementById('gametree');
-    }
-
-    if (!container) {
-      // Fall back to viewManager
-      viewManager(view, params);
-      return;
-    }
-
-    // Show the container
-    container.style.display = 'flex';
-
-    // Create and mount page component
-    const page = new PageComponent(container, { params });
-    await page.mount();
-
-    this.currentPage = page;
   }
 
   /**
-   * Get container ID for a view
+   * Mount a page component for the given view
    */
-  private getContainerIdForView(view: string): string {
-    // Map view names to container IDs
-    const containerMap: Record<string, string> = {
-      gametree: 'gametree',
-      stats: 'statsscreen',
-      momentum: 'momentum',
-      entry: 'vblack', // vertical view
-      // Add more as needed
-    };
+  private async mountPageComponent(view: string) {
+    this.isNavigating = true;
 
-    return containerMap[view] || view;
+    try {
+      // Hide stroke slider on every view change
+      strokeSlider();
+
+      // Unmount current page
+      if (this.currentPage) {
+        await this.currentPage.unmount();
+        this.currentPage = null;
+      }
+
+      // Hide all views for a clean slate
+      this.hideAllViews();
+
+      // Get the page component constructor
+      const PageComponent = this.pageComponents.get(view);
+      if (!PageComponent) {
+        console.warn(`No page component registered for view: ${view}`);
+        return;
+      }
+
+      // Create and mount the new page
+      const page = new PageComponent();
+      await page.mount();
+
+      this.currentPage = page;
+      env.view = view;
+    } finally {
+      this.isNavigating = false;
+    }
   }
 
   /**
    * Navigate to a path
    */
-  navigate(path: string, options?: any) {
+  navigate(path: string, _options?: any) {
     this.navigo.navigate(path);
   }
 
   /**
    * Navigate by view name (backward compatibility)
    */
-  navigateToView(view: string, params?: any) {
+  navigateToView(view: string, _params?: any) {
     const path = getPathForView(view);
     this.navigate(path);
   }
@@ -228,39 +261,47 @@ export class EnhancedRouter {
    * Start the router and restore state from URL
    */
   start() {
-    // Check for matchUpId in URL and load it
-    const urlParams = new URLSearchParams(window.location.search);
-    const matchUpId = urlParams.get('matchUpId');
+    const hash = window.location.hash || '';
 
-    if (matchUpId) {
-      // Restore match from URL silently
-      const { loadMatch } = require('../match/loadMatch');
-      loadMatch(matchUpId);
+    // If URL already has a match route, let Navigo resolve it directly
+    if (/^#\/match\/[^/]+/.test(hash)) {
+      this.navigo.resolve();
+      return;
     }
 
-    this.navigo.resolve();
+    // For non-match URLs (/, /archive, /settings, etc.):
+    // Check for a saved match first to avoid a flash of the menu
+    const currentMatchId = browserStorage.get('current_match');
+
+    if (currentMatchId && (hash === '' || hash === '#' || hash === '#/')) {
+      // Saved match on root URL — go straight to scoring
+      this.navigate(matchPath(currentMatchId, 'scoring'));
+    } else if (!currentMatchId && (hash === '' || hash === '#' || hash === '#/')) {
+      // No saved match on root URL — create a new one
+      newMatch();
+    } else {
+      // Explicit non-match route (e.g. /archive, /settings) — resolve normally
+      this.navigo.resolve();
+    }
   }
 
   /**
    * Update URL without triggering navigation
    */
   updateURL(path: string) {
-    // Use Navigo's navigate with silent option
     const fullPath = path.startsWith('#') ? path : `#${path}`;
     window.history.replaceState(null, '', fullPath);
   }
 
   /**
-   * Sync URL with current view (called by viewManager)
-   * This allows viewManager to update URL when it changes view
+   * Sync URL with current view (called externally if needed)
    */
   syncUrl(view: string) {
-    if (this.isNavigating) return; // Prevent circular updates
+    if (this.isNavigating) return;
 
     const path = getPathForView(view);
     if (path && path !== this.currentRoute) {
       this.currentRoute = path;
-      // Update URL without triggering navigation
       window.history.pushState({}, '', `#${path}`);
     }
   }
@@ -280,15 +321,13 @@ export class EnhancedRouter {
   }
 
   /**
-   * Manually trigger navigation to a view (called by viewManager)
+   * Re-activate the current page (e.g. after orientation change)
    */
-  async navigateToViewDirect(view: string, params?: any): Promise<void> {
-    // Prevent redundant navigation if already navigating
-    if (this.isNavigating) {
-      return;
+  async refreshCurrentView() {
+    if (this.currentPage) {
+      await this.currentPage.unmount();
+      await this.currentPage.mount();
     }
-
-    await this.navigateToView(view, params);
   }
 }
 

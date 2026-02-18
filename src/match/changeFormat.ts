@@ -1,6 +1,7 @@
 import { env, updateMatchArchive, resetEngine } from '../state/env';
+import { getCurrentMatchUpId } from '../state/matchContext';
 import { updateScore } from '../display/displayUpdate';
-import { viewManager } from '../display/viewManager';
+import { matchPath } from '../router/routes';
 import { findUpClass } from '../utils/utilities';
 import { getFormatName } from '../services/matchObject/formatMigration';
 
@@ -33,6 +34,7 @@ export function changeFormat(element: Element) {
     // Trigger save and update display
     updateMatchArchive();
     updateScore();
-    viewManager('entry');
+    const router = (window as any).appRouter;
+    router?.navigate(matchPath(getCurrentMatchUpId(), 'scoring'));
   }
 }
