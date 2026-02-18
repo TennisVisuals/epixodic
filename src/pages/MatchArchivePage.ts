@@ -6,7 +6,7 @@
  */
 
 import { BasePage, PageOptions } from './BasePage';
-import { displayMatchArchive } from '../transition/displayMatchArchive';
+import { displayMatchArchive } from '../match/displayMatchArchive';
 
 export class MatchArchivePage extends BasePage {
   private archiveContainer: HTMLElement | null = null;

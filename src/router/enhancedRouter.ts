@@ -234,7 +234,7 @@ export class EnhancedRouter {
 
     if (matchUpId) {
       // Restore match from URL silently
-      const { loadMatch } = require('./transition/loadMatch');
+      const { loadMatch } = require('../match/loadMatch');
       loadMatch(matchUpId);
     }
 

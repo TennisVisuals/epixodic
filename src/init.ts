@@ -1,17 +1,17 @@
-import { app, restoreAppState, setOrientation, updateAppState } from '../state/env';
-import { configureViz, orientationEvent, vizUpdate } from '../display/configureViz';
-import { setInitialState } from '../config/initialState';
-import { setDev } from '../services/helpers/setDev';
-import { browserStorage } from '../state/browserStorage';
-import { registerEvents } from '../events/registerEvents';
-import { newMatch } from './displayMatchArchive';
-import { changeDisplay } from '../display/viewManager';
-import { touchManager } from '../events/touchManager';
-import { defineActionEvents } from '../events/events';
-import { generateRange } from '../utils/utilities';
-import { modalHelp } from '../modals/modalHelp';
-import { loadMatch } from './loadMatch';
-import { closeModal } from '../modals/modals';
+import { app, restoreAppState, setOrientation, updateAppState } from './state/env';
+import { configureViz, orientationEvent, vizUpdate } from './display/configureViz';
+import { setInitialState } from './config/initialState';
+import { setDev } from './services/helpers/setDev';
+import { browserStorage } from './state/browserStorage';
+import { registerEvents } from './events/registerEvents';
+import { newMatch } from './match/displayMatchArchive';
+import { changeDisplay } from './display/viewManager';
+import { touchManager } from './events/touchManager';
+import { defineActionEvents } from './events/events';
+import { generateRange } from './utils/utilities';
+import { modalHelp } from './modals/modalHelp';
+import { loadMatch } from './match/loadMatch';
+import { closeModal } from './modals/modals';
 import clipboard from 'clipboard';
 import { tools } from 'tods-competition-factory';
 import {
@@ -21,9 +21,9 @@ import {
   resetButtons,
   swapServer,
   visibleButtons,
-} from '../display/displayUpdate';
+} from './display/displayUpdate';
 
-import iocCodes from '../assets/ioc_codes.json';
+import iocCodes from './assets/ioc_codes.json';
 
 export function init() {
   setDev();

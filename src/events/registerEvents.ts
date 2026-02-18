@@ -1,7 +1,7 @@
 import { updateTournamentDetails } from '../match/updateTournamentDetails';
 import { updateMatchDetails } from '../match/updateMatchDetails';
 import { editMatchDetails } from '../display/displayUpdate';
-import { newMatch } from '../transition/displayMatchArchive';
+import { newMatch } from '../match/displayMatchArchive';
 import { updateDetails } from '../match/updateDetails';
 import { eventManager } from './eventManager';
 import { closeGameFish } from '../display/configureViz';

@@ -1,6 +1,6 @@
 import { browserStorage } from '../state/browserStorage';
 import { stateChangeEvent } from '../display/displayUpdate';
-import { loadMatch } from '../transition/loadMatch';
+import { loadMatch } from './loadMatch';
 import { env, getEpisodes } from '../state/env';
 
 export function editPoint(index: number) {

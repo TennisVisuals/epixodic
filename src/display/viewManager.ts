@@ -1,6 +1,6 @@
 import { formatChangePossible } from '../engine/formatChangePossible';
 import { displayPointHistory } from './displayPointHistory';
-import { displayMatchArchive } from '../transition/displayMatchArchive';
+import { displayMatchArchive } from '../match/displayMatchArchive';
 import { browserStorage } from '../state/browserStorage';
 import { displayFormats } from './displayFormats';
 import { strokeSlider } from '../events/strokeSlider';

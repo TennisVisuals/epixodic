@@ -1,7 +1,7 @@
 import './styles/courtHive.css';
 import './styles/swipeList.css';
 import './styles/icons.css';
-import { init } from './transition/init';
+import { init } from './init';
 import { router as enhancedRouter } from './router/enhancedRouter';
 
 // PHASE 2: Set up enhanced router BEFORE init
