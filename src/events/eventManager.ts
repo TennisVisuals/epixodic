@@ -41,8 +41,6 @@ em.call = (cls: any, evnt: any, ...args: any) => {
   return registeredFunctions?.[evnt]?.[cls]?.fx(...args);
 };
 em.trigger = (cls: any, evnt: any, target: any, mouse: any) => registeredFunctions[evnt][cls].fx(target, mouse, evnt);
-em.list = () => console.log(registeredFunctions);
-
 const tapHandler = 'ontouchstart' in document.documentElement ? 'touchstart' : 'click';
 document.addEventListener(tapHandler, (evt) => processEvnt({ evt, evnt: 'tap' }));
 document.addEventListener('change', (evt) => processEvnt({ evt, evnt: 'change' }));
@@ -137,7 +135,6 @@ function addtouchclass() {
 }
 
 function removetouchclass() {
-  // console.log('removing touch class');
   if (!isTouch && curRootClass === 'can-touch') {
     //remove 'can-touch' class if not triggered by a touch event and class is present
     isTouch = false;

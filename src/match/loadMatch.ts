@@ -30,7 +30,6 @@ function loadMatchMetadata(match_data: any) {
 }
 
 function loadLegacyPlayers(players: any[]) {
-  console.log('[HVE] Loading', players.length, 'legacy players');
   players.forEach((player: any, index: number) => {
     const fullName = player.participantName || player.name || `Player ${index + 1}`;
     const nameParts = fullName.trim().split(/\s+/);
@@ -43,31 +42,24 @@ function loadLegacyPlayers(players: any[]) {
       person: { standardGivenName, standardFamilyName },
     });
   });
-  console.log('[HVE] Finished loading legacy players');
 }
 
-function loadPoints(points: any[], context: string) {
-  console.log(`[HVE] Loading ${points.length} ${context} points`);
+function loadPoints(points: any[]) {
   points.forEach((point: any) => {
     // Pass server when replaying stored points (they have engine-derived server values)
     const opts: any = { winner: point.winner, result: point.result };
     if (point.server !== undefined) opts.server = point.server;
     env.engine.addPoint(opts);
   });
-  console.log(`[HVE] Finished loading ${context} points`);
 }
 
 function initializeTODSMatch(savedFormat: string) {
-  console.log('[HVE] loadMatch creating new engine with format:', savedFormat);
   resetEngine(savedFormat);
-
-  console.log('[HVE] Defining default players');
   definePlayer({ index: 0, firstName: 'Player', lastName: '1' });
   definePlayer({ index: 1, firstName: 'Player', lastName: '2' });
 }
 
 function loadTODSSides(sides: any[]) {
-  console.log('[HVE] Loading', sides.length, 'participants from TODS');
   sides.forEach((side: any) => {
     const participant = side.participant;
     if (!participant) return;
@@ -80,7 +72,6 @@ function loadTODSSides(sides: any[]) {
       person: { standardGivenName: givenName, standardFamilyName: familyName },
     });
   });
-  console.log('[HVE] Finished loading participants');
 }
 
 export function loadMatch(match_id: string): boolean {
@@ -108,7 +99,7 @@ export function loadMatch(match_id: string): boolean {
   loadMatchMetadata(match_data);
 
   if (match_data.points && match_data.points.length > 0) {
-    loadPoints(match_data.points, 'legacy format');
+    loadPoints(match_data.points);
   }
 
   if (isLegacyStorage) {
@@ -117,7 +108,7 @@ export function loadMatch(match_id: string): boolean {
     }
     const legacyPoints = match_data._appData?.points || match_data.points;
     if (legacyPoints) {
-      loadPoints(legacyPoints, 'legacy _appData');
+      loadPoints(legacyPoints);
     }
   } else {
     const savedFormat = match_data.matchUpFormat || 'SET3-S:6/TB7';
@@ -129,7 +120,7 @@ export function loadMatch(match_id: string): boolean {
 
     const todsPoints = match_data.score?.points;
     if (todsPoints) {
-      loadPoints(todsPoints, 'TODS');
+      loadPoints(todsPoints);
     }
   }
 

@@ -74,7 +74,6 @@ export function redoAction() {
   visibleButtons();
 }
 export function changeServer() {
-  console.log('changeServer');
   const points = env.engine.getState().history?.points || [];
   if (!points.length) {
     env.serving = 1 - env.serving;
@@ -83,7 +82,6 @@ export function changeServer() {
   }
 }
 export function swapAction() {
-  console.log('swapAction');
   options.user_swap = !options.user_swap;
   setCourtSide();
   swapServer();

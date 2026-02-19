@@ -6,7 +6,6 @@ import { groupGames } from '../engine/groupGames';
 import * as d3 from 'd3';
 
 export function configureViz() {
-  console.log('[HVE] Configuring visualizations...');
   // set up momentum
   let pcolors: any = ['#a55194', '#6b6ecf'];
   charts.mc = momentumChart();

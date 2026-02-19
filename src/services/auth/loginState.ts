@@ -17,6 +17,5 @@ export function logIn({ data }) {
   const decodedToken = validateToken(data.token);
   if (decodedToken) {
     browserStorage.set(JWT_TOKEN_STORAGE_NAME, data.token);
-    console.log({ intent: 'is-success', message: 'Login successful' });
   }
 }

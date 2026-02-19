@@ -9,7 +9,7 @@ try {
   });
   window.addEventListener('test', null, opts);
 } catch (e) {
-  console.log(e);
+  // passive events not supported
 }
 
 const behaviors: any = {

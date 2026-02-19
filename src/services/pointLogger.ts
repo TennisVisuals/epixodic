@@ -36,8 +36,6 @@ export class PointLogger {
     
     this.logs.push(logEntry);
     
-    // Pretty print to console for real-time monitoring (disabled for v3/v4 testing)
-    // console.log('[HVE] Point decoration:', JSON.stringify(logEntry, null, 2));
   }
   
   export(): { logs: PointDecoration[], summary: any, stats: any } {
@@ -101,17 +99,14 @@ export class PointLogger {
   
   clear(): void {
     this.logs = [];
-    console.log('🗑️  Point log cleared');
   }
-  
+
   enable(): void {
     this.enabled = true;
-    console.log('✅ Point logging enabled');
   }
-  
+
   disable(): void {
     this.enabled = false;
-    console.log('⏸️  Point logging disabled');
   }
   
   download(filename: string = 'point-decorations.json'): void {
@@ -125,7 +120,6 @@ export class PointLogger {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    console.log(`💾 Downloaded ${filename}`);
   }
 }
 
@@ -137,15 +131,7 @@ if (typeof window !== 'undefined') {
   (window as any).pointLogger = pointLogger;
   (window as any).exportPointLogs = () => {
     const data = pointLogger.export();
-    console.log('📊 Point Logs Export:', data);
     pointLogger.download();
     return data;
   };
-  
-  // Point Logger disabled for v3/v4 parallel testing
-  // console.log('[HVE] Point Logger initialized. Available commands:');
-  // console.log('[HVE]   window.exportPointLogs() - Export and download logs');
-  // console.log('[HVE]   window.pointLogger.clear() - Clear logs');
-  // console.log('[HVE]   window.pointLogger.disable() - Disable logging');
-  // console.log('[HVE]   window.pointLogger.enable() - Enable logging');
 }

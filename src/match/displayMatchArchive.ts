@@ -101,8 +101,6 @@ function deleteMatch(match_id: string) {
 }
 
 export function resetMatch(matchUpId?: string) {
-  console.log('[HVE] resetMatch called - creating fresh engine');
-
   resetEngine('SET3-S:6/TB7');
   definePlayer({ index: 0, firstName: 'Player', lastName: 'One' });
   definePlayer({ index: 1, firstName: 'Player', lastName: 'Two' });

@@ -131,10 +131,6 @@ export function updateStats(element?: Element) {
 
       if (options.highlight_better_stats) {
         // Debug logging for key stats (only show first time)
-        if (['Aces', 'Winners', 'First Serve %', 'Double Faults'].includes(statName)) {
-          console.log(`[HVE] Stat "${statName}": left=${left.value}, right=${right.value}`);
-        }
-        
         // Skip highlighting if values are equal (tie)
         if (left.value !== right.value) {
           // For error stats, lower is better

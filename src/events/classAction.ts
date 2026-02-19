@@ -74,7 +74,6 @@ export function classAction(element: any) {
       return { winner: side };
     },
     penalty(side: number) {
-      console.log('penalty');
       return {
         winner: 1 - side,
         result: 'Penalty',
@@ -189,11 +188,7 @@ export function classAction(element: any) {
     env.rally = 0;
     env.lets = 0;
     
-    // Call stateChangeEvent instead of updateState to trigger page updates
-    // stateChangeEvent calls updateState internally + notifies current page
-    console.log('[HVE] classAction - About to call stateChangeEvent()');
     stateChangeEvent();
-    console.log('[HVE] classAction - stateChangeEvent() completed');
   }
   visibleButtons();
 }
