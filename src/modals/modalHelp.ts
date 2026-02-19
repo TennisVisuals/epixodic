@@ -15,7 +15,7 @@ export function modalHelp(quick_start?: boolean) {
       `;
   const save = `
          <div class="helpintro">Save To Home Screen</div>
-         <div class="helpitem">CourtHive is a Progressive Web App</div>
+         <div class="helpitem">HiveEye is a Progressive Web App</div>
          <div class="helpitem"><b>For Full Screen View:</b></div>
          <div class="helpitem">On iOS use Safari to Save</div>
          <div class="helpitem">On Android use Chrome</div>

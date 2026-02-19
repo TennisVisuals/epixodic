@@ -23,7 +23,6 @@ export const VIEW_MAP: Record<string, string> = {
   tree: 'gametree',
   momentum: 'momentum',
   history: 'pointhistory',
-  format: 'matchformat',
   details: 'matchdetails',
 };
 

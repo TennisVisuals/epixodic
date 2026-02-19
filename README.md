@@ -1,21 +1,12 @@
-# CourtHive Mobile
+# HiveEye
 
 (This is an archaelogical project to revive incredibly hacky code written in 2016-2017)
 
-CourtHive Mobile is a tracker for tennis matches showcasing a number of data visualizations originally created for TennisVisuals.com
+HiveEye is a tracker for tennis matches showcasing a number of data visualizations originally created for TennisVisuals.com
 
 ## Demo
 
-Click here for a fully functional [Online Demo](https://courthive.github.io/courthive-mobile/)
-
-## Install
-
-```js
-pnpm i // dependencies for mobile client
-
-cd src/server
-pnpm i // dependencies for mobile server
-```
+Coming soon...
 
 ## Running locally
 

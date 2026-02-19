@@ -3,6 +3,7 @@ import { setCurrentMatchUpId } from '../state/matchContext';
 import exportImage from '../assets/icons/exportwhite.png';
 import recycleImage from '../assets/icons/recycle.png';
 import { findUpClass, firstAndLast } from '../utils/utilities';
+import { openFormatEditor } from './openFormatEditor';
 import { browserStorage } from '../state/browserStorage';
 import { modalExport } from '../modals/modalExport';
 import { matchPath } from '../router/routes';
@@ -115,21 +116,15 @@ export function resetMatch(matchUpId?: string) {
   stateChangeEvent();
 }
 
-export function newMatch(force_format?: boolean | Element) {
+export function newMatch() {
   resetMatch();
-
-  // If called as event handler, force_format will be an Element
-  // Only use 'entry' view if explicitly passed boolean true
-  const shouldSkipFormatSelection = typeof force_format === 'boolean' && force_format === true;
-  const view = shouldSkipFormatSelection ? 'scoring' : 'format';
-
-  console.log('[HVE] View to show:', view);
-  console.log('[HVE] Will skip format selection?', shouldSkipFormatSelection);
-  console.log('[HVE] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
   const matchUpId = env.metadata.match?.matchUpId;
   const router = (window as any).appRouter;
-  router?.navigate(matchPath(matchUpId, view));
+  router?.navigate(matchPath(matchUpId, 'scoring'));
+
+  // Auto-open format editor after a tick (let EntryPage mount first)
+  setTimeout(() => openFormatEditor(), 50);
 }
 
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

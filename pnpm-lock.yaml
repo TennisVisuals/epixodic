@@ -20,6 +20,9 @@ importers:
       bulma:
         specifier: ^1.0.0
         version: 1.0.4
+      courthive-components:
+        specifier: link:../../CourtHive/courthive-components
+        version: link:../../CourtHive/courthive-components
       d3:
         specifier: ^7.9.0
         version: 7.9.0

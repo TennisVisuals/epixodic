@@ -1,0 +1,34 @@
+import { getMatchUpFormatModal } from 'courthive-components';
+import { env, resetEngine, updateMatchArchive } from '../state/env';
+import { updateScore } from '../display/displayUpdate';
+import { getFormatName } from '../services/matchObject/formatMigration';
+
+export function openFormatEditor() {
+  const currentFormat = env.engine.getFormat();
+
+  getMatchUpFormatModal({
+    existingMatchUpFormat: currentFormat,
+    callback: (format: string) => {
+      if (!format) return; // User cancelled
+
+      const pointsPlayed = (env.engine.getState().history?.points || []).length;
+
+      if (pointsPlayed === 0) {
+        resetEngine(format);
+      } else {
+        console.warn('[HVE] Format change mid-match not supported');
+        return;
+      }
+
+      // Update UI
+      const formatName = getFormatName(format);
+      const matchFormat = document.getElementById('md_format');
+      if (matchFormat) matchFormat.innerHTML = formatName;
+      const matchDescription = document.getElementById('match_description');
+      if (matchDescription) matchDescription.innerHTML = formatName;
+
+      updateMatchArchive();
+      updateScore();
+    },
+  });
+}

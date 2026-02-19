@@ -98,7 +98,7 @@ Addresses user feedback requesting more pleasing color variations beyond red/bla
    - `matchUp` is unambiguous - clearly refers to a tennis competition
 
 2. **Consistency**:
-   - CourtHive/factory uses `matchUp` throughout
+   - HiveEye/factory uses `matchUp` throughout
    - Universal Match Object should align with TODS
    - Easier integration with factory ecosystem
 

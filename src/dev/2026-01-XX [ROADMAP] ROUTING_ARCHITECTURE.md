@@ -450,7 +450,7 @@ The following can be done when ScoringPage is migrated:
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CourtHive Mobile</title>
+    <title>HiveEye</title>
     <link rel="shortcut icon" href="./favicon.ico" />
   </head>
   <body data-theme="light">
@@ -835,7 +835,6 @@ The following can be done when ScoringPage is migrated:
 - **Current Code**: `src/transition/viewManager.ts`
 - **Router**: `src/router/router.ts`
 - **Visualizations**: `src/visualizations/` (newly created)
-- **Example SPA**: CourtHive/tmx (reference architecture)
 - **RallyTree Source**: `TennisVisuals/Old Viz/RallyTree.js`
 - **Corona Source**: `TennisVisuals/Corona/coronaChart.js`
 

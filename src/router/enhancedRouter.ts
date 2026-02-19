@@ -27,7 +27,6 @@ import { PointHistoryPage } from '../pages/PointHistoryPage';
 import { MatchArchivePage } from '../pages/MatchArchivePage';
 import { SettingsPage } from '../pages/SettingsPage';
 import { MainMenuPage } from '../pages/MainMenuPage';
-import { FormatPage } from '../pages/FormatPage';
 import { DetailsPage } from '../pages/DetailsPage';
 import { EntryPage } from '../pages/EntryPage';
 import { WelcomePage } from '../pages/WelcomePage';
@@ -68,7 +67,6 @@ export class EnhancedRouter {
     this.pageComponents.set('matcharchive', MatchArchivePage);
     this.pageComponents.set('settings', SettingsPage);
     this.pageComponents.set('mainmenu', MainMenuPage);
-    this.pageComponents.set('matchformat', FormatPage);
     this.pageComponents.set('matchdetails', DetailsPage);
     this.pageComponents.set('entry', EntryPage);
     this.pageComponents.set('welcome', WelcomePage);
@@ -177,7 +175,6 @@ export class EnhancedRouter {
       'mainmenu',
       'pointhistory',
       'matcharchive',
-      'matchformats',
       'settings',
       'welcome',
       'matchdetails',

@@ -1,6 +1,7 @@
 import { resetButtons, setCourtSide, stateChangeEvent, swapServer, updateState, visibleButtons } from '../display/displayUpdate';
 import { getCurrentMatchUpId } from '../state/matchContext';
 import { env, options, updateMatchArchive } from '../state/env';
+import { openFormatEditor } from '../match/openFormatEditor';
 import { matchPath } from '../router/routes';
 import { showGameFish } from '../display/configureViz';
 import { findUpClass } from '../utils/utilities';
@@ -21,7 +22,10 @@ export function viewStats() {
   getRouter()?.navigate(matchPath(getCurrentMatchUpId(), 'stats'));
 }
 export function viewMatchFormat() {
-  getRouter()?.navigate(matchPath(getCurrentMatchUpId(), 'format'));
+  // Navigate to scoring first (in case we're on another view)
+  const router = getRouter();
+  router?.navigate(matchPath(getCurrentMatchUpId(), 'scoring'));
+  setTimeout(() => openFormatEditor(), 50);
 }
 export function viewGameTree() {
   getRouter()?.navigate(matchPath(getCurrentMatchUpId(), 'tree'));

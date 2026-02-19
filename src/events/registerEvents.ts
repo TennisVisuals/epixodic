@@ -7,7 +7,6 @@ import { eventManager } from './eventManager';
 import { closeGameFish } from '../display/configureViz';
 import { strokeAction } from './strokeAction';
 import { updatePlayer } from '../player/updatePlayer';
-import { changeFormat } from '../match/changeFormat';
 import { classAction } from './classAction';
 import { exportMatch } from '../match/exportMatch';
 import { toggleChart } from '../display/toggleChart';
@@ -40,7 +39,6 @@ export function registerEvents() {
   eventManager
     .register('modalInfo', 'tap', modalInfo)
     .register('toggleChart', 'tap', toggleChart)
-    .register('changeFormat', 'tap', changeFormat)
     .register('closeModal', 'tap', closeModal)
     .register('newMatch', 'tap', newMatch)
     .register('exportMatch', 'tap', exportMatch)
