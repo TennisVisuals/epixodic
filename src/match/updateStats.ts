@@ -1,7 +1,7 @@
 import { simpleChart, computeMatchStatsFromMatchUp } from '@tennisvisuals/scoring-visualizations';
 import { getCurrentMatchUpId } from '../state/matchContext';
 import { matchPath } from '../router/routes';
-import { env, options, getEpisodes } from '../state/env';
+import { env, options } from '../state/env';
 
 // Convert StatObject[] from computeMatchStatsFromMatchUp to the legacy display format
 function convertStatsToLegacyFormat(statObjects: any[]): any[] {
@@ -42,11 +42,10 @@ function convertStatsToLegacyFormat(statObjects: any[]): any[] {
 
 // Derive hand/stroke counters from engine history points
 function deriveCounters(setFilter?: number): { teams: any[] } {
-  const episodes = getEpisodes();
+  const points = env.engine.getState().history?.points || [];
   const teams: any[] = [{}, {}];
 
-  episodes.forEach((episode: any) => {
-    const point = episode.point;
+  points.forEach((point: any) => {
     if (setFilter !== undefined && point.set !== setFilter) return;
     if (!point.hand) return;
 

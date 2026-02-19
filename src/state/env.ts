@@ -8,11 +8,36 @@ const { INDIVIDUAL } = participantTypes;
 const { COMPETITOR } = participantRoles;
 const { SINGLES } = matchUpTypes;
 
+// Event handler flags set during addPoint/undo/redo (consumed by classAction)
+export const engineEvents = {
+  gameJustCompleted: false,
+  setJustCompleted: false,
+  matchJustCompleted: false,
+  gameWinner: undefined as 0 | 1 | undefined,
+};
+
 export const charts: any = {};
 
 // ── ScoringEngine ──────────────────────────────────────────────────────
+function resetEngineEvents() {
+  engineEvents.gameJustCompleted = false;
+  engineEvents.setJustCompleted = false;
+  engineEvents.matchJustCompleted = false;
+  engineEvents.gameWinner = undefined;
+}
+
 function createEngine(format = 'SET3-S:6/TB7') {
-  return new ScoringEngine({ matchUpFormat: format });
+  return new ScoringEngine({
+    matchUpFormat: format,
+    eventHandlers: {
+      onGameComplete: (ctx: any) => {
+        engineEvents.gameJustCompleted = true;
+        engineEvents.gameWinner = ctx.gameWinner;
+      },
+      onSetComplete: () => { engineEvents.setJustCompleted = true; },
+      onMatchComplete: () => { engineEvents.matchJustCompleted = true; },
+    },
+  });
 }
 
 // ── Metadata Store ─────────────────────────────────────────────────────
@@ -111,24 +136,6 @@ export function getEpisodes(): any[] {
   return buildEpisodes(env.engine.getState());
 }
 
-// ── Helper: Get point display values ─────────────────────────────────
-const POINT_DISPLAY = ['0', '15', '30', '40'];
-function pointDisplayPair(p1: number, p2: number, isTiebreak: boolean): [string, string] {
-  if (isTiebreak) return [String(p1), String(p2)];
-
-  // Before deuce: use standard progression
-  if (p1 < 4 && p2 < 4) return [POINT_DISPLAY[p1], POINT_DISPLAY[p2]];
-
-  // At or past deuce (both players have reached 40)
-  if (p1 >= 3 && p2 >= 3) {
-    if (p1 === p2) return ['40', '40'];
-    return p1 > p2 ? ['AD', '40'] : ['40', 'AD'];
-  }
-
-  // One side won the game outright (reached 4+ while opponent below 40)
-  return [p1 >= 4 ? 'G' : POINT_DISPLAY[p1], p2 >= 4 ? 'G' : POINT_DISPLAY[p2]];
-}
-
 // ── Helper: Get score for display (compatible with updateScore) ───────
 export function getScoreForDisplay() {
   const state = env.engine.getState();
@@ -138,18 +145,15 @@ export function getScoreForDisplay() {
   const side1SetWins = sets.filter((s: any) => s.winningSide === 1).length;
   const side2SetWins = sets.filter((s: any) => s.winningSide === 2).length;
 
-  // Check if current game is a tiebreak
-  const currentSet = sets.length > 0 ? sets[sets.length - 1] : null;
-  const isTiebreak = currentSet?.side1TiebreakScore !== undefined || currentSet?.side2TiebreakScore !== undefined;
-
-  const [p1Display, p2Display] = pointDisplayPair(engineScore.points[0], engineScore.points[1], isTiebreak);
+  // Use engine's pointDisplay (handles tiebreak, AD, NoAD automatically)
+  const pointDisplay = engineScore.pointDisplay || ['0', '0'];
 
   return {
     counters: {
       sets: [side1SetWins, side2SetWins],
       games: engineScore.games,
     },
-    points: `${p1Display}-${p2Display}`,
+    points: `${pointDisplay[0]}-${pointDisplay[1]}`,
     components: {
       sets: sets.map((s: any) => ({
         games: [s.side1Score || 0, s.side2Score || 0],
@@ -158,66 +162,19 @@ export function getScoreForDisplay() {
   };
 }
 
-// ── Helper: Get setsToWin from format string ──────────────────────────
+// ── Delegates to ScoringEngine API ────────────────────────────────────
 export function getSetsToWin(): number {
-  const format = env.engine.getFormat();
-  const match = format.match(/^SET(\d+)/);
-  if (match) return Math.ceil(parseInt(match[1]) / 2);
-  return 1; // Single set format
+  return env.engine.getSetsToWin();
 }
 
-// ── Helper: Get server for the NEXT point ────────────────────────────
-// Predicts who will serve the upcoming point based on engine state.
-// At game boundaries (score 0-0), the server alternates from the last game.
-// Within tiebreaks, handles the 2-point rotation pattern.
 export function getNextServer(): number {
-  const state = env.engine.getState();
-  const points = state.history?.points || [];
+  const points = env.engine.getState().history?.points || [];
   if (points.length === 0) return env.serving;
-
-  const lastPoint = points[points.length - 1];
-  const lastServer = lastPoint.server ?? env.serving;
-  const engineScore = env.engine.getScore();
-
-  // At a game boundary (current game score is 0-0 after a completed game),
-  // the server alternates from the previous game's server.
-  if (engineScore.points[0] === 0 && engineScore.points[1] === 0) {
-    return 1 - lastServer;
-  }
-
-  // Check for tiebreak: games equal at the tiebreak threshold
-  const sets = state.score?.sets || [];
-  const currentSet = sets.length > 0 ? sets[sets.length - 1] : null;
-  const side1Games = currentSet?.side1Score || 0;
-  const side2Games = currentSet?.side2Score || 0;
-
-  if (side1Games === side2Games && side1Games > 0) {
-    const tiebreakAt = parseTiebreakAt(env.engine.getFormat());
-    if (tiebreakAt !== null && side1Games === tiebreakAt) {
-      // In a tiebreak: server changes after 1st point, then every 2 points
-      const totalTBPoints = engineScore.points[0] + engineScore.points[1];
-      if (totalTBPoints % 2 === 1) {
-        return 1 - lastServer;
-      }
-      return lastServer;
-    }
-  }
-
-  // Regular game: server stays the same throughout
-  return lastServer;
+  return env.engine.getNextServer();
 }
 
-// Parse tiebreakAt value from format string (e.g. "SET3-S:6/TB7" → 6)
-function parseTiebreakAt(format: string): number | null {
-  if (!format.includes('/TB') && !format.includes('TB')) return null;
-  const match = format.match(/S:(\d+)/);
-  return match ? parseInt(match[1]) : null;
-}
-
-// ── Helper: Check if format uses NoAD ─────────────────────────────────
 export function getNoAd(): boolean {
-  const format = env.engine.getFormat();
-  return format.includes('NOAD');
+  return env.engine.isNoAd();
 }
 
 // ── Metadata Helpers ──────────────────────────────────────────────────
@@ -379,6 +336,7 @@ export function loadStoredMatch(match_id: string): any {
 export function resetEngine(format = 'SET3-S:6/TB7') {
   env.engine = createEngine(format);
   env.metadata = createDefaultMetadata();
+  resetEngineEvents();
 }
 
 export function restoreAppState() {

@@ -1,4 +1,4 @@
-import { env, options, settings, updateMatchArchive, updatePositions, getScoreForDisplay, getSetsToWin, getEpisodes, getNextServer, updateParticipant, definePlayer } from '../state/env';
+import { env, options, settings, updateMatchArchive, updatePositions, getScoreForDisplay, getSetsToWin, getNextServer, updateParticipant, definePlayer } from '../state/env';
 import { browserStorage } from '../state/browserStorage';
 import { groupGames } from '../engine/groupGames';
 import { closeModal } from '../modals/modals';
@@ -122,42 +122,41 @@ export function stateChangeEvent() {
 }
 
 export function visibleButtons() {
-  const points = getEpisodes();
+  const pointCount = env.engine.getPointCount();
   const match_archive = JSON.parse(browserStorage.get('match_archive') || '[]');
   Array.from(document.querySelectorAll('.view_stats')).forEach(
-    (div: any) => (div.style.display = points.length > 0 ? 'inline' : 'none'),
+    (div: any) => (div.style.display = pointCount > 0 ? 'inline' : 'none'),
   );
   Array.from(document.querySelectorAll('.change_server')).forEach(
-    (div: any) => (div.style.display = points.length == 0 ? 'inline' : 'none'),
+    (div: any) => (div.style.display = pointCount == 0 ? 'inline' : 'none'),
   );
   Array.from(document.querySelectorAll('.view_archive')).forEach(
-    (div: any) => (div.style.display = points.length == 0 && match_archive.length ? 'inline' : 'none'),
+    (div: any) => (div.style.display = pointCount == 0 && match_archive.length ? 'inline' : 'none'),
   );
   Array.from(document.querySelectorAll('.view_settings')).forEach(
-    (div: any) => (div.style.display = points.length == 0 && !match_archive.length ? 'inline' : 'none'),
+    (div: any) => (div.style.display = pointCount == 0 && !match_archive.length ? 'inline' : 'none'),
   );
   Array.from(document.querySelectorAll('.view_history')).forEach(
-    (div: any) => (div.style.display = points.length > 0 ? 'inline' : 'none'),
+    (div: any) => (div.style.display = pointCount > 0 ? 'inline' : 'none'),
   );
   Array.from(document.querySelectorAll('.undo')).forEach((div: any) => {
-    div.style.display = points.length > 0 || env.serve2nd || env.rally_mode ? 'flex' : 'none';
+    div.style.display = pointCount > 0 || env.serve2nd || env.rally_mode ? 'flex' : 'none';
   });
   Array.from(document.querySelectorAll('.redo')).forEach((div: any) => {
     div.style.display = env.engine.canRedo() ? 'flex' : 'none';
   });
-  const last_point = points.length ? points[points.length - 1] : undefined;
   const status_message = statusMessage();
   env.status = status_message;
   Array.from(document.querySelectorAll('.status_message')).forEach((div) => (div.innerHTML = status_message));
 
   function statusMessage() {
-    if (last_point) {
-      const server = last_point.point.server;
-      const receiver = 1 - server;
-      // Check needed state (after this point) to determine what the NEXT point situation is
-      if (last_point.needed.points_to_set && Math.min(...last_point.needed.points_to_set) == 1) return 'SET POINT';
-      if (last_point.needed.points_to_game && last_point.needed.points_to_game[receiver] == 1) return 'BREAK POINT';
-      if (last_point.needed.points_to_game && last_point.needed.points_to_game[server] == 1) return 'GAME POINT';
+    const situation = env.engine.getScore().situation;
+    if (situation) {
+      if (situation.isMatchPoint) return 'MATCH POINT';
+      if (situation.isSetPoint) return 'SET POINT';
+      if (situation.isGoldenPoint) return 'GOLDEN POINT';
+      if (situation.isBreakPoint) return 'BREAK POINT';
+      if (situation.isGamePoint) return 'GAME POINT';
     }
     if (env.lets) return `Lets: ${env.lets}`;
     return '';

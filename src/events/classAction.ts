@@ -1,7 +1,7 @@
 import { stateChangeEvent, updateState, visibleButtons } from '../display/displayUpdate';
 import { resetButton, resetStyles } from './events';
 import { checkMatchEnd } from '../engine/checkMatchEnd';
-import { buttons, env, settings } from '../state/env';
+import { buttons, env, settings, engineEvents } from '../state/env';
 import { strokeSlider } from './strokeSlider';
 import { DOUBLE_FAULT } from '../utils/constants';
 import { pointLogger } from '../services/pointLogger';
@@ -148,9 +148,11 @@ export function classAction(element: any) {
     // stroke/result action, if any; then decorate point not necessary
     // would require a global variable, perhaps 'pip' for point-in-progress
 
-    // Capture game count before addPoint to detect game completion
-    const setsBefore = env.engine.getState().score?.sets || [];
-    const gameCountBefore = setsBefore.reduce((sum: number, s: any) => sum + (s.side1Score || 0) + (s.side2Score || 0), 0);
+    // Reset event flags before addPoint (eventHandlers set them during addPoint)
+    engineEvents.gameJustCompleted = false;
+    engineEvents.setJustCompleted = false;
+    engineEvents.matchJustCompleted = false;
+    engineEvents.gameWinner = undefined;
 
     // Add point via ScoringEngine (returns void)
     // Let the engine derive the server based on matchUpFormat rules (handles tiebreaks, NOAD, etc.)
@@ -169,9 +171,7 @@ export function classAction(element: any) {
     }
 
     const matchContinues = !env.engine.isComplete();
-    const setsAfter = stateAfterPoint.score?.sets || [];
-    const gameCountAfter = setsAfter.reduce((sum: number, s: any) => sum + (s.side1Score || 0) + (s.side2Score || 0), 0);
-    const gameJustCompleted = gameCountAfter > gameCountBefore;
+    const gameJustCompleted = engineEvents.gameJustCompleted;
 
     pointLogger.log(point);
 
