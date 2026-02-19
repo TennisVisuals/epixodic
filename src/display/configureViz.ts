@@ -15,7 +15,7 @@ export function configureViz() {
       sizeToFit: false,
       continuous: false,
       orientation: 'vertical',
-      transition_time: 0,
+      transitionTime: 0,
       service: false,
       rally: true,
       player: false,
@@ -87,7 +87,7 @@ export function showGameFish(index?: number) {
     display: { reverse: env.swap_sides },
     fish: {
       gridcells: gridcells,
-      cell_size: 20,
+      cellSize: 20,
     },
     score: game.score,
   });
