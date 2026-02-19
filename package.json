@@ -1,5 +1,5 @@
 {
-  "name": "courthive-mobile",
+  "name": "hive-eye",
   "private": true,
   "version": "2.0.2",
   "type": "module",
@@ -12,7 +12,7 @@
     "analyze": "source-map-explorer 'dist/**/*.js'",
     "build": "tsc && vite build --mode development",
     "build:patch": "pnpm run commits && pnpm version $(semver $npm_package_version -i patch) && pnpm build",
-    "commits": "git log $(git describe --tags --abbrev=0)..HEAD --oneline --no-merges --pretty=format:'%s: %h' | sed '/courthive-mobile/d'",
+    "commits": "git log $(git describe --tags --abbrev=0)..HEAD --oneline --no-merges --pretty=format:'%s: %h' | sed '/hive-eye/d'",
     "launch": "http-server dist -o",
     "build:prod": "tsc && vite build --mode production",
     "check-types": "tsc --noEmit",
@@ -20,22 +20,16 @@
     "config": "node config.mjs",
     "format": "prettier --write src",
     "lint": "eslint src --fix --cache",
-    "local": "pnpm link --global @tennisvisuals/universal-match-object",
     "pre-commit": "lint-staged",
     "prepare": "rimraf dist",
     "preview": "vite preview",
     "postbuild": "./addVersion $npm_package_version",
     "start": "pnpm run config --check && vite --open",
-    "test": "TZ=UTC vitest",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "test": "TZ=UTC vitest"
   },
   "devDependencies": {
     "@commitlint/cli": "19.8.1",
     "@commitlint/config-conventional": "19.8.1",
-    "@storybook/addon-docs": "^10.2.3",
-    "@storybook/addon-links": "^10.2.3",
-    "@storybook/html-vite": "^10.2.3",
     "@types/node": "20.19.27",
     "@typescript-eslint/eslint-plugin": "8.53.0",
     "@typescript-eslint/parser": "8.53.0",
@@ -59,7 +53,6 @@
     "semver": "7.7.3",
     "socket.io-client": "4.8.3",
     "source-map-explorer": "2.5.3",
-    "storybook": "^10.2.3",
     "typescript": "5.9.3",
     "vite": "5.4.21",
     "vite-tsconfig-paths": "4.3.2",
@@ -69,12 +62,13 @@
     "yargs": "17.7.2"
   },
   "dependencies": {
-    "@tennisvisuals/universal-match-object": "link:../universal-match-object",
+    "@tennisvisuals/scoring-visualizations": "link:../scoringVisualizations",
+    "courthive-components": "link:../../CourtHive/courthive-components",
+    "tods-competition-factory": "link:../../CourtHive/factory",
     "animate.css": "^4.1.1",
     "axios": "^1.6.5",
     "bulma": "^1.0.0",
-    "d3": "4.13.0",
-    "d3-v7": "npm:d3@^7.9.0",
+    "d3": "^7.9.0",
     "jwt-decode": "^4.0.0",
     "navigo": "^8.11.1"
   }

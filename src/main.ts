@@ -1,17 +1,15 @@
-import './transition/css/courtHive.css';
-import { init } from './transition/init';
+import './styles/hiveEye.css';
+import './styles/swipeList.css';
+import './styles/icons.css';
+import { init } from './init';
 import { router as enhancedRouter } from './router/enhancedRouter';
 
-// PHASE 2: Set up enhanced router BEFORE init
-// Router works alongside viewManager during transition period
+// Set up router before init so page components are available
+
 (window as any).appRouter = enhancedRouter;
 
 // Initialize app first
 init();
 
-// Start router after init completes - will restore from URL if needed
-// Router will update URL as views change via viewManager
-setTimeout(() => {
-  enhancedRouter.start();
-  // Router initialized - URL navigation enabled
-}, 100);
+// Start router after init — will restore match from URL or browserStorage
+enhancedRouter.start();

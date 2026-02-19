@@ -1,201 +1,28 @@
-/**
- * Main Menu Page
- * 
- * Main navigation menu for the application.
- * Provides links to all major sections.
- */
+import { ViewPage } from './ViewPage';
+import { formatChangePossible } from '../engine/formatChangePossible';
+import { browserStorage } from '../state/browserStorage';
+import { touchManager } from '../events/touchManager';
+import { env } from '../state/env';
 
-import { BasePage, PageOptions } from './BasePage';
-import { env, options } from '../transition/env';
-import { browserStorage } from '../transition/browserStorage';
-import { formatChangePossible } from '../transition/formatChangePossible';
+export class MainMenuPage extends ViewPage {
+  protected activate(): void {
+    touchManager.prevent_touch = false;
 
-export class MainMenuPage extends BasePage {
-  constructor(container: HTMLElement, options: PageOptions = {}) {
-    super(container, options);
+    const matchArchive = JSON.parse(browserStorage.get('match_archive') || '[]');
+    const menuMatchArchive = document.getElementById('menu_match_archive');
+    if (menuMatchArchive) menuMatchArchive.style.display = matchArchive.length ? 'flex' : 'none';
+
+    const menuMatchFormat = document.getElementById('menu_match_format');
+    if (menuMatchFormat) menuMatchFormat.style.display = formatChangePossible() ? 'flex' : 'none';
+
+    const points = env.engine.getState().history?.points || [];
+    const menuChangeServer = document.getElementById('menu_change_server');
+    if (menuChangeServer) menuChangeServer.style.display = points.length === 0 ? 'flex' : 'none';
+
+    this.show('mainmenu');
   }
 
-  protected async onBeforeMount(): Promise<void> {
-    console.log('MainMenuPage: Mounting...');
-  }
-
-  protected render(): void {
-    this.container.innerHTML = '';
-    this.container.className = 'main-menu-page';
-
-    // Create menu header
-    const header = this.createElement('div', {
-      className: 'menu-header',
-    });
-
-    const title = this.createElement('h1', {
-      className: 'menu-title',
-    });
-    title.textContent = 'CourtHive Mobile';
-
-    const subtitle = this.createElement('div', {
-      className: 'menu-subtitle',
-    });
-    subtitle.textContent = 'Tennis Match Tracking';
-
-    header.appendChild(title);
-    header.appendChild(subtitle);
-
-    // Create menu items
-    const menuContainer = this.createElement('div', {
-      className: 'menu-container',
-    });
-
-    const menuItems = this.getMenuItems();
-
-    menuItems.forEach(item => {
-      if (!item.show) return;
-
-      const menuItem = this.createElement('div', {
-        className: `menu-item ${item.disabled ? 'disabled' : ''}`,
-      });
-
-      const icon = this.createElement('div', {
-        className: 'menu-item-icon',
-      });
-      icon.textContent = item.icon;
-
-      const label = this.createElement('div', {
-        className: 'menu-item-label',
-      });
-      label.textContent = item.label;
-
-      if (item.description) {
-        const description = this.createElement('div', {
-          className: 'menu-item-description',
-        });
-        description.textContent = item.description;
-        label.appendChild(description);
-      }
-
-      menuItem.appendChild(icon);
-      menuItem.appendChild(label);
-
-      if (!item.disabled && item.onClick) {
-        menuItem.addEventListener('click', item.onClick);
-      }
-
-      menuContainer.appendChild(menuItem);
-    });
-
-    this.container.appendChild(header);
-    this.container.appendChild(menuContainer);
-  }
-
-  protected async onMounted(): Promise<void> {
-    console.log('MainMenuPage: Mounted');
-  }
-
-  private getMenuItems() {
-    console.log('[HVE] MainMenu - getMenuItems() called');
-    const router = (window as any).appRouter;
-    
-    // V3 data (drives menu logic)
-    const points = env.match.history.points();
-    console.log('[HVE] MainMenu - V3 returned points:', points.length);
-    
-    // V4 data (parallel testing)
-    const v4_points = env.matchUp.history?.points || [];
-    console.log('[HVE] MainMenu - V4 returned points:', v4_points.length);
-    
-    console.log('[HVE] MainMenu - Count match:', points.length === v4_points.length);
-    console.log('[HVE] MainMenu - ✅ Menu data retrieved successfully');
-    
-    const hasPoints = points.length > 0;
-    const match_archive = JSON.parse(browserStorage.get('match_archive') || '[]');
-    const hasArchive = match_archive.length > 0;
-    const canChangeFormat = formatChangePossible();
-
-    return [
-      {
-        icon: '▶️',
-        label: 'Start Scoring',
-        description: 'Begin or resume match',
-        show: true,
-        disabled: false,
-        onClick: () => router?.navigate('/scoring'),
-      },
-      {
-        icon: '📊',
-        label: 'View Statistics',
-        description: hasPoints ? 'Match statistics and charts' : 'No points recorded yet',
-        show: true,
-        disabled: !hasPoints,
-        onClick: () => router?.navigate('/stats'),
-      },
-      {
-        icon: '🌳',
-        label: 'Game Tree',
-        description: hasPoints ? 'Visualize game progression' : 'No points recorded yet',
-        show: true,
-        disabled: !hasPoints,
-        onClick: () => router?.navigate('/tree'),
-      },
-      {
-        icon: '📈',
-        label: 'Momentum Chart',
-        description: hasPoints ? 'Match momentum visualization' : 'No points recorded yet',
-        show: true,
-        disabled: !hasPoints,
-        onClick: () => router?.navigate('/momentum'),
-      },
-      {
-        icon: '📝',
-        label: 'Point History',
-        description: 'Chronological point list',
-        show: true,
-        disabled: false,
-        onClick: () => router?.navigate('/history'),
-      },
-      {
-        icon: '📁',
-        label: 'Match Archive',
-        description: hasArchive ? `${match_archive.length} saved matches` : 'No saved matches',
-        show: true,
-        disabled: false,
-        onClick: () => router?.navigate('/archive'),
-      },
-      {
-        icon: '⚙️',
-        label: 'Match Format',
-        description: canChangeFormat ? 'Select match format' : 'Cannot change after points recorded',
-        show: true,
-        disabled: !canChangeFormat,
-        onClick: () => router?.navigate('/format'),
-      },
-      {
-        icon: '📋',
-        label: 'Match Details',
-        description: 'Edit match information',
-        show: true,
-        disabled: false,
-        onClick: () => router?.navigate('/details'),
-      },
-      {
-        icon: '⚙️',
-        label: 'Settings',
-        description: 'App preferences',
-        show: true,
-        disabled: false,
-        onClick: () => router?.navigate('/settings'),
-      },
-    ];
-  }
-
-  protected async onBeforeUnmount(): Promise<void> {
-    console.log('MainMenuPage: Unmounting...');
-  }
-
-  /**
-   * Refresh menu (e.g., when match state changes)
-   */
-  refresh(): void {
-    if (!this.mounted) return;
-    this.render();
+  protected deactivate(): void {
+    this.hide('mainmenu');
   }
 }

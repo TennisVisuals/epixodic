@@ -1,5 +1,5 @@
 import { getJwtTokenStorageKey } from '../../config/getJwtTokenStorageKey';
-import { browserStorage } from '../../transition/browserStorage';
+import { browserStorage } from '../../state/browserStorage';
 import { validateToken } from './validateToken';
 
 const JWT_TOKEN_STORAGE_NAME = getJwtTokenStorageKey();

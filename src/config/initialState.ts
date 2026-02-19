@@ -1,13 +1,11 @@
-import { browserStorage } from '../transition/browserStorage';
+import { browserStorage } from '../state/browserStorage';
 import { setWindow } from './setWindow';
-import { env } from '../transition/env';
+import { env } from '../state/env';
 import { version } from './version';
 
 import 'bulma/css/bulma.css';
 import 'animate.css/animate.css';
-import '../transition/css/courtHive.css';
-import '../transition/css/swipeList.css';
-import '../transition/css/icons.css';
+import 'courthive-components/dist/courthive-components.css';
 
 export function setInitialState() {
   console.log(`%cversion: ${version}`, 'color: lightblue');

@@ -5,7 +5,7 @@
  * Guards can redirect to other routes or block navigation entirely.
  */
 
-import { env } from '../transition/env';
+import { env } from '../state/env';
 
 export interface GuardResult {
   allow: boolean;
@@ -20,16 +20,16 @@ export type NavigationGuard = (to: any, from: any) => GuardResult | boolean;
  * Used to prevent navigation to stats/charts when no data exists
  */
 export function hasPoints(): GuardResult {
-  const points = env.match.history.points();
-  
+  const points = env.engine.getState().history?.points || [];
+
   if (points.length === 0) {
     return {
       allow: false,
-      redirect: '/',
+      redirect: 'scoring',
       message: 'No points recorded yet. Start scoring to view statistics.',
     };
   }
-  
+
   return { allow: true };
 }
 
@@ -38,16 +38,16 @@ export function hasPoints(): GuardResult {
  * Format can only be changed before first point
  */
 export function canChangeFormat(): GuardResult {
-  const points = env.match.history.points();
-  
+  const points = env.engine.getState().history?.points || [];
+
   if (points.length > 0) {
     return {
       allow: false,
-      redirect: '/',
+      redirect: 'scoring',
       message: 'Cannot change format after points have been recorded.',
     };
   }
-  
+
   return { allow: true };
 }
 

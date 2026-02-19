@@ -1,186 +1,41 @@
-/**
- * Momentum Page
- *
- * Displays momentum chart visualization.
- * Shows momentum chart (portrait) or pts chart (landscape).
- */
+import { ViewPage } from './ViewPage';
+import { touchManager } from '../events/touchManager';
+import { env, charts, getEpisodes, getParticipantNames } from '../state/env';
 
-import { BasePage, PageOptions } from './BasePage';
-import { env, charts } from '../transition/env';
+export class MomentumPage extends ViewPage {
+  protected activate(): void {
+    touchManager.prevent_touch = false;
 
-export class MomentumPage extends BasePage {
-  private currentOrientation: 'portrait' | 'landscape' = 'portrait';
-  private resizeObserver: ResizeObserver | null = null;
+    const episodes = getEpisodes();
 
-  constructor(container: HTMLElement, options: PageOptions = {}) {
-    super(container, options);
-    this.detectOrientation();
-  }
-
-  protected async onBeforeMount(): Promise<void> {
-    console.log('MomentumPage: Mounting...');
-  }
-
-  protected render(): void {
-    this.container.innerHTML = '';
-    this.container.className = 'momentum-page';
-
-    // Create containers for both chart types
-    const momentumContainer = this.createElement('div', {
-      className: 'momentum-chart-container',
-      id: 'momentum-chart-viz',
-    });
-
-    const ptsContainer = this.createElement('div', {
-      className: 'pts-chart-container',
-      id: 'pts-chart-viz',
-    });
-
-    this.container.appendChild(momentumContainer);
-    this.container.appendChild(ptsContainer);
-
-    // Show appropriate chart based on orientation
-    this.updateChartDisplay();
-  }
-
-  protected async onMounted(): Promise<void> {
-    console.log('MomentumPage: Mounted, rendering momentum charts...');
-
-    this.renderMomentumChart();
-    this.renderPtsChart();
-
-    // Setup resize observer for responsive layout
-    this.setupResizeObserver();
-  }
-
-  private detectOrientation(): void {
-    if (typeof globalThis.window !== 'undefined') {
-      const width = globalThis.window.innerWidth;
-      const height = globalThis.window.innerHeight;
-      this.currentOrientation = width > height ? 'landscape' : 'portrait';
-    }
-  }
-
-  private updateChartDisplay(): void {
-    const momentumContainer = this.container.querySelector('.momentum-chart-container') as HTMLElement;
-    const ptsContainer = this.container.querySelector('.pts-chart-container') as HTMLElement;
-
-    if (!momentumContainer || !ptsContainer) return;
-
-    if (this.currentOrientation === 'landscape') {
-      momentumContainer.style.display = 'none';
-      ptsContainer.style.display = 'flex';
+    if (env.orientation === 'landscape') {
+      this.hide('momentum');
+      this.show('pts');
+      charts.pts_match.players(getParticipantNames());
+      charts.pts_match.data(episodes);
+      charts.pts_match.update({ sizeToFit: true });
     } else {
-      momentumContainer.style.display = 'inline';
-      ptsContainer.style.display = 'none';
+      this.show('momentum', 'inline');
+      this.hide('pts');
     }
+
+    charts.mc.width(window.innerWidth).height(820);
+    charts.mc.data(episodes).update();
   }
 
-  private renderMomentumChart(): void {
-    console.log('[HVE] MomentumChart - renderMomentumChart() called');
+  protected deactivate(): void {
+    this.hide('momentum');
+    this.hide('pts');
+  }
 
-    // V3 data (drives visualization)
-    const point_episodes = env.match.history.action('addPoint');
-    console.log('[HVE] MomentumChart - V3 returned episodes:', point_episodes.length);
-
-    // V4 data (parallel testing)
-    const v4_point_episodes =
-      env.matchUp.history?.points?.map((point, index) => ({
-        action: 'addPoint',
-        point: point,
-        index: index,
-      })) || [];
-    console.log('[HVE] MomentumChart - V4 returned points:', v4_point_episodes.length);
-
-    console.log('[HVE] MomentumChart - Count match:', point_episodes.length === v4_point_episodes.length);
-    console.log('[HVE] MomentumChart - Passing to visualization:', point_episodes.length, 'episodes');
-
-    if (!charts.mc) {
-      console.error('[HVE] MomentumChart - ❌ FAILED: charts.mc not initialized');
-      console.warn('Momentum chart not initialized');
-      return;
+  updateVisualizations(): void {
+    const episodes = getEpisodes();
+    if (env.orientation === 'landscape') {
+      charts.pts_match.players(getParticipantNames());
+      charts.pts_match.data(episodes);
+      charts.pts_match.update();
     }
-
-    // Configure momentum chart
-    console.log('[HVE] MomentumChart - Setting data and calling update()');
-    charts.mc.width(globalThis.window.innerWidth).height(820);
-    charts.mc.data(point_episodes).update();
+    charts.mc.data(episodes).update();
     charts.mc.update();
-
-    console.log('[HVE] MomentumChart - ✅ Visualization rendering COMPLETE');
-    console.log(`MomentumPage: Rendered momentum chart with ${point_episodes.length} points`);
-  }
-
-  private renderPtsChart(): void {
-    console.log('[HVE] PtsChart - renderPtsChart() called');
-
-    // V3 data (drives visualization)
-    const point_episodes = env.match.history.action('addPoint');
-    console.log('[HVE] PtsChart - V3 returned episodes:', point_episodes.length);
-
-    // V4 data (parallel testing)
-    const v4_point_episodes = env.matchUp.history.action('addPoint');
-    console.log({ point_episodes, v4_point_episodes });
-
-    if (!charts.pts_match) {
-      console.error('[HVE] PtsChart - ❌ FAILED: charts.pts_match not initialized');
-      console.warn('PTS chart not initialized');
-      return;
-    }
-
-    // Configure pts chart
-    console.log('[HVE] PtsChart - Setting data and calling update()');
-    charts.pts_match.width(globalThis.window.innerWidth * 0.9).height(800);
-    charts.pts_match.data(point_episodes).update();
-
-    console.log('[HVE] PtsChart - ✅ Visualization rendering COMPLETE');
-    console.log(`MomentumPage: Rendered PTS chart with ${point_episodes.length} points`);
-  }
-
-  private setupResizeObserver(): void {
-    if (typeof ResizeObserver === 'undefined') return;
-
-    this.resizeObserver = new ResizeObserver(() => {
-      this.handleResize();
-    });
-
-    this.resizeObserver.observe(this.container);
-  }
-
-  private handleResize(): void {
-    const oldOrientation = this.currentOrientation;
-    this.detectOrientation();
-
-    if (oldOrientation !== this.currentOrientation) {
-      console.log(`MomentumPage: Orientation changed to ${this.currentOrientation}`);
-      this.updateChartDisplay();
-
-      // Update charts with new dimensions
-      if (this.currentOrientation === 'landscape') {
-        this.renderPtsChart();
-      } else {
-        this.renderMomentumChart();
-      }
-    }
-  }
-
-  protected async onBeforeUnmount(): Promise<void> {
-    console.log('MomentumPage: Unmounting...');
-
-    // Cleanup resize observer
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect();
-      this.resizeObserver = null;
-    }
-  }
-
-  /**
-   * Update charts with new data
-   */
-  updateCharts(): void {
-    if (!this.mounted) return;
-
-    this.renderMomentumChart();
-    this.renderPtsChart();
   }
 }
