@@ -112,6 +112,7 @@ export const settings: any = {
   display_gamefish: true,
   auto_swap_sides: true,
   point_buttons: false,
+  decoration_profile: 'standard',
 };
 
 export const env: any = {

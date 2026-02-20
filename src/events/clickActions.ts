@@ -6,6 +6,9 @@ import { newMatch } from '../match/displayMatchArchive';
 import { browserStorage } from '../state/browserStorage';
 import { env, options, settings as appSettings, updateAppState, updateMatchArchive } from '../state/env';
 import { openFormatEditor } from '../match/openFormatEditor';
+import { getRegisteredSkins } from '../scoring';
+import { getProfiles } from '../decorations';
+import { rebuildStrokeSlider } from './strokeSlider';
 import { matchPath } from '../router/routes';
 import { showGameFish } from '../display/configureViz';
 import { findUpClass } from '../utils/utilities';
@@ -43,15 +46,33 @@ export function viewPointHistory() {
 }
 export function settings() {
   let inputs: any;
+  let profileSelect: HTMLSelectElement;
 
   const color = '#333';
-  const content = (elem: HTMLElement) =>
-    (inputs = renderForm(elem, [
+  const content = (elem: HTMLElement) => {
+    inputs = renderForm(elem, [
       { label: 'Audible Clicks', field: 'audible_clicks', id: 'audible_clicks', checkbox: true, checked: appSettings.audible_clicks, color },
       { label: 'Track Shot Types', field: 'track_shot_types', id: 'track_shot_types', checkbox: true, checked: appSettings.track_shot_types, color },
       { label: 'GameFish Display', field: 'display_gamefish', id: 'display_gamefish', checkbox: true, checked: appSettings.display_gamefish, color },
       { label: 'Auto-swap Server Side', field: 'auto_swap_sides', id: 'auto_swap_sides', checkbox: true, checked: appSettings.auto_swap_sides, color },
-    ]));
+    ]);
+
+    const profileLabel = document.createElement('div');
+    profileLabel.textContent = 'Shot Decorations';
+    profileLabel.style.cssText = 'font-weight: bold; margin-top: 1rem; margin-bottom: 0.25rem; color: #333;';
+    elem.appendChild(profileLabel);
+
+    profileSelect = document.createElement('select');
+    profileSelect.style.cssText = 'width: 100%; padding: 0.4rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px;';
+    for (const profile of getProfiles()) {
+      const opt = document.createElement('option');
+      opt.value = profile.id;
+      opt.textContent = profile.label;
+      opt.selected = profile.id === (appSettings.decoration_profile || 'standard');
+      profileSelect.appendChild(opt);
+    }
+    elem.appendChild(profileSelect);
+  };
 
   const saveSettings = () => {
     if (inputs) {
@@ -59,8 +80,15 @@ export function settings() {
       appSettings.track_shot_types = inputs.track_shot_types?.checked ?? appSettings.track_shot_types;
       appSettings.display_gamefish = inputs.display_gamefish?.checked ?? appSettings.display_gamefish;
       appSettings.auto_swap_sides = inputs.auto_swap_sides?.checked ?? appSettings.auto_swap_sides;
-      updateAppState();
     }
+    if (profileSelect) {
+      const newProfile = profileSelect.value;
+      if (newProfile !== appSettings.decoration_profile) {
+        appSettings.decoration_profile = newProfile;
+        rebuildStrokeSlider();
+      }
+    }
+    updateAppState();
   };
 
   cModal.open({
@@ -68,6 +96,72 @@ export function settings() {
     content,
     buttons: [{ label: 'Done', intent: 'is-info', onClick: saveSettings, close: true }],
     onClose: saveSettings,
+  });
+}
+
+export function selectInterfaces() {
+  const verticalSkins = getRegisteredSkins('vertical');
+  const horizontalSkins = getRegisteredSkins('horizontal');
+  let vSelect: HTMLSelectElement;
+  let hSelect: HTMLSelectElement;
+
+  const content = (elem: HTMLElement) => {
+    const vLabel = document.createElement('div');
+    vLabel.textContent = 'Vertical Interface';
+    vLabel.style.cssText = 'font-weight: bold; margin-bottom: 0.25rem; color: #333;';
+    elem.appendChild(vLabel);
+
+    vSelect = document.createElement('select');
+    vSelect.style.cssText = 'width: 100%; padding: 0.4rem; margin-bottom: 1rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px;';
+    for (const skin of verticalSkins) {
+      const opt = document.createElement('option');
+      opt.value = skin.id;
+      opt.textContent = skin.label;
+      opt.selected = skin.id === options.vertical_view;
+      vSelect.appendChild(opt);
+    }
+    elem.appendChild(vSelect);
+
+    const hLabel = document.createElement('div');
+    hLabel.textContent = 'Horizontal Interface';
+    hLabel.style.cssText = 'font-weight: bold; margin-bottom: 0.25rem; color: #333;';
+    elem.appendChild(hLabel);
+
+    hSelect = document.createElement('select');
+    hSelect.style.cssText = 'width: 100%; padding: 0.4rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px;';
+    for (const skin of horizontalSkins) {
+      const opt = document.createElement('option');
+      opt.value = skin.id;
+      opt.textContent = skin.label;
+      opt.selected = skin.id === options.horizontal_view;
+      hSelect.appendChild(opt);
+    }
+    elem.appendChild(hSelect);
+  };
+
+  const save = () => {
+    let changed = false;
+    if (vSelect && vSelect.value !== options.vertical_view) {
+      options.vertical_view = vSelect.value;
+      browserStorage.set('vertical_view', vSelect.value);
+      changed = true;
+    }
+    if (hSelect && hSelect.value !== options.horizontal_view) {
+      options.horizontal_view = hSelect.value;
+      browserStorage.set('horizontal_view', hSelect.value);
+      changed = true;
+    }
+    if (changed) {
+      const router = (window as any).appRouter;
+      if (router) router.refreshCurrentView();
+    }
+  };
+
+  cModal.open({
+    title: 'Scoring Interfaces',
+    content,
+    buttons: [{ label: 'Done', intent: 'is-info', onClick: save, close: true }],
+    onClose: save,
   });
 }
 export function matchArchive() {
@@ -102,6 +196,7 @@ export function mainMenu() {
     if (canChangeFormat) elem.appendChild(menuItem('Match Format', () => openFormatEditor()));
     elem.appendChild(menuItem('Match Details', editMatchDetails));
     if (hasArchive) elem.appendChild(menuItem('Match Archive', () => router?.navigate('/archive')));
+    elem.appendChild(menuItem('Scoring Interfaces', selectInterfaces));
     elem.appendChild(menuItem('Settings', settings));
   };
 
@@ -148,19 +243,3 @@ export function swapAction() {
   swapServer();
   stateChangeEvent();
 }
-/*
-export function menuAction(obj, action) {
-  const actions = {
-    horizontalview() {
-      options.horizontal_view = options.horizontal_view == 'hblack' ? 'hwhite' : 'hblack';
-      BrowserStorage.set('horizontal_view', options.horizontal_view);
-      viewManager('entry');
-    },
-    verticalview() {
-            options.vertical_view = (options.vertical_view == 'vblack') ? 'vwhite' : 'vblack';
-            BrowserStorage.set('vertical_view', options.vertical_view);
-            viewManager('entry');
-    }
-  };
-}
-*/

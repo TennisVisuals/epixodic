@@ -9,6 +9,7 @@ import { defineActionEvents } from './events/events';
 import { generateRange } from './utils/utilities';
 import { closeModal } from './modals/modals';
 import { registerDefaultSkins } from './scoring';
+import { registerDefaultProfiles } from './decorations';
 import clipboard from 'clipboard';
 import { tools } from 'tods-competition-factory';
 import {
@@ -21,6 +22,7 @@ import iocCodes from './assets/ioc_codes.json';
 
 export function init() {
   registerDefaultSkins();
+  registerDefaultProfiles();
   setDev();
 
   window.addEventListener(

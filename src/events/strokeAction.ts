@@ -1,6 +1,6 @@
 import { stateChangeEvent } from '../display/displayUpdate';
 import { checkMatchEnd } from '../engine/checkMatchEnd';
-import { strokeSlider } from './strokeSlider';
+import { clearDismissCallback, strokeSlider } from './strokeSlider';
 import { env, getEpisodes } from '../state/env';
 
 export function strokeAction(element: any) {
@@ -19,6 +19,7 @@ export function strokeAction(element: any) {
   } else {
     console.warn('strokeAction: missing hand or stroke attribute');
   }
+  clearDismissCallback();
   strokeSlider();
   const point_episodes = getEpisodes();
   const last_action = point_episodes[point_episodes.length - 1];

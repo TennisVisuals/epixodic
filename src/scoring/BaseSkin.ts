@@ -3,6 +3,7 @@ import type { ScoringSkin } from './types';
 
 export abstract class BaseSkin implements ScoringSkin {
   abstract readonly id: string;
+  abstract readonly label: string;
   abstract readonly orientation: 'vertical' | 'horizontal';
 
   private _rendered = false;

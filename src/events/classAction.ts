@@ -171,7 +171,7 @@ export function classAction(element: any) {
       point.result &&
       ['Penalty', 'Ace', 'Double Fault'].indexOf(point.result) < 0
     ) {
-      strokeSlider(slider_side);
+      strokeSlider(slider_side, point.result, () => checkMatchEnd({ game: { complete: gameJustCompleted } }));
     } else {
       checkMatchEnd({ game: { complete: gameJustCompleted } });
     }

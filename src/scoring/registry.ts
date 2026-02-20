@@ -16,3 +16,9 @@ export function getRegisteredSkinIds(orientation?: 'vertical' | 'horizontal'): s
     .filter((s) => s.orientation === orientation)
     .map((s) => s.id);
 }
+
+export function getRegisteredSkins(orientation?: 'vertical' | 'horizontal'): ScoringSkin[] {
+  const all = Array.from(skins.values());
+  if (!orientation) return all;
+  return all.filter((s) => s.orientation === orientation);
+}

@@ -2,6 +2,7 @@ import { BaseSkin } from '../BaseSkin';
 
 export class VBlackSkin extends BaseSkin {
   readonly id = 'vblack';
+  readonly label = 'Black';
   readonly orientation = 'vertical' as const;
 
   protected buildDOM(root: HTMLElement): void {

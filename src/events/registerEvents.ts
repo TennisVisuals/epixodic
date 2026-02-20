@@ -10,7 +10,6 @@ import { classAction } from './classAction';
 import { exportMatch } from '../match/exportMatch';
 import { toggleChart } from '../display/toggleChart';
 import { updateStats } from '../match/updateStats';
-import { updatePoint } from '../match/editPoint';
 import { editPlayer } from '../player/editPlayer';
 import { closeModal } from '../modals/modals';
 import {
@@ -47,7 +46,6 @@ export function registerEvents() {
     .register('undoAction', 'tap', undoAction)
     .register('redoAction', 'tap', redoAction)
     .register('changeServer', 'tap', changeServer)
-    .register('updatePoint', 'tap', updatePoint)
     .register('editPlayer', 'tap', editPlayer)
     .register('updatePlayer', 'tap', updatePlayer)
     .register('updateTournamentDetails', 'tap', updateTournamentDetails)
