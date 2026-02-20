@@ -12,15 +12,9 @@
       <source src="/src/assets/audio/click.mp3" type="audio/mpeg" />
     </audio>
 
-    <div id="welcome" style="margin: 2em; display: none">
-      <div class="flexcols">
-        <h1><div class="flexcenter">Epixodic</div></h1>
-        <div class="flexcenter">Epixodic requires a browser supporting Javascript ES6</div>
-        <div class="flexcenter"><img class="splash" src="/src/assets/icons/epixodic.png" alt="Epixodic" /></div>
-        <div class="flexcenter">
-          Chrome, Safari and Firefox browsers on mobile devices with iOS &gt; 9 of Android &gt; 5
-        </div>
-      </div>
+    <div id="welcome" style="display: none">
+      <img class="landing-logo" src="/src/assets/images/epixodic-logo-only.png" alt="Epixodic" />
+      <button class="landing-enter">Enter</button>
     </div>
     <div id="gamefish">
       <div class="gf_content flexcols">
@@ -176,64 +170,6 @@
       </div>
     </div>
 
-    <div id="settings" class="flexcols" style="display: none">
-      <div class="settings_options flexcols flexcenter">
-        <div class="settings_option flexrows flexcenter">
-          <div class="flexcenter">Audible Clicks</div>
-          <div>
-            <label class="switch">
-              <input id="audible_clicks" type="checkbox" checked="true" style="display: none" class="updateAppState" />
-              <div class="slider round"></div>
-            </label>
-          </div>
-        </div>
-
-        <div class="settings_option flexrows flexcenter">
-          <div class="flexcenter">Track Shot Types</div>
-          <div>
-            <label class="switch">
-              <input
-                id="track_shot_types"
-                class="updateAppState"
-                type="checkbox"
-                checked="true"
-                style="display: none"
-              />
-              <div class="slider round"></div>
-            </label>
-          </div>
-        </div>
-
-        <div class="settings_option flexrows flexcenter">
-          <div class="flexcenter">GameFish Display</div>
-          <div>
-            <label class="switch">
-              <input
-                id="display_gamefish"
-                type="checkbox"
-                checked="true"
-                style="display: none"
-                class="updateAppState"
-              />
-              <div class="slider round"></div>
-            </label>
-          </div>
-        </div>
-
-        <div class="settings_option flexrows flexcenter">
-          <div class="flexcenter">Auto-swap Server Side</div>
-          <div>
-            <label class="switch">
-              <input id="auto_swap_sides" type="checkbox" checked="true" style="display: none" class="updateAppState" />
-              <div class="slider round"></div>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="settings_done flexcols">
-        <div class="mainMenu flexcenter s_menuitem">Done</div>
-      </div>
-    </div>
 
     <div id="stroke_slider" class="flexrows stroke_slider" style="display: none">
       <div id="slideleft" style="display: none" class="strokeAction slideback flexcenter">&#62;</div>
@@ -306,52 +242,15 @@
       </div>
     </div>
 
-    <div id="mainmenu">
-      <div class="fixedmenu flexrows">
-        <div class="fm_header">Main Menu</div>
-        <div class="fm_action"></div>
-        <!-- icon for order by date -->
-        <div class="fm_action"></div>
-        <!-- icon for order by player -->
-        <div class="fm_action"></div>
-        <!-- icon for order by tournament -->
-        <div class="fm_action">
-          <div class="outcomeEntry menu_icon iconexit"></div>
-        </div>
-      </div>
-      <div class="mm flexcols spacebetween">
-        <div class="flexcols">
-          <div class="flexrows flexcenter spacebetween menumargin">
-            <div class="modalInfo icon icon_3 iconinfo"></div>
-            <!-- Disabled: server connection issues -->
-            <!-- <div id="startpulse" class="broadcastToggle icon icon_4 iconbroadcast"></div> -->
-            <!-- <div id="pulse" class="broadcastToggle" style="display: none"></div> -->
-            <!-- <div class="modalShare icon icon_2_5 iconshare"></div> -->
-            <!-- <div class="enterKey icon icon_2_5 iconkeys"></div> -->
-            <div class="modalHelp icon icon_3 iconhelp"></div>
-          </div>
-        </div>
-        <div id="main_menu" class="swipe">
-          <div class="outcomeEntry flexcenter m_menuitem">Cancel</div>
-          <div id="menu_change_server" class="changeServer flexcenter m_menuitem">Change Server</div>
-          <div class="newMatch flexcenter m_menuitem">New Match</div>
-          <div id="menu_match_format" class="viewMatchFormat flexcenter m_menuitem">Match Format</div>
-          <div class="editMatchDetails flexcenter m_menuitem">Match Details</div>
-          <div id="menu_match_archive" class="matchArchive flexcenter m_menuitem">Match Archive</div>
-          <div class="settings flexcenter m_menuitem">Settings</div>
-        </div>
-      </div>
-    </div>
 
     <div id="matcharchive" class="noselect">
       <div class="fixedmenu flexrows">
         <div class="fm_header">Match Archive</div>
         <div class="fm_action"></div>
-        <!-- icon for order by date -->
         <div class="fm_action"></div>
-        <!-- icon for order by player -->
-        <div class="fm_action"></div>
-        <!-- icon for order by tournament -->
+        <div class="fm_action">
+          <div class="newMatch archive-new-match">+</div>
+        </div>
         <div class="fm_action">
           <div class="outcomeEntry menu_icon iconexit"></div>
         </div>

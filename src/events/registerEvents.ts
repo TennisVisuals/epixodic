@@ -13,9 +13,6 @@ import { toggleChart } from '../display/toggleChart';
 import { updateStats } from '../match/updateStats';
 import { updatePoint } from '../match/editPoint';
 import { editPlayer } from '../player/editPlayer';
-import { modalHelp } from '../modals/modalHelp';
-import { modalInfo } from '../modals/modalInfo';
-import { updateAppState } from '../state/env';
 import { closeModal } from '../modals/modals';
 import {
   outcomeEntry,
@@ -37,7 +34,6 @@ import {
 
 export function registerEvents() {
   eventManager
-    .register('modalInfo', 'tap', modalInfo)
     .register('toggleChart', 'tap', toggleChart)
     .register('closeModal', 'tap', closeModal)
     .register('newMatch', 'tap', newMatch)
@@ -46,8 +42,6 @@ export function registerEvents() {
     .register('outcomeEntry', 'tap', outcomeEntry)
     .register('matchArchive', 'tap', matchArchive)
     .register('mainMenu', 'tap', mainMenu)
-    .register('modalHelp', 'tap', modalHelp)
-    .register('updateAppState', 'change', updateAppState)
     .register('updateStats', 'tap', updateStats)
     .register('closeGameFish', 'tap', closeGameFish)
     .register('strokeAction', 'tap', strokeAction)

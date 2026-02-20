@@ -14,8 +14,6 @@ import { routes, VIEW_MAP, GUARDED_VIEWS, matchPath, getPathForView } from './ro
 import { executeGuard } from './guards';
 import { getCurrentMatchUpId, isMatchLoaded } from '../state/matchContext';
 import { loadMatch } from '../match/loadMatch';
-import { browserStorage } from '../state/browserStorage';
-import { newMatch } from '../match/displayMatchArchive';
 import { resetButtons, swapServer, visibleButtons } from '../display/displayUpdate';
 import { strokeSlider } from '../events/strokeSlider';
 import { env, options } from '../state/env';
@@ -25,8 +23,6 @@ import { StatsPage } from '../pages/StatsPage';
 import { MomentumPage } from '../pages/MomentumPage';
 import { PointHistoryPage } from '../pages/PointHistoryPage';
 import { MatchArchivePage } from '../pages/MatchArchivePage';
-import { SettingsPage } from '../pages/SettingsPage';
-import { MainMenuPage } from '../pages/MainMenuPage';
 import { DetailsPage } from '../pages/DetailsPage';
 import { EntryPage } from '../pages/EntryPage';
 import { WelcomePage } from '../pages/WelcomePage';
@@ -65,8 +61,6 @@ export class EnhancedRouter {
     this.pageComponents.set('momentum', MomentumPage);
     this.pageComponents.set('pointhistory', PointHistoryPage);
     this.pageComponents.set('matcharchive', MatchArchivePage);
-    this.pageComponents.set('settings', SettingsPage);
-    this.pageComponents.set('mainmenu', MainMenuPage);
     this.pageComponents.set('matchdetails', DetailsPage);
     this.pageComponents.set('entry', EntryPage);
     this.pageComponents.set('welcome', WelcomePage);
@@ -94,8 +88,7 @@ export class EnhancedRouter {
 
     // 404 handler
     this.navigo.notFound(() => {
-      // Navigate to root
-      this.navigate('/');
+      this.navigate('/welcome');
     });
   }
 
@@ -172,10 +165,8 @@ export class EnhancedRouter {
    */
   private hideAllViews() {
     const containerIds = [
-      'mainmenu',
       'pointhistory',
       'matcharchive',
-      'settings',
       'welcome',
       'matchdetails',
       'statsscreen',
@@ -261,26 +252,14 @@ export class EnhancedRouter {
   start() {
     const hash = window.location.hash || '';
 
-    // If URL already has a match route, let Navigo resolve it directly
-    if (/^#\/match\/[^/]+/.test(hash)) {
+    // Explicit route (e.g. #/match/123/scoring, #/archive, #/settings)
+    if (/^#\/.+/.test(hash)) {
       this.navigo.resolve();
       return;
     }
 
-    // For non-match URLs (/, /archive, /settings, etc.):
-    // Check for a saved match first to avoid a flash of the menu
-    const currentMatchId = browserStorage.get('current_match');
-
-    if (currentMatchId && (hash === '' || hash === '#' || hash === '#/')) {
-      // Saved match on root URL — go straight to scoring
-      this.navigate(matchPath(currentMatchId, 'scoring'));
-    } else if (!currentMatchId && (hash === '' || hash === '#' || hash === '#/')) {
-      // No saved match on root URL — create a new one
-      newMatch();
-    } else {
-      // Explicit non-match route (e.g. /archive, /settings) — resolve normally
-      this.navigo.resolve();
-    }
+    // Root URL (no hash, #, or #/) — always show the landing page
+    this.navigate('/welcome');
   }
 
   /**

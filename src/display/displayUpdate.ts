@@ -150,6 +150,7 @@ export function visibleButtons() {
   Array.from(document.querySelectorAll('.status_message')).forEach((div) => (div.innerHTML = status_message));
 
   function statusMessage() {
+    if (env.engine.isComplete()) return 'COMPLETE';
     const situation = env.engine.getScore().situation;
     if (situation) {
       if (situation.isMatchPoint) return 'MATCH POINT';

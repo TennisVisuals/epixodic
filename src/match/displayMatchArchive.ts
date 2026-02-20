@@ -1,103 +1,205 @@
 import { loadDetails, stateChangeEvent, updateScore } from '../display/displayUpdate';
 import { setCurrentMatchUpId } from '../state/matchContext';
-import exportImage from '../assets/icons/exportwhite.png';
-import recycleImage from '../assets/icons/recycle.png';
-import { findUpClass, firstAndLast } from '../utils/utilities';
 import { openFormatEditor } from './openFormatEditor';
 import { browserStorage } from '../state/browserStorage';
-import { modalExport } from '../modals/modalExport';
+import { renderMatchUp } from 'courthive-components';
 import { matchPath } from '../router/routes';
-import { SwipeList } from '../display/swipeList';
 import { tools } from 'tods-competition-factory';
 import { env, resetEngine, definePlayer } from '../state/env';
 
+const archiveComposition = {
+  theme: '',
+  configuration: {
+    scheduleInfo: true,
+    winnerChevron: true,
+  },
+};
+
+let activePopup: HTMLElement | null = null;
+let dismissListener: ((e: MouseEvent) => void) | null = null;
+
+function dismissPopup() {
+  if (activePopup) {
+    activePopup.remove();
+    activePopup = null;
+  }
+  if (dismissListener) {
+    document.removeEventListener('click', dismissListener, true);
+    dismissListener = null;
+  }
+}
+
+function showPopupMenu(anchor: MouseEvent, matchId: string, cardElement: HTMLElement) {
+  dismissPopup();
+
+  const menu = document.createElement('div');
+  menu.className = 'archive-popup';
+
+  const editBtn = document.createElement('div');
+  editBtn.className = 'archive-popup-item';
+  editBtn.textContent = 'Edit Details';
+  editBtn.onclick = (e) => {
+    e.stopPropagation();
+    dismissPopup();
+    const router = (window as any).appRouter;
+    router?.navigate(matchPath(matchId, 'details'));
+  };
+
+  const deleteBtn = document.createElement('div');
+  deleteBtn.className = 'archive-popup-item archive-popup-delete';
+  deleteBtn.textContent = 'Delete';
+  deleteBtn.onclick = (e) => {
+    e.stopPropagation();
+    dismissPopup();
+    deleteMatch(matchId);
+    cardElement.remove();
+  };
+
+  menu.appendChild(editBtn);
+  menu.appendChild(deleteBtn);
+
+  // Position near the click
+  menu.style.position = 'fixed';
+  menu.style.left = `${anchor.clientX}px`;
+  menu.style.top = `${anchor.clientY}px`;
+  document.body.appendChild(menu);
+
+  // Adjust if menu overflows viewport
+  const rect = menu.getBoundingClientRect();
+  if (rect.right > window.innerWidth) {
+    menu.style.left = `${window.innerWidth - rect.width - 8}px`;
+  }
+  if (rect.bottom > window.innerHeight) {
+    menu.style.top = `${anchor.clientY - rect.height}px`;
+  }
+
+  activePopup = menu;
+
+  // Dismiss on next click anywhere
+  dismissListener = (e: MouseEvent) => {
+    if (!menu.contains(e.target as Node)) {
+      dismissPopup();
+    }
+  };
+  // Use setTimeout so the current click event doesn't immediately dismiss
+  setTimeout(() => {
+    if (dismissListener) {
+      document.addEventListener('click', dismissListener, true);
+    }
+  }, 0);
+}
+
+function deleteMatch(match_id: string) {
+  browserStorage.remove(match_id);
+  const current_match_id = browserStorage.get('current_match');
+  let match_archive = JSON.parse(browserStorage.get('match_archive') || '[]');
+  match_archive = match_archive.filter((id: string) => id !== match_id);
+  browserStorage.set('match_archive', JSON.stringify(match_archive));
+  if (match_id === current_match_id) {
+    resetMatch();
+  }
+}
+
 export function displayMatchArchive(params?: any) {
   const active = params?.active;
-  let html = `<div class='swipe-panel no-top'>`;
-  // archive used to sort by match.date when match_id was timestamp...
-  // need a fix for this...
   const match_archive: string[] = JSON.parse(browserStorage.get('match_archive') || '[]')
     .filter((item: any, i: number, s: any) => s.lastIndexOf(item) == i)
     .reverse();
-  if (!match_archive.length) {
-    newMatch();
-    return;
-  }
   if (active) return;
 
+  dismissPopup();
+
+  const container = document.getElementById('matcharchiveList');
+  if (!container) return;
+  container.innerHTML = '';
+
   match_archive.forEach((match_id: string) => {
-    const match_data = match_id && JSON.parse(browserStorage.get(match_id) ?? '[]');
-    if (match_data) {
-      html += archiveEntry(match_id, match_data);
-    } else {
+    const raw = browserStorage.get(match_id);
+    if (!raw) {
       browserStorage.remove(match_id);
+      return;
     }
-  });
-  html += '</div>';
-  const ma_elem = document.getElementById('matcharchiveList');
-  if (ma_elem) ma_elem.innerHTML = html;
 
-  SwipeList.init({
-    container: '.swipe-item',
-    buttons: [
-      {
-        class: 'img_export swipe_img',
-        image_class: 'export_icon',
-        image: exportImage,
-        side: 'right',
-        width: 60,
+    const match_data = JSON.parse(raw);
+    if (!match_data) return;
+
+    const matchUp = toRenderMatchUp(match_id, match_data);
+
+    const element = renderMatchUp({
+      matchUp,
+      composition: archiveComposition,
+      eventHandlers: {
+        matchUpClick: () => {
+          dismissPopup();
+          const router = (window as any).appRouter;
+          router?.navigate(matchPath(match_id, 'scoring'));
+        },
+        scheduleClick: ({ pointerEvent }: { pointerEvent: MouseEvent }) => {
+          pointerEvent.stopPropagation();
+          showPopupMenu(pointerEvent, match_id, element);
+        },
       },
-      {
-        class: 'img_recycle swipe_img',
-        image_class: 'recycle_icon',
-        image: recycleImage,
-        side: 'right',
-        width: 60,
-      },
-    ],
-  });
-
-  if (ma_elem) {
-    ma_elem.addEventListener('click', function (e: any) {
-      const p = findUpClass(e.target, 'swipe-item');
-      const matchId = p?.dataset.matchId;
-      const selected_match = findUpClass(e.target, 'mh_match');
-      if (selected_match) {
-        const router = (window as any).appRouter;
-        router?.navigate(matchPath(matchId, 'scoring'));
-        return;
-      }
-
-      if (e?.target?.className?.indexOf('img_export') >= 0 || e.target.className == 'export_icon') {
-        p.classList.remove('move-out-click');
-        p.style.webkitTransitionDuration = '125ms';
-        p.style.transitionDuration = '125ms';
-        p.style.webkitTransform = 'translateX(0px)';
-        p.style.transform = 'translateX(0px)';
-        modalExport(matchId);
-      }
-      if (e.target.className.includes('img_recycle') || e.target.className == 'recycle_icon') {
-        deleteMatch(matchId);
-        p.remove();
-      }
     });
-  }
+
+    container.appendChild(element);
+  });
 
   return match_archive;
 }
 
-function deleteMatch(match_id: string) {
-  // Broadcasting functionality removed
+/**
+ * Convert stored match data (TODS or legacy) into the shape renderMatchUp expects.
+ */
+function toRenderMatchUp(match_id: string, data: any): any {
+  const isTODS = data.matchUpId && !data.muid;
 
-  browserStorage.remove(match_id);
-  const current_match_id = browserStorage.get('current_match');
-  let match_archive = JSON.parse(browserStorage.get('match_archive') || '[]');
-  match_archive = match_archive.filter((archive_id: string) => match_id != archive_id);
-  browserStorage.set('match_archive', JSON.stringify(match_archive));
-  if (match_id == current_match_id) {
-    resetMatch();
+  // Build schedule from stored date
+  let schedule = data.schedule;
+  if (!schedule?.scheduledDate && data.match?.date) {
+    const d = new Date(data.match.date);
+    schedule = { scheduledDate: d.toISOString().split('T')[0] };
   }
-  displayMatchArchive({ active: true });
+
+  if (isTODS) {
+    return {
+      ...data,
+      schedule,
+      structureId: data.structureId || '',
+    };
+  }
+
+  // Legacy format: convert players array to sides
+  const sides = [
+    {
+      sideNumber: 1,
+      participant: {
+        participantName: data.players?.[0]?.participantName || data.players?.[0]?.name || 'Player 1',
+        participantType: 'INDIVIDUAL',
+      },
+    },
+    {
+      sideNumber: 2,
+      participant: {
+        participantName: data.players?.[1]?.participantName || data.players?.[1]?.name || 'Player 2',
+        participantType: 'INDIVIDUAL',
+      },
+    },
+  ];
+
+  const scoreString = data._appData?.scoreboard || data.scoreboard || '';
+
+  return {
+    matchUpId: match_id,
+    matchUpFormat: data.matchUpFormat || '',
+    matchUpType: 'SINGLES',
+    sides,
+    score: {
+      scoreStringSide1: scoreString,
+      scoreStringSide2: scoreString,
+    },
+    schedule,
+    structureId: '',
+  };
 }
 
 export function resetMatch(matchUpId?: string) {
@@ -123,59 +225,4 @@ export function newMatch() {
 
   // Auto-open format editor after a tick (let EntryPage mount first)
   setTimeout(() => openFormatEditor(), 50);
-}
-
-const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-function archiveEntry(match_id: string, match_data: any) {
-  const date = new Date(match_data.match?.date || Date.now());
-  const display_date = [date.getDate(), months[date.getMonth()], date.getFullYear()].join('-');
-
-  // Detect format: TODS (has matchUpId) vs Legacy (has muid)
-  const isTODSFormat = match_data.matchUpId && !match_data.muid;
-
-  // Get players based on format
-  let player1Name: string;
-  let player2Name: string;
-
-  if (isTODSFormat) {
-    // TODS format: get from sides
-    const side1 = match_data.sides?.find((s: any) => s.sideNumber === 1);
-    const side2 = match_data.sides?.find((s: any) => s.sideNumber === 2);
-    player1Name = side1?.participant?.participantName || 'Player 1';
-    player2Name = side2?.participant?.participantName || 'Player 2';
-  } else {
-    // Legacy format: get from players array
-    player1Name = match_data.players?.[0]?.participantName || match_data.players?.[0]?.name || 'Player 1';
-    player2Name = match_data.players?.[1]?.participantName || match_data.players?.[1]?.name || 'Player 2';
-  }
-
-  const display_players = `
-         <span class='nowrap'>${firstAndLast(player1Name)}</span>
-         <span> v. </span>
-         <span class='nowrap'>${firstAndLast(player2Name)}</span>
-         `;
-
-  // Get score based on format
-  let match_score = '';
-  if (isTODSFormat) {
-    // TODS format: use scoreStringSide1
-    match_score = match_data.score?.scoreStringSide1 || '';
-  } else {
-    // Legacy format: use scoreboard
-    match_score = match_data._appData?.scoreboard || match_data.scoreboard || '';
-  }
-
-  const match_format = match_data.matchUpFormat || '';
-
-  return `
-      <div id='match_${match_id}' data-match-id='${match_id}' class='flexcenter mh_swipe swipe-item'>
-         <div class='flexcols mh_match'>
-            <div class='mh_players'>${display_players}</div>
-            <div class='mh_details'>
-               <div>${display_date}</div>
-               <div class='mh_format'>${match_format}</div>
-            </div>
-            <div class='mh_score'>${match_score}</div>
-         </div>
-      </div>`;
 }

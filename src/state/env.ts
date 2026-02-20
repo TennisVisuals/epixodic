@@ -303,6 +303,11 @@ export function updateMatchArchive(force?: boolean) {
     },
   }));
 
+  const matchDate = env.metadata.match?.date;
+  const schedule = matchDate
+    ? { scheduledDate: new Date(matchDate).toISOString().split('T')[0] }
+    : undefined;
+
   const todsMatchUp = {
     tournamentId: env.metadata.tournament?.tournamentId || env.metadata.match?.tournamentId,
     matchUpId: match_id,
@@ -315,6 +320,7 @@ export function updateMatchArchive(force?: boolean) {
       scoreStringSide1: scoreboard,
       scoreStringSide2: scoreboard,
     },
+    schedule,
     _appData: {
       scoreboard,
       first_service: env.serving,
@@ -346,19 +352,11 @@ export function resetEngine(format = 'SET3-S:6/TB7') {
 export function restoreAppState() {
   const app_settings = browserStorage.get('CH_AppSettings');
   if (app_settings) Object.assign(settings, JSON.parse(app_settings));
-  Object.keys(settings).forEach((key) => {
-    const em: any = document.getElementById(key);
-    if (em) em.checked = settings[key];
-  });
   const app_state = browserStorage.get('CH_AppState');
   if (app_state) Object.assign(app, JSON.parse(app_state));
 }
 
 export function updateAppState() {
-  Object.keys(settings).forEach((key) => {
-    const em: any = document.getElementById(key);
-    if (em) settings[key] = em.checked;
-  });
   browserStorage.set('CH_AppSettings', JSON.stringify(settings));
   browserStorage.set('CH_AppState', JSON.stringify(app));
 }

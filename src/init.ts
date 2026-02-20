@@ -4,12 +4,9 @@ import { setInitialState } from './config/initialState';
 import { setDev } from './services/helpers/setDev';
 import { browserStorage } from './state/browserStorage';
 import { registerEvents } from './events/registerEvents';
-import { newMatch } from './match/displayMatchArchive';
 import { touchManager } from './events/touchManager';
 import { defineActionEvents } from './events/events';
 import { generateRange } from './utils/utilities';
-import { modalHelp } from './modals/modalHelp';
-import { loadMatch } from './match/loadMatch';
 import { closeModal } from './modals/modals';
 import clipboard from 'clipboard';
 import { tools } from 'tods-competition-factory';
@@ -17,9 +14,6 @@ import {
   changePlayerName,
   checkPlayerName,
   loadDetails,
-  resetButtons,
-  swapServer,
-  visibleButtons,
 } from './display/displayUpdate';
 
 import iocCodes from './assets/ioc_codes.json';
@@ -78,7 +72,6 @@ export function init() {
 
   defineEntryEvents();
   defineActionEvents();
-  touchManager.addSwipeTarget(document.getElementById('mainmenu'));
 
   // populate drop down list box selectors
   const select_seed = Array.from(document.querySelectorAll('.md_seed'));
@@ -186,19 +179,4 @@ function defineEntryEvents() {
 
   const hold_targets = Array.from(document.querySelectorAll('.pressAndHold'));
   Array.from(hold_targets).forEach((target) => touchManager.addPressAndHold(target));
-}
-
-function loadCurrent() {
-  const current_match_id = browserStorage.get('current_match');
-  if (!current_match_id) {
-    const match_archive = browserStorage.get('match_archive');
-    // only show quick start if this is first launch
-    newMatch();
-    if (!match_archive) modalHelp(true);
-  } else {
-    loadMatch(current_match_id);
-    swapServer();
-    resetButtons();
-    visibleButtons();
-  }
 }

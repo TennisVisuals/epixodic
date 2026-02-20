@@ -43,23 +43,13 @@ export function matchPath(matchUpId: string | null, view = 'scoring'): string {
 export const routes: RouteConfig[] = [
   {
     path: '/',
-    view: 'mainmenu',
-    name: 'menu',
-  },
-  {
-    path: '/menu',
-    view: 'mainmenu',
-    name: 'menu-explicit',
+    view: 'welcome',
+    name: 'root',
   },
   {
     path: '/archive',
     view: 'matcharchive',
     name: 'archive',
-  },
-  {
-    path: '/settings',
-    view: 'settings',
-    name: 'settings',
   },
   {
     path: '/welcome',
