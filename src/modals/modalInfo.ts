@@ -4,7 +4,7 @@ import { showModal } from '../utils/utilities';
 export function modalInfo() {
   const modaltext = `
          <p>&nbsp;</b>
-         <h2>HiveEye</h2>
+         <h2>Epixodic</h2>
          <p>version <a id="version" target="_blank">${version}</a></p>
          <div class="helpitem">Difficulties after an app update?</div>
          <div class="flexcenter">

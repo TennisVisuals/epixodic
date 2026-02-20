@@ -1,5 +1,5 @@
 {
-  "name": "hive-eye",
+  "name": "epixodic",
   "private": true,
   "version": "2.0.2",
   "type": "module",
@@ -12,7 +12,7 @@
     "analyze": "source-map-explorer 'dist/**/*.js'",
     "build": "tsc && vite build --mode development",
     "build:patch": "pnpm run commits && pnpm version $(semver $npm_package_version -i patch) && pnpm build",
-    "commits": "git log $(git describe --tags --abbrev=0)..HEAD --oneline --no-merges --pretty=format:'%s: %h' | sed '/hive-eye/d'",
+    "commits": "git log $(git describe --tags --abbrev=0)..HEAD --oneline --no-merges --pretty=format:'%s: %h' | sed '/epixodic/d'",
     "launch": "http-server dist -o",
     "build:prod": "tsc && vite build --mode production",
     "check-types": "tsc --noEmit",

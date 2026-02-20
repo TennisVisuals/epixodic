@@ -1,7 +1,7 @@
-import { getMatchUpFormatModal } from 'courthive-components';
-import { env, resetEngine, updateMatchArchive } from '../state/env';
-import { updateScore } from '../display/displayUpdate';
 import { getFormatName } from '../services/matchObject/formatMigration';
+import { env, resetEngine, updateMatchArchive } from '../state/env';
+import { getMatchUpFormatModal } from 'courthive-components';
+import { updateScore } from '../display/displayUpdate';
 
 export function openFormatEditor() {
   const currentFormat = env.engine.getFormat();

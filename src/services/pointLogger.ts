@@ -2,7 +2,7 @@
  * Point Logger
  * 
  * Captures all point metadata/decorations submitted to UMO for statistics analysis.
- * This helps us understand the full range of point decorations that hive-eye uses.
+ * This helps us understand the full range of point decorations that epixodic uses.
  */
 
 export interface PointDecoration {

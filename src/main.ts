@@ -1,4 +1,4 @@
-import './styles/hiveEye.css';
+import './styles/epixodic.css';
 import './styles/swipeList.css';
 import './styles/icons.css';
 import { init } from './init';

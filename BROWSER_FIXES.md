@@ -119,7 +119,7 @@ reset: () => { ... }
 - `match.stats.counters(setFilter?)` - Returns raw point counts
 
 **Why This Matters:**
-The stats page in hive-eye shows:
+The stats page in epixodic shows:
 - ✅ Basic counts (total points, max streaks) - Working
 - ❌ Aces, double faults - **Missing**
 - ❌ Winners, unforced errors, forced errors - **Missing**
@@ -270,14 +270,14 @@ For now, v3 adapter returns empty/stub statistics:
 When encountering browser errors:
 
 1. **Identify the missing API** from error message
-2. **Check v3 usage** in hive-eye code
+2. **Check v3 usage** in epixodic code
 3. **Add to v3 adapter** with proper return values
 4. **Test in browser** to verify fix
-5. **Commit and push** to hive-eye-update branch
+5. **Commit and push** to epixodic-update branch
 
 ---
 
-## UMO Commits (hive-eye-update branch)
+## UMO Commits (epixodic-update branch)
 
 1. `fix: add missing Point type import in PointsEngine` (d5e0b79)
 2. `feat: add v4-umo export with v3 adapter and fromMatchUp` (0c541f0)
