@@ -173,7 +173,6 @@ export class EnhancedRouter {
       'momentum',
       'pts',
       'gametree',
-      'gamefish',
     ];
 
     for (const id of containerIds) {

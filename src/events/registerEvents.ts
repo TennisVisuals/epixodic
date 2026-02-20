@@ -4,7 +4,6 @@ import { editMatchDetails } from '../display/displayUpdate';
 import { newMatch } from '../match/displayMatchArchive';
 import { updateDetails } from '../match/updateDetails';
 import { eventManager } from './eventManager';
-import { closeGameFish } from '../display/configureViz';
 import { strokeAction } from './strokeAction';
 import { updatePlayer } from '../player/updatePlayer';
 import { classAction } from './classAction';
@@ -43,7 +42,6 @@ export function registerEvents() {
     .register('matchArchive', 'tap', matchArchive)
     .register('mainMenu', 'tap', mainMenu)
     .register('updateStats', 'tap', updateStats)
-    .register('closeGameFish', 'tap', closeGameFish)
     .register('strokeAction', 'tap', strokeAction)
     .register('swapAction', 'tap', swapAction)
     .register('undoAction', 'tap', undoAction)

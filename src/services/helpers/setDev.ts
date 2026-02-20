@@ -1,5 +1,5 @@
 import { submitCredentials } from '../messaging/authApi';
-import { app, env } from '../../state/env';
+import { app, env, engineLog } from '../../state/env';
 import { version } from '../../config/version';
 import { logOut } from '../auth/loginState';
 
@@ -13,5 +13,6 @@ export function setDev() {
     logOut,
     app,
     env,
+    engineLog,
   };
 }

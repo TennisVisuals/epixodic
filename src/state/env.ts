@@ -28,19 +28,51 @@ function resetEngineEvents() {
   engineEvents.gameWinner = undefined;
 }
 
+// Engine event hooks — set from the browser console:
+//   dev.engineLog.onPoint = true                       // default log
+//   dev.engineLog.onPoint = (ctx) => console.log(ctx)  // custom handler
+//   dev.engineLog.onPoint = false                      // disable
+export const engineLog: Record<string, boolean | ((ctx: any) => void)> = {
+  onPoint: false,
+  onUndo: false,
+  onRedo: false,
+  onReset: false,
+  onGameComplete: false,
+  onSetComplete: false,
+  onMatchComplete: false,
+};
+
+function fireLog(name: string, ctx: any) {
+  const hook = engineLog[name];
+  if (!hook) return;
+  if (typeof hook === 'function') {
+    hook(ctx);
+  } else {
+    const lastPoint = ctx.state?.history?.points?.at(-1);
+    console.log(`[engine:${name}]`, { lastPoint, score: ctx.score, ...ctx });
+  }
+}
+
 function createEngine(format = 'SET3-S:6/TB7') {
   return new ScoringEngine({
     matchUpFormat: format,
     eventHandlers: {
+      onPoint: (ctx: any) => fireLog('onPoint', ctx),
+      onUndo: (ctx: any) => fireLog('onUndo', ctx),
+      onRedo: (ctx: any) => fireLog('onRedo', ctx),
+      onReset: (ctx: any) => fireLog('onReset', ctx),
       onGameComplete: (ctx: any) => {
         engineEvents.gameJustCompleted = true;
         engineEvents.gameWinner = ctx.gameWinner;
+        fireLog('onGameComplete', ctx);
       },
-      onSetComplete: () => {
+      onSetComplete: (ctx: any) => {
         engineEvents.setJustCompleted = true;
+        fireLog('onSetComplete', ctx);
       },
-      onMatchComplete: () => {
+      onMatchComplete: (ctx: any) => {
         engineEvents.matchJustCompleted = true;
+        fireLog('onMatchComplete', ctx);
       },
     },
   });

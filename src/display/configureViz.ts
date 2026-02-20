@@ -2,6 +2,7 @@ import { changeDisplay } from './viewManager';
 import { charts, env, setOrientation, getEpisodes, getParticipantNames } from '../state/env';
 import { gameTree, gameFish, momentumChart, ptsMatch } from '@tennisvisuals/scoring-visualizations';
 import { groupGames } from '../engine/groupGames';
+import { cModal } from 'courthive-components';
 
 import * as d3 from 'd3';
 
@@ -26,14 +27,13 @@ export function configureViz() {
   charts.mc.events({ score: { click: showGame } });
   d3.select('#momentumChart').call(charts.mc);
 
-  // set up gameFish
+  // set up gameFish (D3 binding deferred to showGameFish — no DOM element at init time)
   pcolors = { players: ['#a55194', '#6b6ecf'] };
   charts.gamefish = gameFish();
   charts.gamefish.options({
     display: { sizeToFit: true },
     colors: pcolors,
   });
-  d3.select('#gameFishChart').call(charts.gamefish);
 
   // set up gametree
   charts.gametree = gameTree();
@@ -72,26 +72,95 @@ export function configureViz() {
 function showGame(d: any) {
   showGameFish(d.index);
 }
-export function closeGameFish() {
-  const gFish = document.getElementById('gamefish');
-  if (gFish) gFish.style.display = 'none';
-}
+
 export function showGameFish(index?: number) {
-  const gFish = document.getElementById('gamefish');
-  if (gFish) gFish.style.display = 'flex';
   const games = groupGames();
-  const game = index != undefined ? games[index] : games[games.length - 1];
-  const gridcells = game.points[0].tiebreak ? ['0', '1', '2', '3', '4', '5', '6', '7'] : ['0', '15', '30', '40', 'G'];
-  charts.gamefish.options({
-    display: { reverse: env.swap_sides },
-    fish: {
-      gridcells: gridcells,
-      cellSize: 20,
-    },
-    score: game.score,
+  if (!games.length || !games[0].points?.length) return;
+
+  let currentIndex = index ?? games.length - 1;
+  if (currentIndex < 0) currentIndex = 0;
+  if (currentIndex >= games.length) currentIndex = games.length - 1;
+
+  let gameLabel: HTMLElement;
+
+  const updateGameLabel = () => {
+    if (gameLabel) gameLabel.textContent = `Game ${currentIndex + 1} of ${games.length}`;
+  };
+
+  const updateChart = (gameIndex: number) => {
+    currentIndex = gameIndex;
+    const game = games[gameIndex];
+    if (!game?.points?.length) return;
+
+    const gridcells = game.points[0].tiebreak
+      ? ['0', '1', '2', '3', '4', '5', '6', '7']
+      : ['0', '15', '30', '40', 'G'];
+    charts.gamefish.options({
+      display: { reverse: env.swap_sides },
+      fish: { gridcells, cellSize: 20 },
+      score: game.score,
+    });
+    charts.gamefish.data(game.points).update();
+    updateGameLabel();
+  };
+
+  const content = (elem: HTMLElement) => {
+    const [p1, p2] = getParticipantNames();
+
+    gameLabel = document.createElement('div');
+    gameLabel.style.cssText = 'text-align: center; padding: 0.5rem; font-weight: bold; color: #333;';
+    elem.appendChild(gameLabel);
+
+    const players = document.createElement('div');
+    players.className = 'gf_players flexrows';
+    players.innerHTML =
+      `<div class="gf_player flexcenter">${p1}</div>` +
+      `<div class="gf_player flexcenter">${p2}</div>`;
+    elem.appendChild(players);
+
+    const chartWrap = document.createElement('div');
+    chartWrap.className = 'gf_chart flexrows';
+    chartWrap.style.minHeight = '300px';
+    const chartDiv = document.createElement('div');
+    chartDiv.id = 'gameFishChart';
+    chartWrap.appendChild(chartDiv);
+    elem.appendChild(chartWrap);
+
+    // Defer D3 init until after cModal appends the modal to the document;
+    // the content callback runs while the element tree is still detached,
+    // so the chart container has no dimensions for sizeToFit.
+    requestAnimationFrame(() => {
+      d3.select(chartDiv).call(charts.gamefish);
+      updateChart(currentIndex);
+    });
+  };
+
+  cModal.open({
+    title: 'GameFish',
+    content,
+    // clickAway: false prevents the synthesized click (fired ~300ms after
+    // touchstart) from landing on the backdrop and immediately closing the modal.
+    config: { clickAway: false },
+    buttons: [
+      {
+        label: 'Previous',
+        intent: 'is-info',
+        close: false,
+        onClick: () => {
+          if (currentIndex > 0) updateChart(currentIndex - 1);
+        },
+      },
+      {
+        label: 'Next',
+        intent: 'is-info',
+        close: false,
+        onClick: () => {
+          if (currentIndex < games.length - 1) updateChart(currentIndex + 1);
+        },
+      },
+      { label: 'Close', intent: 'is-info', close: true },
+    ],
   });
-  charts.gamefish.data(game.points).update();
-  window.scrollTo(0, 0);
 }
 
 let gametreeBound = false;
@@ -148,7 +217,7 @@ export function vizUpdate() {
     env.view = 'pts';
   }
 
-  if (charts.gamefish) charts.gamefish.update();
+  if (charts.gamefish && document.getElementById('gameFishChart')) charts.gamefish.update();
 
   const [player, opponent] = getParticipantNames();
 
