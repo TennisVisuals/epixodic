@@ -1425,6 +1425,10 @@ body {
   justify-content: space-around;
 }
 
+.s_set_active {
+  color: #f0e68c;
+}
+
 .s_header {
   position: absolute;
   top: 12%;

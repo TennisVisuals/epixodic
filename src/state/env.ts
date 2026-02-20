@@ -34,8 +34,12 @@ function createEngine(format = 'SET3-S:6/TB7') {
         engineEvents.gameJustCompleted = true;
         engineEvents.gameWinner = ctx.gameWinner;
       },
-      onSetComplete: () => { engineEvents.setJustCompleted = true; },
-      onMatchComplete: () => { engineEvents.matchJustCompleted = true; },
+      onSetComplete: () => {
+        engineEvents.setJustCompleted = true;
+      },
+      onMatchComplete: () => {
+        engineEvents.matchJustCompleted = true;
+      },
     },
   });
 }
@@ -203,9 +207,9 @@ export function updateParticipant(update: any) {
     player.participantName = `${given} ${family}`.trim();
   }
   // Copy other attributes
-  const skipKeys = ['sideNumber', 'person'];
+  const skipKeys = new Set(['sideNumber', 'person']);
   Object.keys(update).forEach((key) => {
-    if (!skipKeys.includes(key)) player[key] = update[key];
+    if (!skipKeys.has(key)) player[key] = update[key];
   });
   env.metadata.players[index] = player;
   syncParticipantToEngine(index, player);
