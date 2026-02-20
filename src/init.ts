@@ -8,6 +8,7 @@ import { touchManager } from './events/touchManager';
 import { defineActionEvents } from './events/events';
 import { generateRange } from './utils/utilities';
 import { closeModal } from './modals/modals';
+import { registerDefaultSkins } from './scoring';
 import clipboard from 'clipboard';
 import { tools } from 'tods-competition-factory';
 import {
@@ -19,6 +20,7 @@ import {
 import iocCodes from './assets/ioc_codes.json';
 
 export function init() {
+  registerDefaultSkins();
   setDev();
 
   window.addEventListener(
@@ -177,6 +179,4 @@ function defineEntryEvents() {
     };
   }
 
-  const hold_targets = Array.from(document.querySelectorAll('.pressAndHold'));
-  Array.from(hold_targets).forEach((target) => touchManager.addPressAndHold(target));
 }

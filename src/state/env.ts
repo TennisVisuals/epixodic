@@ -1,12 +1,14 @@
 import { browserStorage } from '../state/browserStorage';
 import { firstAndLast } from '../utils/utilities';
-import { scoreGovernor, participantTypes, participantRoles, matchUpTypes } from 'tods-competition-factory';
+import { scoreGovernor, participantTypes, participantRoles, matchUpTypes, version as factoryVersion } from 'tods-competition-factory';
 import { buildEpisodes } from '@tennisvisuals/scoring-visualizations';
 
 const { ScoringEngine } = scoreGovernor;
 const { INDIVIDUAL } = participantTypes;
 const { COMPETITOR } = participantRoles;
 const { SINGLES } = matchUpTypes;
+
+console.log('[env] tods-competition-factory version:', factoryVersion());
 
 // Event handler flags set during addPoint/undo/redo (consumed by classAction)
 export const engineEvents = {
@@ -174,6 +176,7 @@ export function getSetsToWin(): number {
 export function getNextServer(): number {
   const points = env.engine.getState().history?.points || [];
   if (points.length === 0) return env.serving;
+
   return env.engine.getNextServer();
 }
 

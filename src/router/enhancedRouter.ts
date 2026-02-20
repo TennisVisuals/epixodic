@@ -16,7 +16,7 @@ import { getCurrentMatchUpId, isMatchLoaded } from '../state/matchContext';
 import { loadMatch } from '../match/loadMatch';
 import { resetButtons, swapServer, visibleButtons } from '../display/displayUpdate';
 import { strokeSlider } from '../events/strokeSlider';
-import { env, options } from '../state/env';
+import { env } from '../state/env';
 
 import { GameTreePage } from '../pages/GameTreePage';
 import { StatsPage } from '../pages/StatsPage';
@@ -174,16 +174,19 @@ export class EnhancedRouter {
       'pts',
       'gametree',
       'gamefish',
-      'toolbar',
     ];
-
-    // Also hide the dynamic entry view containers
-    if (options.horizontal_view) containerIds.push(options.horizontal_view);
-    if (options.vertical_view) containerIds.push(options.vertical_view);
 
     for (const id of containerIds) {
       const el = document.getElementById(id);
       if (el) el.style.display = 'none';
+    }
+
+    // Hide all scoring skins inside the scoring container
+    const scoringContainer = document.getElementById('scoring-container');
+    if (scoringContainer) {
+      for (const child of Array.from(scoringContainer.children) as HTMLElement[]) {
+        child.style.display = 'none';
+      }
     }
   }
 

@@ -154,20 +154,11 @@ export function classAction(element: any) {
     engineEvents.gameWinner = undefined;
 
     // Add point via ScoringEngine (returns void)
-    // Let the engine derive the server based on matchUpFormat rules (handles tiebreaks, NOAD, etc.)
-    const addPointOpts: any = { winner: point.winner, result: point.result };
-    // Only pass server for the very first point to respect user's initial server choice
-    const enginePoints = env.engine.getState().history?.points || [];
-    if (enginePoints.length === 0) addPointOpts.server = env.serving;
+    // Always pass the current server so every point records the correct value.
+    // The engine defaults to server=0 and doesn't infer from point history,
+    // so we must be explicit. env.serving is kept in sync by getNextServer/swapServer.
+    const addPointOpts: any = { winner: point.winner, result: point.result, server: env.serving };
     env.engine.addPoint(addPointOpts);
-
-    // Sync env.serving from the engine's derived server
-    const stateAfterPoint = env.engine.getState();
-    const storedPoints = stateAfterPoint.history?.points || [];
-    if (storedPoints.length > 0) {
-      env.serving = storedPoints[storedPoints.length - 1].server ?? env.serving;
-      env.receiving = 1 - env.serving;
-    }
 
     const matchContinues = !env.engine.isComplete();
     const gameJustCompleted = engineEvents.gameJustCompleted;
@@ -227,13 +218,15 @@ function checkStartTime() {
 function getPointLocation(point: any) {
   const p0location = document.querySelectorAll('.modeaction_player0');
   const p1location = document.querySelectorAll('.modeaction_player1');
-  if ((p0location && p0location[0].innerHTML == 'Net') || (p1location && p1location[0].innerHTML == 'Net')) {
+  const p0net = p0location[0]?.innerHTML == 'Net';
+  const p1net = p1location[0]?.innerHTML == 'Net';
+  if (p0net || p1net) {
     if (point.result == 'Unforced Error' || point.result == 'Forced Error') {
-      if (point.winner == 0 && p1location[0].innerHTML == 'Net') return 'Net';
-      if (point.winner == 1 && p0location[0].innerHTML == 'Net') return 'Net';
+      if (point.winner == 0 && p1net) return 'Net';
+      if (point.winner == 1 && p0net) return 'Net';
     } else if (point.result == 'Winner') {
-      if (point.winner == 0 && p0location[0].innerHTML == 'Net') return 'Net';
-      if (point.winner == 1 && p1location[0].innerHTML == 'Net') return 'Net';
+      if (point.winner == 0 && p0net) return 'Net';
+      if (point.winner == 1 && p1net) return 'Net';
     }
   }
 }

@@ -136,8 +136,10 @@ export function changeServer() {
   const points = env.engine.getState().history?.points || [];
   if (!points.length) {
     env.serving = 1 - env.serving;
-    updateState();
-    getRouter()?.navigate(matchPath(getCurrentMatchUpId(), 'scoring'));
+    env.receiving = 1 - env.serving;
+    swapServer();
+    resetButtons();
+    visibleButtons();
   }
 }
 export function swapAction() {
