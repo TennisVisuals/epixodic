@@ -1,5 +1,5 @@
-import { rallyCount } from '../functions/legacyRally';
 import { env, getEpisodes } from '../state/env';
+import { WINNER_RESULTS } from '../utils/constants';
 
 export function displayPointHistory() {
   const games = groupGames();
@@ -82,7 +82,7 @@ function pointEntry(point: any, players: any[]) {
   let player_initials;
   if (point.result) {
     let shot_by;
-    if (['Ace', 'Winner'].indexOf(point.result) >= 0) {
+    if (WINNER_RESULTS.includes(point.result)) {
       shot_by = players[point.winner].participantName;
     } else {
       shot_by = players[1 - point.winner].participantName;
@@ -100,7 +100,7 @@ function pointEntry(point: any, players: any[]) {
     if (point.server) point_score = `&nbsp;${point_score}*`;
     if (!point.server) point_score = `*${point_score}&nbsp;`;
   }
-  const rally = point.rally ? rallyCount(point.rally) + 1 : '';
+  const rally = point.rallyLength ? point.rallyLength : '';
   return `
     <div class='flexrows ph_episode' pointIndex="${point.index}">
         <div class='ph_point_${evenodd} flexrows'>

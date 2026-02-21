@@ -2,23 +2,14 @@ import { app, restoreAppState, setOrientation, updateAppState } from './state/en
 import { configureViz, orientationEvent, vizUpdate } from './display/configureViz';
 import { setInitialState } from './config/initialState';
 import { setDev } from './services/helpers/setDev';
-import { browserStorage } from './state/browserStorage';
 import { registerEvents } from './events/registerEvents';
 import { touchManager } from './events/touchManager';
 import { defineActionEvents } from './events/events';
-import { generateRange } from './utils/utilities';
-import { closeModal } from './modals/modals';
 import { registerDefaultSkins } from './scoring';
 import { registerDefaultProfiles } from './decorations';
+import { cModal } from 'courthive-components';
 import clipboard from 'clipboard';
 import { tools } from 'tods-competition-factory';
-import {
-  changePlayerName,
-  checkPlayerName,
-  loadDetails,
-} from './display/displayUpdate';
-
-import iocCodes from './assets/ioc_codes.json';
 
 export function init() {
   registerDefaultSkins();
@@ -66,7 +57,7 @@ export function init() {
   // initialize clipboard
   const clip = new clipboard('.c2c');
   clip.on('success', () => {
-    closeModal();
+    cModal.close();
   });
 
   restoreAppState();
@@ -74,30 +65,7 @@ export function init() {
   // Broadcast disabled - not needed for standalone app
   // if (app.broadcast && navigator.onLine) startBroadcast();
 
-  defineEntryEvents();
   defineActionEvents();
-
-  // populate drop down list box selectors
-  const select_seed = Array.from(document.querySelectorAll('.md_seed'));
-  select_seed.forEach((select: any) => {
-    generateRange(0, 32).forEach((i: number) => {
-      const optionValue = (i + 1).toString();
-      select.options[i + 1] = new Option(optionValue, optionValue);
-    });
-  });
-  const select_draw_position = Array.from(document.querySelectorAll('.md_draw_position'));
-  select_draw_position.forEach((select: any) => {
-    generateRange(0, 128).forEach((i) => {
-      const optionValue = (i + 1).toString();
-      select.options[i + 1] = new Option(optionValue, optionValue);
-    });
-  });
-  const select_ioc = Array.from(document.querySelectorAll('.md_ioc'));
-  select_ioc.forEach((select: any) => {
-    iocCodes.forEach((entry: any, index: number) => (select.options[index + 1] = new Option(entry.name, entry.ioc)));
-  });
-  // load Details to be sure that ioc data can be used to populate country
-  loadDetails();
 
   setOrientation();
   configureViz();
@@ -118,67 +86,3 @@ function checkUserUUID() {
   }
 }
 
-function defineEntryEvents() {
-  const catchTab = (evt: any) => {
-    if (evt.which == 9) {
-      evt.preventDefault();
-    }
-  };
-  const playername = document.getElementById('playername');
-  if (playername) {
-    playername.addEventListener('keyup', checkPlayerName, false);
-    playername.addEventListener('keydown', catchTab, false);
-    playername.onblur = function () {
-      changePlayerName();
-    };
-    playername.onfocus = function () {
-      setTimeout(() => {
-        //@ts-expect-error unknown reason
-        this.setSelectionRange(0, this.value.length);
-      }, 100);
-    };
-  }
-  const team = document.getElementById('team');
-  if (team) {
-    team.onblur = function () {
-      changePlayerName();
-    };
-    team.onfocus = function () {
-      setTimeout(() => {
-        //@ts-expect-error unknown reason
-        this.setSelectionRange(0, this.value.length);
-      }, 100);
-    };
-  }
-
-  const playerRank = document.getElementById('player_rank');
-  if (playerRank) {
-    playerRank.onfocus = function () {
-      setTimeout(() => {
-        //@ts-expect-error unknown reason
-        this.setSelectionRange(0, this.value.length);
-      }, 300);
-    };
-  }
-
-  const playerWTN = document.getElementById('player_wtn');
-  if (playerWTN) {
-    playerWTN.onfocus = function () {
-      setTimeout(() => {
-        //@ts-expect-error unknown reason
-        this.setSelectionRange(0, this.value.length);
-      }, 300);
-    };
-  }
-
-  const playerUTR = document.getElementById('player_utr');
-  if (playerUTR) {
-    playerUTR.onfocus = function () {
-      setTimeout(() => {
-        //@ts-expect-error unknown reason
-        this.setSelectionRange(0, this.value.length);
-      }, 300);
-    };
-  }
-
-}

@@ -2,6 +2,7 @@ import { simpleChart, computeMatchStatsFromMatchUp } from '@tennisvisuals/scorin
 import { getCurrentMatchUpId } from '../state/matchContext';
 import { matchPath } from '../router/routes';
 import { env, options } from '../state/env';
+import { WINNER_RESULTS, FOREHAND, BACKHAND } from '../utils/constants';
 
 // Convert StatObject[] from computeMatchStatsFromMatchUp to the legacy display format
 function convertStatsToLegacyFormat(statObjects: any[]): any[] {
@@ -52,7 +53,7 @@ function deriveCounters(setFilter?: number): { teams: any[] } {
     const hand = point.hand; // 'Forehand' or 'Backhand'
     // Determine which team this finishing shot belongs to
     // For winners/aces, it's the winner; for errors, it's the loser (1 - winner)
-    const isWinnerShot = ['Winner', 'Ace'].includes(point.result);
+    const isWinnerShot = WINNER_RESULTS.includes(point.result);
     const shotBy = isWinnerShot ? point.winner : 1 - point.winner;
 
     if (!teams[shotBy][hand]) teams[shotBy][hand] = [];
@@ -168,12 +169,12 @@ export function updateStats(element?: Element) {
     if (
       counters?.[0] &&
       counters[1] &&
-      (counters[0].Backhand || counters[0].Forehand || counters[1].Backhand || counters[1].Forehand)
+      (counters[0][BACKHAND] || counters[0][FOREHAND] || counters[1][BACKHAND] || counters[1][FOREHAND])
     ) {
       const left = env.swap_sides ? 1 : 0;
       const right = env.swap_sides ? 0 : 1;
       html += `<div class='statsection flexcenter'>Finishing Shots - Strokes</div>`;
-      ['Forehand', 'Backhand'].forEach((hand) => {
+      [FOREHAND, BACKHAND].forEach((hand) => {
         if (counters[0][hand] || counters[1][hand]) {
           const left_display = counters[left][hand] ? counters[left][hand].length : 0;
           const right_display = counters[right][hand] ? counters[right][hand].length : 0;

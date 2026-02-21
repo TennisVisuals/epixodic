@@ -3,7 +3,15 @@ import { resetButton, resetStyles } from './events';
 import { checkMatchEnd } from '../engine/checkMatchEnd';
 import { buttons, env, settings, engineEvents } from '../state/env';
 import { strokeSlider } from './strokeSlider';
-import { DOUBLE_FAULT } from '../utils/constants';
+import {
+  ACE,
+  WINNER,
+  DOUBLE_FAULT,
+  UNFORCED_ERROR,
+  FORCED_ERROR,
+  PENALTY,
+  NO_DECORATION_RESULTS,
+} from '../utils/constants';
 import { pointLogger } from '../services/pointLogger';
 
 const toggles: any = {};
@@ -45,7 +53,7 @@ export function classAction(element: any) {
     },
     fault(side: number) {
       if (side != env.serving) return undefined;
-      if (env.serve2nd) return { winner: 1 - side, result: 'Double Fault', code: 'D' };
+      if (env.serve2nd) return { winner: 1 - side, result: DOUBLE_FAULT, code: 'D' };
       const player_side = env.swap_sides ? 1 - side : side;
       changeValue(`.fault.display_${player_side}_serving`, DOUBLE_FAULT);
       changeValue(`.fault.modeerr_player${player_side}`, DOUBLE_FAULT);
@@ -56,19 +64,19 @@ export function classAction(element: any) {
       // Broadcasting removed
     },
     doubleFault(side: number) {
-      return side != env.serving ? undefined : { winner: 1 - side, result: 'Double Fault', code: 'd' };
+      return side != env.serving ? undefined : { winner: 1 - side, result: DOUBLE_FAULT, code: 'd' };
     },
     ace(side: number) {
-      return side != env.serving ? undefined : { winner: side, result: 'Ace', code: env.serve2nd ? 'a' : 'A' };
+      return side != env.serving ? undefined : { winner: side, result: ACE, code: env.serve2nd ? 'a' : 'A' };
     },
     winner(side: number) {
-      return { winner: side, result: 'Winner' };
+      return { winner: side, result: WINNER };
     },
     unforced(side: number) {
-      return { winner: 1 - side, result: 'Unforced Error' };
+      return { winner: 1 - side, result: UNFORCED_ERROR };
     },
     forced(side: number) {
-      return { winner: 1 - side, result: 'Forced Error' };
+      return { winner: 1 - side, result: FORCED_ERROR };
     },
     point(side: number) {
       return { winner: side };
@@ -76,7 +84,7 @@ export function classAction(element: any) {
     penalty(side: number) {
       return {
         winner: 1 - side,
-        result: 'Penalty',
+        result: PENALTY,
         code: side == env.serving ? 'P' : 'Q',
       };
     },
@@ -158,6 +166,9 @@ export function classAction(element: any) {
     // The engine defaults to server=0 and doesn't infer from point history,
     // so we must be explicit. env.serving is kept in sync by getNextServer/swapServer.
     const addPointOpts: any = { winner: point.winner, result: point.result, server: env.serving };
+    if (point.rally) addPointOpts.rallyLength = point.rally;
+    if (point.location) addPointOpts.location = point.location;
+    if (point.first_serve) addPointOpts.first_serve = point.first_serve;
     env.engine.addPoint(addPointOpts);
 
     const matchContinues = !env.engine.isComplete();
@@ -169,7 +180,7 @@ export function classAction(element: any) {
       settings.track_shot_types &&
       matchContinues &&
       point.result &&
-      ['Penalty', 'Ace', 'Double Fault'].indexOf(point.result) < 0
+      !NO_DECORATION_RESULTS.includes(point.result)
     ) {
       strokeSlider(slider_side, point.result, () => checkMatchEnd({ game: { complete: gameJustCompleted } }));
     } else {
@@ -221,10 +232,10 @@ function getPointLocation(point: any) {
   const p0net = p0location[0]?.innerHTML == 'Net';
   const p1net = p1location[0]?.innerHTML == 'Net';
   if (p0net || p1net) {
-    if (point.result == 'Unforced Error' || point.result == 'Forced Error') {
+    if (point.result == UNFORCED_ERROR || point.result == FORCED_ERROR) {
       if (point.winner == 0 && p1net) return 'Net';
       if (point.winner == 1 && p0net) return 'Net';
-    } else if (point.result == 'Winner') {
+    } else if (point.result == WINNER) {
       if (point.winner == 0 && p0net) return 'Net';
       if (point.winner == 1 && p1net) return 'Net';
     }

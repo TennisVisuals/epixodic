@@ -49,6 +49,13 @@ function loadPoints(points: any[]) {
     // Pass server when replaying stored points (they have engine-derived server values)
     const opts: any = { winner: point.winner, result: point.result };
     if (point.server !== undefined) opts.server = point.server;
+    // Preserve decoration fields
+    if (point.rallyLength != null) opts.rallyLength = point.rallyLength;
+    if (point.hand) opts.hand = point.hand;
+    if (point.stroke) opts.stroke = point.stroke;
+    if (point.code) opts.code = point.code;
+    if (point.location) opts.location = point.location;
+    if (point.first_serve) opts.first_serve = point.first_serve;
     env.engine.addPoint(opts);
   });
 }

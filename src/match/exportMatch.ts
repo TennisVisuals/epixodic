@@ -1,12 +1,12 @@
 import { browserStorage } from '../state/browserStorage';
-import { closeModal } from '../modals/modals';
+import { cModal } from 'courthive-components';
 
 export function exportMatch(element: any) {
   const match_id = element.getAttribute('matchId');
   const match_data: any = browserStorage.get(match_id);
   if (match_data) {
     download(match_data, `match_${match_id}.json`);
-    closeModal();
+    cModal.close();
   }
 }
 

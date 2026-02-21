@@ -11,6 +11,8 @@ export interface DecorationProfile {
   readonly strokes: StrokeDecoration[];
 }
 
+import { WINNER } from '../utils/constants';
+
 export function resultToContext(result: string): StrokeContext {
-  return result === 'Winner' ? 'winner' : 'error';
+  return result === WINNER ? 'winner' : 'error';
 }

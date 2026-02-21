@@ -135,31 +135,53 @@ export function showGameFish(index?: number) {
     });
   };
 
-  cModal.open({
+  const updateButtonStates = () => {
+    if (prevBtn) prevBtn.disabled = currentIndex <= 0;
+    if (nextBtn) nextBtn.disabled = currentIndex >= games.length - 1;
+  };
+
+  let prevBtn: HTMLButtonElement | undefined;
+  let nextBtn: HTMLButtonElement | undefined;
+
+  const modal = cModal.open({
     title: 'GameFish',
     content,
-    // clickAway: false prevents the synthesized click (fired ~300ms after
-    // touchstart) from landing on the backdrop and immediately closing the modal.
     config: { clickAway: false },
     buttons: [
       {
         label: 'Previous',
+        id: 'gf-prev',
         intent: 'is-info',
         close: false,
+        disabled: currentIndex <= 0,
         onClick: () => {
-          if (currentIndex > 0) updateChart(currentIndex - 1);
+          if (currentIndex > 0) {
+            updateChart(currentIndex - 1);
+            updateButtonStates();
+          }
         },
       },
       {
         label: 'Next',
+        id: 'gf-next',
         intent: 'is-info',
         close: false,
+        disabled: currentIndex >= games.length - 1,
         onClick: () => {
-          if (currentIndex < games.length - 1) updateChart(currentIndex + 1);
+          if (currentIndex < games.length - 1) {
+            updateChart(currentIndex + 1);
+            updateButtonStates();
+          }
         },
       },
       { label: 'Close', intent: 'is-info', close: true },
     ],
+  });
+
+  // Grab button references after modal renders
+  requestAnimationFrame(() => {
+    prevBtn = document.getElementById('gf-prev') as HTMLButtonElement;
+    nextBtn = document.getElementById('gf-next') as HTMLButtonElement;
   });
 }
 

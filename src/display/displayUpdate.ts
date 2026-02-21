@@ -1,8 +1,20 @@
-import { env, options, settings, updateMatchArchive, updatePositions, getScoreForDisplay, getSetsToWin, getNextServer, updateParticipant, definePlayer } from '../state/env';
+import {
+  env,
+  options,
+  settings,
+  updateMatchArchive,
+  updatePositions,
+  getScoreForDisplay,
+  getSetsToWin,
+  getNextServer,
+} from '../state/env';
+import { getFormatName } from '../services/matchObject/formatMigration';
 import { browserStorage } from '../state/browserStorage';
 import { groupGames } from '../engine/groupGames';
-import { closeModal } from '../modals/modals';
-import { vizUpdate, updateChartData } from './configureViz';
+import { cModal, renderForm } from 'courthive-components';
+import { updateChartData } from './configureViz';
+
+const selectLabel = '- select -';
 
 export function updateScore() {
   const score = getScoreForDisplay();
@@ -64,32 +76,10 @@ export function updateScore() {
   });
 }
 
+// loadDetails refreshes scoring-view display elements (player names, stats headers).
+// Match/tournament/player detail forms are now cModal-based and self-contained.
 export function loadDetails() {
-  const players = env.metadata.players;
-  players.forEach((player: any, index: number) => {
-    const attributes = ['hand', 'entry', 'seed', 'draw_position', 'ioc', 'rank'];
-    attributes.forEach((detail) => {
-      const target_id = `player${index}_${detail}`;
-      const target: any = document.getElementById(target_id);
-      if (target) target.value = player[detail] || '';
-    });
-  });
-
-  const match_details = env.metadata.match;
-  const m_attrs = ['court', 'umpire'];
-  m_attrs.forEach((attribute) => {
-    const target_id = `match_${attribute}`;
-    const tid: any = document.getElementById(target_id);
-    if (tid) tid.value = match_details[attribute] || '';
-  });
-
-  const tournament = env.metadata.tournament;
-  const t_attrs = ['name', 'start_date', 'tour', 'rank', 'surface', 'in_out', 'draw', 'draw_size', 'round'];
-  t_attrs.forEach((attribute) => {
-    const target_id = `tournament_${attribute}`;
-    const tid: any = document.getElementById(target_id);
-    if (tid) tid.value = tournament[attribute] || '';
-  });
+  updatePositions();
 }
 
 let inStateChange = false;
@@ -109,7 +99,7 @@ export function stateChangeEvent() {
     updateChartData();
 
     // Notify current page component to update visualizations
-    const router = (window as any).appRouter;
+    const router = (globalThis as any).appRouter;
     if (router) {
       const currentPage = router.getCurrentPage();
       if (currentPage && typeof currentPage.updateVisualizations === 'function') {
@@ -253,7 +243,7 @@ export function swapServer() {
 }
 
 function swapSides(number: number) {
-  const iterations = [true].concat([...Array(number).keys()].map((i) => (i + 1) % 4 < 2));
+  const iterations = [true].concat([...new Array(number).keys()].map((i) => (i + 1) % 4 < 2));
   return !iterations[number];
 }
 
@@ -272,57 +262,126 @@ function changeClassDisplay(className: string, display: string) {
   elements.forEach((element: any) => (element.style.display = display));
 }
 
-export function checkPlayerName(keypress: any) {
-  if (keypress.keyCode == 13 || keypress.code == 9) {
-    const player_hand = document.getElementById('player_hand');
-    if (player_hand) player_hand.focus();
-    changePlayerName();
-  }
-}
-
-export function changePlayerName() {
-  const player_name: any = document.getElementById('playername');
-  if (player_name) {
-    // Split name into standardGivenName/standardFamilyName (TODS format)
-    const fullName = player_name.value.trim();
-    const nameParts = fullName.split(/\s+/);
-    const standardGivenName = nameParts[0] || '';
-    const standardFamilyName = nameParts.slice(1).join(' ') || '';
-    
-    const sideNumber = env.edit_player + 1; // Convert index to sideNumber (0→1, 1→2)
-    const update: any = {
-      sideNumber,
-      person: {
-        standardGivenName,
-        standardFamilyName,
-      }
-    };
-    
-    try {
-      updateParticipant(update);
-    } catch (error: any) {
-      if (error.message?.includes('No participant found')) {
-        // Participant doesn't exist yet, create it with definePlayer
-        const index = sideNumber - 1;
-        definePlayer({
-          index,
-          firstName: standardGivenName,
-          lastName: standardFamilyName
-        });
-      } else {
-        throw error;
-      }
-    }
-  }
-  updatePositions(); // Refresh court positions
-  loadDetails(); // CRITICAL: Refresh all player name displays (scoring, stats, etc.)
-  vizUpdate(); // Update Game Tree labels when player name changes
-}
-
 export function editMatchDetails() {
-  closeModal();
-  const matchDetails = document.getElementById('matchdeets');
-  if (matchDetails) matchDetails.style.display = 'flex';
-  const detailContent = document.getElementById('matchdetail_content');
-  if (detailContent) detailContent.scrollTop = 0;
+  const matchMeta = env.metadata.match;
+  const tournament = env.metadata.tournament;
+  const formatName = getFormatName(env.engine.getFormat());
+
+  let inputs: any;
+
+  const content = (elem: HTMLElement) => {
+    elem.style.maxHeight = '70vh';
+    elem.style.overflowY = 'auto';
+    inputs = renderForm(elem, [
+      { text: '<b>Match</b>', header: true },
+      { text: formatName },
+      { label: 'Court', field: 'court', placeholder: 'Court Number or Name', value: matchMeta.court || '' },
+      { label: 'Umpire', field: 'umpire', placeholder: 'Match Umpire', value: matchMeta.umpire || '' },
+      { text: '<b>Event</b>', header: true },
+      { label: 'Name', field: 'tname', placeholder: 'Tournament Name', value: tournament.name || '' },
+      { label: 'Date', field: 'date', placeholder: 'Start Date', value: tournament.start_date || '' },
+      { label: 'Tour', field: 'tour', placeholder: 'Tour', value: tournament.tour || '' },
+      { label: 'Rank', field: 'rank', placeholder: 'Tournament Rank', value: tournament.rank || '' },
+      {
+        label: 'Surface',
+        field: 'surface',
+        options: [
+          { label: selectLabel, value: '' },
+          { label: 'Clay', value: 'clay', selected: tournament.surface === 'clay' },
+          { label: 'Hard', value: 'hard', selected: tournament.surface === 'hard' },
+          { label: 'Grass', value: 'grass', selected: tournament.surface === 'grass' },
+          { label: 'Carpet', value: 'carpet', selected: tournament.surface === 'carpet' },
+        ],
+      },
+      {
+        label: 'In/Out',
+        field: 'in_out',
+        options: [
+          { label: selectLabel, value: '' },
+          { label: 'Indoor', value: 'in', selected: tournament.in_out === 'in' },
+          { label: 'Outdoor', value: 'out', selected: tournament.in_out === 'out' },
+        ],
+      },
+      {
+        label: 'Draw',
+        field: 'draw',
+        options: [
+          { label: selectLabel, value: '' },
+          { label: 'Main', value: 'main', selected: tournament.draw === 'main' },
+          { label: 'Qualification', value: 'qual', selected: tournament.draw === 'qual' },
+        ],
+      },
+      {
+        label: 'Draw Size',
+        field: 'draw_size',
+        options: [
+          { label: '- Select -', value: '' },
+          ...['8', '12', '16', '24', '32', '48', '64', '128'].map((s) => ({
+            label: s,
+            value: s,
+            selected: tournament.draw_size === s,
+          })),
+        ],
+      },
+      {
+        label: 'Round',
+        field: 'round',
+        options: [
+          { label: '- Select -', value: '' },
+          { label: 'Final', value: 'F', selected: tournament.round === 'F' },
+          { label: 'Semifinal', value: 'SF', selected: tournament.round === 'SF' },
+          { label: 'Quarterfinal', value: 'QF', selected: tournament.round === 'QF' },
+          { label: 'Round of 16', value: 'R16', selected: tournament.round === 'R16' },
+          { label: 'Round of 32', value: 'R32', selected: tournament.round === 'R32' },
+          { label: 'Round of 64', value: 'R64', selected: tournament.round === 'R64' },
+          { label: 'Round of 128', value: 'R128', selected: tournament.round === 'R128' },
+          { label: 'Round Robin', value: 'RR', selected: tournament.round === 'RR' },
+        ],
+      },
+      { text: '<b>Provider</b>', header: true },
+      { label: 'Name', field: 'provider', placeholder: 'Name of provider', value: env.provider || '' },
+    ]);
+  };
+
+  const save = () => {
+    // Match details
+    if (inputs.court.value) matchMeta.court = inputs.court.value;
+    else delete matchMeta.court;
+    if (inputs.umpire.value) matchMeta.umpire = inputs.umpire.value;
+    else delete matchMeta.umpire;
+
+    // Tournament details
+    const tFields: [string, string][] = [
+      ['tname', 'name'],
+      ['date', 'start_date'],
+      ['tour', 'tour'],
+      ['rank', 'rank'],
+      ['surface', 'surface'],
+      ['in_out', 'in_out'],
+      ['draw', 'draw'],
+      ['draw_size', 'draw_size'],
+      ['round', 'round'],
+    ];
+    for (const [field, key] of tFields) {
+      if (inputs[field].value) tournament[key] = inputs[field].value.trim();
+      else delete tournament[key];
+    }
+
+    // Provider
+    const providerValue = inputs.provider.value.trim();
+    env.provider = providerValue;
+    if (providerValue) browserStorage.set('mobile-provider', providerValue);
+
+    updateMatchArchive();
+  };
+
+  cModal.open({
+    title: 'Match Details',
+    content,
+    config: { clickAway: false },
+    buttons: [
+      { label: 'Cancel', close: true },
+      { label: 'Save', intent: 'is-info', onClick: save, close: true },
+    ],
+  });
 }

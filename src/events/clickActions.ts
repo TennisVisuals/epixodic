@@ -94,6 +94,7 @@ export function settings() {
   cModal.open({
     title: 'Settings',
     content,
+    config: { clickAway: false },
     buttons: [{ label: 'Done', intent: 'is-info', onClick: saveSettings, close: true }],
     onClose: saveSettings,
   });
@@ -160,6 +161,7 @@ export function selectInterfaces() {
   cModal.open({
     title: 'Scoring Interfaces',
     content,
+    config: { clickAway: false },
     buttons: [{ label: 'Done', intent: 'is-info', onClick: save, close: true }],
     onClose: save,
   });
@@ -200,7 +202,7 @@ export function mainMenu() {
     elem.appendChild(menuItem('Settings', settings));
   };
 
-  cModal.open({ title: 'Menu', content });
+  cModal.open({ title: 'Menu', content, config: { clickAway: false } });
 }
 export function undoAction() {
   if (env.serve2nd || env.rally_mode) {

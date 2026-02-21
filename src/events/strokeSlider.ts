@@ -1,6 +1,7 @@
 import { getProfile, resultToContext } from '../decorations';
 import type { StrokeContext } from '../decorations';
 import { settings } from '../state/env';
+import { FOREHAND, BACKHAND } from '../utils/constants';
 
 let lastContext: StrokeContext | undefined;
 let lastProfileId: string | undefined;
@@ -9,9 +10,12 @@ let onDismissCallback: (() => void) | undefined;
 
 function showOverlay(): void {
   if (overlay) return;
+  const createdAt = Date.now();
   overlay = document.createElement('div');
   overlay.id = 'stroke_slider_overlay';
   overlay.addEventListener('click', () => {
+    // Ignore the ghost click synthesized ~300ms after the touchstart that opened the slider
+    if (Date.now() - createdAt < 400) return;
     const cb = onDismissCallback;
     onDismissCallback = undefined;
     strokeSlider();
@@ -51,11 +55,11 @@ function buildSliderContent(context?: StrokeContext): void {
     row.className = 'stroke flexcenter';
     row.innerHTML =
       `<div>${stroke.name}</div>` +
-      `<div class="strokeAction forehand" hand="Forehand" stroke="${stroke.name}">` +
-      `<div class="hand_label flexjustifystart strokeAction" hand="Forehand" stroke="${stroke.name}">F</div>` +
+      `<div class="strokeAction forehand" hand="${FOREHAND}" stroke="${stroke.name}">` +
+      `<div class="hand_label flexjustifystart strokeAction" hand="${FOREHAND}" stroke="${stroke.name}">F</div>` +
       `</div>` +
-      `<div class="strokeAction backhand" hand="Backhand" stroke="${stroke.name}">` +
-      `<div class="hand_label flexjustifyend strokeAction" hand="Backhand" stroke="${stroke.name}">B</div>` +
+      `<div class="strokeAction backhand" hand="${BACKHAND}" stroke="${stroke.name}">` +
+      `<div class="hand_label flexjustifyend strokeAction" hand="${BACKHAND}" stroke="${stroke.name}">B</div>` +
       `</div>`;
     container.appendChild(row);
   }

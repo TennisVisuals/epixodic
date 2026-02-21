@@ -7,16 +7,6 @@ export function isJSON(str: any) {
   return true;
 }
 
-export function showModal(text: string, data?: any) {
-  const modalText = document.getElementById('modaltext');
-  if (modalText) modalText.innerHTML = text;
-  if (data) {
-    const c2c = document.getElementById('copy2clipboard');
-    if (c2c) c2c.setAttribute('data-clipboard-text', data);
-  }
-  const modal = document.getElementById('modal');
-  if (modal) modal.style.display = 'flex';
-}
 
 export function firstAndLast(value: string) {
   const parts = value.split(' ');

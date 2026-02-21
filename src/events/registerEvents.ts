@@ -1,17 +1,11 @@
-import { updateTournamentDetails } from '../match/updateTournamentDetails';
-import { updateMatchDetails } from '../match/updateMatchDetails';
-import { editMatchDetails } from '../display/displayUpdate';
 import { newMatch } from '../match/displayMatchArchive';
-import { updateDetails } from '../match/updateDetails';
 import { eventManager } from './eventManager';
 import { strokeAction } from './strokeAction';
-import { updatePlayer } from '../player/updatePlayer';
 import { classAction } from './classAction';
 import { exportMatch } from '../match/exportMatch';
 import { toggleChart } from '../display/toggleChart';
 import { updateStats } from '../match/updateStats';
 import { editPlayer } from '../player/editPlayer';
-import { closeModal } from '../modals/modals';
 import {
   outcomeEntry,
   matchArchive,
@@ -33,7 +27,6 @@ import {
 export function registerEvents() {
   eventManager
     .register('toggleChart', 'tap', toggleChart)
-    .register('closeModal', 'tap', closeModal)
     .register('newMatch', 'tap', newMatch)
     .register('exportMatch', 'tap', exportMatch)
     .register('settings', 'tap', settings)
@@ -47,10 +40,6 @@ export function registerEvents() {
     .register('redoAction', 'tap', redoAction)
     .register('changeServer', 'tap', changeServer)
     .register('editPlayer', 'tap', editPlayer)
-    .register('updatePlayer', 'tap', updatePlayer)
-    .register('updateTournamentDetails', 'tap', updateTournamentDetails)
-    .register('updateMatchDetails', 'tap', updateMatchDetails)
-    .register('updateDetails', 'tap', updateDetails)
     .register('viewGameFish', 'tap', viewGameFish)
     .register('viewStats', 'tap', viewStats)
     .register('viewGameTree', 'tap', viewGameTree)
@@ -58,6 +47,5 @@ export function registerEvents() {
     .register('viewEditPoint', 'tap', viewEditPoint)
     .register('viewMatchFormat', 'tap', viewMatchFormat)
     .register('viewPointHistory', 'tap', viewPointHistory)
-    .register('editMatchDetails', 'tap', editMatchDetails)
     .register('classAction', 'tap', classAction);
 }
