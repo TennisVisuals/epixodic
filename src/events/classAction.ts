@@ -123,6 +123,29 @@ export function classAction(element: any) {
       changeValue(`.rally`, `Rally: ${env.rally}`);
       if (env.rally == 1) rallyMode();
     },
+    game(side: number) {
+      engineEvents.gameJustCompleted = false;
+      engineEvents.setJustCompleted = false;
+      engineEvents.matchJustCompleted = false;
+      engineEvents.gameWinner = undefined;
+      env.engine.addGame({ winner: side });
+      stateChangeEvent();
+      checkMatchEnd();
+    },
+    set(side: number) {
+      engineEvents.gameJustCompleted = false;
+      engineEvents.setJustCompleted = false;
+      engineEvents.matchJustCompleted = false;
+      engineEvents.gameWinner = undefined;
+      const winningSide = (side + 1) as 1 | 2;
+      env.engine.addSet({
+        side1Score: side === 0 ? 6 : 0,
+        side2Score: side === 1 ? 6 : 0,
+        winningSide,
+      });
+      stateChangeEvent();
+      checkMatchEnd();
+    },
     let() {
       // Broadcasting removed
       env.lets += 1;

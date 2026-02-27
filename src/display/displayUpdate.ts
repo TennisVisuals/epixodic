@@ -113,24 +113,27 @@ export function stateChangeEvent() {
 
 export function visibleButtons() {
   const pointCount = env.engine.getPointCount();
+  const hasGames = (env.engine.getScore().games || []).some((g: number) => g > 0);
+  const hasSets = (env.engine.getState().score?.sets || []).length > 0;
+  const matchStarted = pointCount > 0 || hasGames || hasSets;
   const match_archive = JSON.parse(browserStorage.get('match_archive') || '[]');
   Array.from(document.querySelectorAll('.view_stats')).forEach(
     (div: any) => (div.style.display = pointCount > 0 ? 'inline' : 'none'),
   );
   Array.from(document.querySelectorAll('.change_server')).forEach(
-    (div: any) => (div.style.display = pointCount == 0 ? 'inline' : 'none'),
+    (div: any) => (div.style.display = !matchStarted ? 'inline' : 'none'),
   );
   Array.from(document.querySelectorAll('.view_archive')).forEach(
-    (div: any) => (div.style.display = pointCount == 0 && match_archive.length ? 'inline' : 'none'),
+    (div: any) => (div.style.display = !matchStarted && match_archive.length ? 'inline' : 'none'),
   );
   Array.from(document.querySelectorAll('.view_settings')).forEach(
-    (div: any) => (div.style.display = pointCount == 0 && !match_archive.length ? 'inline' : 'none'),
+    (div: any) => (div.style.display = !matchStarted && !match_archive.length ? 'inline' : 'none'),
   );
   Array.from(document.querySelectorAll('.view_history')).forEach(
-    (div: any) => (div.style.display = pointCount > 0 ? 'inline' : 'none'),
+    (div: any) => (div.style.display = matchStarted ? 'inline' : 'none'),
   );
   Array.from(document.querySelectorAll('.undo')).forEach((div: any) => {
-    div.style.display = pointCount > 0 || env.serve2nd || env.rally_mode ? 'flex' : 'none';
+    div.style.display = matchStarted || env.serve2nd || env.rally_mode ? 'flex' : 'none';
   });
   Array.from(document.querySelectorAll('.redo')).forEach((div: any) => {
     div.style.display = env.engine.canRedo() ? 'flex' : 'none';

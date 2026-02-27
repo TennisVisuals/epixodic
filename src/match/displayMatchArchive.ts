@@ -1,6 +1,5 @@
 import { loadDetails, stateChangeEvent, updateScore } from '../display/displayUpdate';
 import { setCurrentMatchUpId } from '../state/matchContext';
-import { openFormatEditor } from './openFormatEditor';
 import { browserStorage } from '../state/browserStorage';
 import { renderMatchUp } from 'courthive-components';
 import { matchPath } from '../router/routes';
@@ -222,7 +221,4 @@ export function newMatch() {
   const matchUpId = env.metadata.match?.matchUpId;
   const router = (window as any).appRouter;
   router?.navigate(matchPath(matchUpId, 'scoring'));
-
-  // Auto-open format editor after a tick (let EntryPage mount first)
-  setTimeout(() => openFormatEditor(), 50);
 }

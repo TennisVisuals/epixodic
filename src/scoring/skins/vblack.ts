@@ -21,13 +21,13 @@ export class VBlackSkin extends BaseSkin {
           <div class="vs_label flexcenter">Points</div>
         </div>
         <div class="vs_player_score flexols">
-          <div class="vs_value flexcenter display_sets_0">0</div>
-          <div class="vs_value flexcenter display_games_0">0</div>
+          <div class="classAction vs_value flexcenter display_sets_0" action="set" side="0">0</div>
+          <div class="classAction vs_value flexcenter display_games_0" action="game" side="0">0</div>
           <div class="classAction vs_value value_border flexcenter display_points_0" action="point" side="0">0</div>
         </div>
         <div class="vs_player_score flexols">
-          <div class="vs_value flexcenter display_sets_1">0</div>
-          <div class="vs_value flexcenter display_games_1">0</div>
+          <div class="classAction vs_value flexcenter display_sets_1" action="set" side="1">0</div>
+          <div class="classAction vs_value flexcenter display_games_1" action="game" side="1">0</div>
           <div class="classAction vs_value value_border flexcenter display_points_1" action="point" side="1">0</div>
         </div>
         <div class="vs_filler"></div>
