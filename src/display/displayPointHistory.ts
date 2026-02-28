@@ -1,4 +1,5 @@
 import { env, getEpisodes } from '../state/env';
+import { supportsGameVisualizations } from '@tennisvisuals/scoring-visualizations';
 import { WINNER_RESULTS } from '../utils/constants';
 
 export function displayPointHistory() {
@@ -92,12 +93,16 @@ function gameEntry(game: any, players: any[]) {
   const server = tiebreak ? 'Tiebreak' : players[last_point.server].participantName;
   const service = tiebreak ? '' : last_point.server ? 'playertwo' : 'playerone';
   const servergame = tiebreak ? '' : last_point.server == last_point.winner ? 'won' : 'lost';
+  const showFish = supportsGameVisualizations(env.engine.getFormat());
+  const fishIcon = showFish
+    ? `<div class='viewGameFish ph_fish iconfish' gameIndex='${game.index}'></div>`
+    : '';
   let html = `
          <div class="flexrows ph_game">
             <div class='ph_margin flexrows'>
                <div class="ph_server ${service}">${server}</div>
                <div class="ph_action flexcenter">
-                  <div class='viewGameFish ph_fish iconfish' gameIndex='${game.index}'></div>
+                  ${fishIcon}
                </div>
                <div class='viewGameFish ph_rally ph_${servergame}' gameIndex="${game.index}"'>
                   <b class="viewGameFish" gameIndex="${game.index}">${game_score || ''}</b>

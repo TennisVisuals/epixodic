@@ -1,6 +1,6 @@
 import { changeDisplay } from './viewManager';
 import { charts, env, setOrientation, getEpisodes, getParticipantNames } from '../state/env';
-import { gameTree, gameFish, momentumChart, ptsMatch } from '@tennisvisuals/scoring-visualizations';
+import { gameTree, gameFish, momentumChart, ptsMatch, supportsGameVisualizations } from '@tennisvisuals/scoring-visualizations';
 import { groupGames } from '../engine/groupGames';
 import { cModal } from 'courthive-components';
 
@@ -74,6 +74,8 @@ function showGame(d: any) {
 }
 
 export function showGameFish(index?: number) {
+  if (!supportsGameVisualizations(env.engine.getFormat())) return;
+
   const games = groupGames();
   if (!games.length || !games[0].points?.length) return;
 
