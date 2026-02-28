@@ -200,18 +200,9 @@ export function mainMenu() {
     if (hasArchive) elem.appendChild(menuItem('Match Archive', () => router?.navigate('/archive')));
     elem.appendChild(menuItem('Scoring Interfaces', selectInterfaces));
     elem.appendChild(menuItem('Settings', settings));
-
-    const closeBtn = document.createElement('div');
-    closeBtn.textContent = 'Close';
-    closeBtn.style.cssText =
-      'padding: 0.75rem 1rem; cursor: pointer; font-size: 1.1rem; color: #999; text-align: center; margin-top: 0.5rem;';
-    closeBtn.addEventListener('mouseenter', () => (closeBtn.style.backgroundColor = '#f5f5f5'));
-    closeBtn.addEventListener('mouseleave', () => (closeBtn.style.backgroundColor = ''));
-    closeBtn.addEventListener('click', () => cModal.close());
-    elem.appendChild(closeBtn);
   };
 
-  cModal.open({ title: 'Menu', content, config: { clickAway: false } });
+  cModal.open({ title: 'Menu', content, config: { clickAway: false }, buttons: [{ label: 'Close', intent: 'is-info', close: true }] });
 }
 export function undoAction() {
   if (env.serve2nd || env.rally_mode) {
@@ -221,8 +212,14 @@ export function undoAction() {
     env.lets = 0;
     resetButtons();
   } else {
+    const pointsBefore = env.engine.getPointCount();
     const success = env.engine.undo();
     if (success) {
+      const pointsAfter = env.engine.getPointCount();
+      // If point count didn't change, a direct game/set was undone
+      if (pointsBefore === pointsAfter && env.directActions.length) {
+        env.directActions.pop();
+      }
       updateMatchArchive(true);
       stateChangeEvent();
     }

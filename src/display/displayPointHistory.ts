@@ -2,13 +2,25 @@ import { env, getEpisodes } from '../state/env';
 import { WINNER_RESULTS } from '../utils/constants';
 
 export function displayPointHistory() {
-  const games = groupGames();
+  const episodeGames = groupGames();
   const players = env.metadata.players;
+  const hasDirectActions = env.directActions.length > 0;
+  const hasEpisodeGames = episodeGames.some((g: any) => g.points?.length);
+
+  if (!hasDirectActions && !hasEpisodeGames) return false;
+
   let html = '';
-  if (!games.length) return false;
-  games.forEach((game: any) => {
+
+  // Render direct actions (games/sets added without points) in order
+  env.directActions.forEach((action: any) => {
+    html += directActionEntry(action, players);
+  });
+
+  // Render episode-based games (games with point data)
+  episodeGames.forEach((game: any) => {
     if (game.points && game.points.length) html += gameEntry(game, players);
   });
+
   // Always show match duration (will show 00:00:00 if no timestamps yet)
   html += `
     <div class="flexrows ph_game">
@@ -20,6 +32,34 @@ export function displayPointHistory() {
 
   const phFrame = document.getElementById('ph_frame');
   if (phFrame) phFrame.innerHTML = html;
+}
+
+function directActionEntry(action: any, players: any[]) {
+  if (action.type === 'set') {
+    const score = `${action.side1Score}-${action.side2Score}`;
+    const winner = players[action.winner].participantName;
+    return `
+      <div class="flexrows ph_game">
+        <div class='ph_margin flexrows'>
+          <div class="ph_server">${winner}</div>
+          <div class="ph_action flexcenter">Set</div>
+          <div class='ph_rally ph_won'><b>${score}</b></div>
+        </div>
+      </div>`;
+  }
+  if (action.type === 'game') {
+    const winner = players[action.winner].participantName;
+    const score = action.score ? action.score.join('-') : '';
+    return `
+      <div class="flexrows ph_game">
+        <div class='ph_margin flexrows'>
+          <div class="ph_server">${winner}</div>
+          <div class="ph_action flexcenter">Game</div>
+          <div class='ph_rally ph_won'><b>${score}</b></div>
+        </div>
+      </div>`;
+  }
+  return '';
 }
 
 function groupGames() {
@@ -43,7 +83,6 @@ function groupGames() {
     if (episode.set.complete) games[gameCounter].lastGame = true;
   });
   return games;
-  // if (set != undefined) games = games.filter(function(game) { return game.set == set });
 }
 
 function gameEntry(game: any, players: any[]) {
@@ -57,7 +96,7 @@ function gameEntry(game: any, players: any[]) {
          <div class="flexrows ph_game">
             <div class='ph_margin flexrows'>
                <div class="ph_server ${service}">${server}</div>
-               <div class="ph_action flexcenter"> 
+               <div class="ph_action flexcenter">
                   <div class='viewGameFish ph_fish iconfish' gameIndex='${game.index}'></div>
                </div>
                <div class='viewGameFish ph_rally ph_${servergame}' gameIndex="${game.index}"'>
@@ -114,26 +153,26 @@ function pointEntry(point: any, players: any[]) {
 
 function matchDuration() {
   const points = env.engine.getState().history?.points || [];
-  
+
   // Filter out points without valid timestamps
   const timestamps = points
     .map((p: any) => p.uts)
     .filter((t: any) => t !== undefined && t !== null && !isNaN(t));
-  
+
   // If no valid timestamps, return 00:00:00
   if (timestamps.length < 2) {
     return '00:00:00';
   }
-  
+
   const start = Math.min(...timestamps);
   const end = Math.max(...timestamps);
   const seconds = (end - start) / 1000.0;
-  
+
   // Return 00:00:00 if calculation results in invalid number
   if (isNaN(seconds) || seconds < 0) {
     return '00:00:00';
   }
-  
+
   return HHMMSS(seconds);
 }
 

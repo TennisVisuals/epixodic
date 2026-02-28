@@ -129,6 +129,9 @@ export function classAction(element: any) {
       engineEvents.matchJustCompleted = false;
       engineEvents.gameWinner = undefined;
       env.engine.addGame({ winner: side });
+      const score = [...(env.engine.getScore().games || [0, 0])];
+      const setIndex = (env.engine.getState().score?.sets || []).length;
+      env.directActions.push({ type: 'game', winner: side, score, setIndex });
       stateChangeEvent();
       checkMatchEnd();
     },
@@ -137,12 +140,12 @@ export function classAction(element: any) {
       engineEvents.setJustCompleted = false;
       engineEvents.matchJustCompleted = false;
       engineEvents.gameWinner = undefined;
+      const side1Score = side === 0 ? 6 : 0;
+      const side2Score = side === 1 ? 6 : 0;
       const winningSide = (side + 1) as 1 | 2;
-      env.engine.addSet({
-        side1Score: side === 0 ? 6 : 0,
-        side2Score: side === 1 ? 6 : 0,
-        winningSide,
-      });
+      const setIndex = (env.engine.getState().score?.sets || []).length;
+      env.engine.addSet({ side1Score, side2Score, winningSide });
+      env.directActions.push({ type: 'set', winner: side, side1Score, side2Score, setIndex });
       stateChangeEvent();
       checkMatchEnd();
     },

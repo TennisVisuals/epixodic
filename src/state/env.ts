@@ -133,6 +133,7 @@ export const env: any = {
   engine: createEngine(),
   metadata: createDefaultMetadata(),
   loading_match: false,
+  directActions: [] as any[],
 };
 
 const c1 = 'rgb(64, 168, 75)';
@@ -310,6 +311,7 @@ export function updateMatchArchive(force?: boolean) {
   const save =
     force ||
     matchPoints.length ||
+    env.directActions.length ||
     (players[0].participantName != default_players[0] && players[1].participantName != default_players[1]);
 
   if (!save) return;
@@ -382,6 +384,7 @@ export function loadStoredMatch(match_id: string): any {
 export function resetEngine(format = 'SET3-S:6/TB7') {
   env.engine = createEngine(format);
   env.metadata = createDefaultMetadata();
+  env.directActions = [];
   resetEngineEvents();
 }
 
