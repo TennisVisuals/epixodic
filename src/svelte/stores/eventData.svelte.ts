@@ -1,0 +1,89 @@
+import { getEventData } from '../services/factoryApi';
+import type { HydratedMatchUp, Participant } from '../types';
+
+let tournamentId = $state<string | undefined>(undefined);
+let eventId = $state<string | undefined>(undefined);
+let matchUps = $state<HydratedMatchUp[]>([]);
+let participants = $state<Participant[]>([]);
+let loading = $state(false);
+let error = $state<string | undefined>(undefined);
+
+const completedMatchUps = $derived(
+  matchUps.filter((m) => m.winningSide || m.matchUpStatus === 'COMPLETED'),
+);
+const readyToScoreMatchUps = $derived(
+  matchUps.filter(
+    (m) => m.readyToScore && !m.winningSide && m.matchUpStatus !== 'COMPLETED',
+  ),
+);
+const inProgressMatchUps = $derived(
+  matchUps.filter(
+    (m) =>
+      !m.readyToScore &&
+      !m.winningSide &&
+      m.matchUpStatus !== 'COMPLETED' &&
+      m.matchUpStatus === 'IN_PROGRESS',
+  ),
+);
+
+export function getEventDataState() {
+  return {
+    get tournamentId() {
+      return tournamentId;
+    },
+    get eventId() {
+      return eventId;
+    },
+    get matchUps() {
+      return matchUps;
+    },
+    get participants() {
+      return participants;
+    },
+    get loading() {
+      return loading;
+    },
+    get error() {
+      return error;
+    },
+    get completedMatchUps() {
+      return completedMatchUps;
+    },
+    get readyToScoreMatchUps() {
+      return readyToScoreMatchUps;
+    },
+    get inProgressMatchUps() {
+      return inProgressMatchUps;
+    },
+  };
+}
+
+export async function fetchEventMatchUps(tid: string, eid: string) {
+  tournamentId = tid;
+  eventId = eid;
+  loading = true;
+  error = undefined;
+
+  const result = await getEventData(tid, eid);
+
+  if (result.error) {
+    error = result.error;
+    loading = false;
+    return;
+  }
+
+  if (result.data) {
+    matchUps = result.data.matchUps || [];
+    participants = result.data.participants || [];
+  }
+
+  loading = false;
+}
+
+export function clearEventData() {
+  tournamentId = undefined;
+  eventId = undefined;
+  matchUps = [];
+  participants = [];
+  error = undefined;
+}

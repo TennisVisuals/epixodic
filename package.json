@@ -15,6 +15,7 @@
     "commits": "git log $(git describe --tags --abbrev=0)..HEAD --oneline --no-merges --pretty=format:'%s: %h' | sed '/epixodic/d'",
     "launch": "http-server dist -o",
     "build:prod": "tsc && vite build --mode production",
+    "deploy:pages": "pnpm build:prod && node deploy.mjs",
     "check-types": "tsc --noEmit",
     "commit": "git-cz",
     "config": "node config.mjs",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@commitlint/cli": "19.8.1",
     "@commitlint/config-conventional": "19.8.1",
+    "@sveltejs/vite-plugin-svelte": "^4.0.4",
     "@types/node": "20.19.27",
     "@typescript-eslint/eslint-plugin": "8.53.0",
     "@typescript-eslint/parser": "8.53.0",
@@ -53,6 +55,7 @@
     "semver": "7.7.3",
     "socket.io-client": "4.8.3",
     "source-map-explorer": "2.5.3",
+    "svelte-check": "^4.4.4",
     "typescript": "5.9.3",
     "vite": "5.4.21",
     "vite-tsconfig-paths": "4.3.2",
@@ -63,13 +66,14 @@
   },
   "dependencies": {
     "@tennisvisuals/scoring-visualizations": "link:../scoringVisualizations",
-    "courthive-components": "link:../../CourtHive/courthive-components",
-    "tods-competition-factory": "link:../../CourtHive/factory",
     "animate.css": "^4.1.1",
     "axios": "^1.6.5",
     "bulma": "^1.0.0",
+    "courthive-components": "link:../../CourtHive/courthive-components",
     "d3": "^7.9.0",
     "jwt-decode": "^4.0.0",
-    "navigo": "^8.11.1"
+    "navigo": "^8.11.1",
+    "svelte": "^5.53.6",
+    "tods-competition-factory": "link:../../CourtHive/factory"
   }
 }

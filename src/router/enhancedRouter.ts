@@ -26,6 +26,8 @@ import { MatchArchivePage } from '../pages/MatchArchivePage';
 import { DetailsPage } from '../pages/DetailsPage';
 import { EntryPage } from '../pages/EntryPage';
 import { WelcomePage } from '../pages/WelcomePage';
+import { ArchiveViewPage } from '../svelte/pages/ArchiveViewPage';
+import { TournamentViewPage } from '../svelte/pages/TournamentViewPage';
 import type { ViewPage } from '../pages/ViewPage';
 
 export class EnhancedRouter {
@@ -64,6 +66,8 @@ export class EnhancedRouter {
     this.pageComponents.set('matchdetails', DetailsPage);
     this.pageComponents.set('entry', EntryPage);
     this.pageComponents.set('welcome', WelcomePage);
+    this.pageComponents.set('svelte-archive', ArchiveViewPage);
+    this.pageComponents.set('svelte-tournament', TournamentViewPage);
   }
 
   /**
@@ -79,8 +83,20 @@ export class EnhancedRouter {
       this.handleMatchRoute(match);
     });
 
+    // Tournament routes (must be registered before generic non-match routes)
+    this.navigo.on('/tournament/:tournamentId/event/:eventId', (match) => {
+      this.handleTournamentRoute(match?.data?.tournamentId, match?.data?.eventId);
+    });
+
+    this.navigo.on('/tournament/:tournamentId', (match) => {
+      this.handleTournamentRoute(match?.data?.tournamentId);
+    });
+
     // Non-match routes
     routes.forEach((route) => {
+      // Skip tournament routes already registered above
+      if (route.path.startsWith('/tournament/:')) return;
+
       this.navigo.on(route.path, (params) => {
         this.handleNavigation(route.path, route.view, route.guard, params);
       });
@@ -137,6 +153,40 @@ export class EnhancedRouter {
   }
 
   /**
+   * Handle tournament route: /tournament/:tournamentId(/event/:eventId)?
+   */
+  private async handleTournamentRoute(tournamentId?: string, eventId?: string) {
+    if (this.isNavigating || !tournamentId) return;
+
+    const path = eventId
+      ? `/tournament/${tournamentId}/event/${eventId}`
+      : `/tournament/${tournamentId}`;
+
+    this.currentRoute = path;
+    this.isNavigating = true;
+
+    try {
+      strokeSlider();
+
+      if (this.currentPage) {
+        await this.currentPage.unmount();
+        this.currentPage = null;
+      }
+
+      this.hideAllViews();
+
+      const page = new TournamentViewPage();
+      page.setParams(tournamentId, eventId);
+      await page.mount();
+
+      this.currentPage = page;
+      env.view = 'svelte-tournament';
+    } finally {
+      this.isNavigating = false;
+    }
+  }
+
+  /**
    * Handle non-match navigation with guards
    */
   private async handleNavigation(path: string, view: string, guardName?: string, params?: any) {
@@ -173,6 +223,8 @@ export class EnhancedRouter {
       'momentum',
       'pts',
       'gametree',
+      'svelte-archive',
+      'svelte-tournament',
     ];
 
     for (const id of containerIds) {

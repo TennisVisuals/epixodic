@@ -366,6 +366,7 @@ export function updateMatchArchive(force?: boolean) {
   };
 
   browserStorage.set(match_id, JSON.stringify(todsMatchUp));
+  window.dispatchEvent(new CustomEvent('matcharchive:updated'));
 }
 
 export function loadStoredMatch(match_id: string): any {
