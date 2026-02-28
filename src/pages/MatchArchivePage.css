@@ -1,0 +1,121 @@
+/**
+ * Match Archive Page Styles
+ */
+
+.match-archive-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background: var(--background-color, #fff);
+}
+
+.archive-header {
+  padding: 15px 20px;
+  border-bottom: 2px solid var(--border-color, #ddd);
+  background: var(--header-bg, #f8f9fa);
+}
+
+.archive-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--heading-color, #333);
+}
+
+.archive-content {
+  flex: 1;
+  overflow: auto;
+  padding: 15px;
+}
+
+/* Match archive item styles */
+.archive-match-item {
+  padding: 15px;
+  margin: 10px 0;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 8px;
+  background: var(--card-bg, #fff);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.archive-match-item:hover {
+  background: var(--hover-bg, #f5f5f5);
+  border-color: var(--primary-color, #007bff);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.archive-match-info {
+  flex: 1;
+}
+
+.archive-match-players {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: var(--text-color, #333);
+}
+
+.archive-match-details {
+  font-size: 13px;
+  color: var(--text-secondary, #666);
+}
+
+.archive-match-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.archive-action-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--border-color, #ddd);
+  background: var(--button-bg, #fff);
+  color: var(--text-color, #333);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.archive-action-btn:hover {
+  background: var(--button-hover-bg, #f5f5f5);
+}
+
+.archive-action-btn.delete {
+  color: #dc3545;
+  border-color: #dc3545;
+}
+
+.archive-action-btn.delete:hover {
+  background: #dc3545;
+  color: white;
+}
+
+.archive-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary, #666);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .archive-content {
+    padding: 10px;
+  }
+
+  .archive-match-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .archive-match-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

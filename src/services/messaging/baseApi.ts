@@ -1,5 +1,5 @@
 import { getJwtTokenStorageKey } from '../../config/getJwtTokenStorageKey';
-import { browserStorage } from '../../transition/browserStorage';
+import { browserStorage } from '../../state/browserStorage';
 import axios from 'axios';
 
 const JWT_TOKEN_STORAGE_NAME = getJwtTokenStorageKey();
@@ -26,14 +26,7 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.message === 'Network Error') {
-      console.log({ message: error.message, intent: 'is-danger' });
-    }
-    if (error.response) {
-      if (error.response?.status === 401) removeAuthorization();
-      const message = error.response.data.message || error.response.data.error || error.response.data;
-      console.log({ message, intent: 'is-danger' });
-    }
+    if (error.response?.status === 401) removeAuthorization();
   },
 );
 

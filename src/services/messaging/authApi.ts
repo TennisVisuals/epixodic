@@ -12,5 +12,5 @@ export function submitCredentials({ email, password }) {
   const response = (res) => {
     res?.status === 200 && logIn(res);
   };
-  systemLogin(email, password).then(response, (err) => console.log({ err }));
+  systemLogin(email, password).then(response, () => {});
 }

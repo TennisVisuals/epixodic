@@ -1,5 +1,6 @@
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig, loadEnv } from 'vite';
+import path from 'path';
 
 export default ({ mode }) => {
   // Load app-level env vars to node-level env vars.
@@ -11,5 +12,13 @@ export default ({ mode }) => {
     build: { sourcemap: true },
     plugins: [tsconfigPaths()],
     base: BASE_URL,
+    resolve: {
+      // Ensure all imports of tods-competition-factory resolve to the local
+      // linked copy (CourtHive/factory) rather than a transitive copy in
+      // another dependency's node_modules (e.g. scoringVisualizations).
+      alias: {
+        'tods-competition-factory': path.resolve(__dirname, 'node_modules/tods-competition-factory'),
+      },
+    },
   });
 };

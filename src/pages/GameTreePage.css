@@ -1,0 +1,43 @@
+/**
+ * Game Tree Page Styles
+ */
+
+.game-tree-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: var(--background-color, #fff);
+}
+
+/* Ensure gametreeRoot takes remaining space below header */
+.game-tree-page .gametreeRoot {
+  flex: 1;
+  overflow: auto;
+  margin-top: 0;
+  position: relative;
+}
+
+/* Push visualization content down below fixed header */
+.game-tree-page .gametreeRoot {
+  padding-top: 4em;
+}
+
+.rallytree-placeholder {
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+}
+
+/* Responsive: Stack vertically on mobile */
+@media (max-width: 768px) {
+  .game-tree-page {
+    flex-direction: column;
+  }
+  
+  .gametree-section,
+  .rallytree-section {
+    flex: 1;
+    min-height: 300px;
+  }
+}

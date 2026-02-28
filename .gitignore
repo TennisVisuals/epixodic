@@ -5,6 +5,7 @@ node_modules
 
 # testing
 /coverage
+/src/dev
 
 # cache
 *cache*
@@ -23,6 +24,7 @@ node_modules
 .env.production
 /build
 /dist
+storybook-static
 
 # misc
 .DS_Store

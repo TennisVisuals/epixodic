@@ -1,0 +1,141 @@
+/**
+ * Settings Page Styles
+ */
+
+.settings-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background: var(--background-color, #fff);
+}
+
+.settings-header {
+  padding: 15px 20px;
+  border-bottom: 2px solid var(--border-color, #ddd);
+  background: var(--header-bg, #f8f9fa);
+}
+
+.settings-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--heading-color, #333);
+}
+
+.settings-content {
+  flex: 1;
+  overflow: auto;
+  padding: 20px;
+}
+
+.settings-section {
+  margin-bottom: 30px;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 8px;
+  padding: 20px;
+  background: var(--card-bg, #fff);
+}
+
+.settings-section-title {
+  margin: 0 0 20px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--heading-color, #333);
+  border-bottom: 1px solid var(--border-color, #ddd);
+  padding-bottom: 10px;
+}
+
+.settings-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--border-light, #f0f0f0);
+}
+
+.settings-item:last-child {
+  border-bottom: none;
+}
+
+.settings-label {
+  font-size: 14px;
+  color: var(--text-color, #333);
+  flex: 1;
+}
+
+.settings-input {
+  padding: 6px 12px;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 4px;
+  font-size: 14px;
+  width: 200px;
+}
+
+/* Toggle switch */
+.settings-toggle {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+
+.settings-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.settings-toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 26px;
+}
+
+.settings-toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.settings-toggle input:checked + .settings-toggle-slider {
+  background-color: var(--primary-color, #007bff);
+}
+
+.settings-toggle input:checked + .settings-toggle-slider:before {
+  transform: translateX(24px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .settings-content {
+    padding: 10px;
+  }
+
+  .settings-section {
+    padding: 15px;
+  }
+
+  .settings-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .settings-input {
+    width: 100%;
+  }
+}
