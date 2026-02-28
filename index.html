@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Epixodic</title>
+    <link rel="shortcut icon" href="/epixodic/assets/favicon-B-WXmJhd.ico" />
+    <script type="module" crossorigin src="/epixodic/assets/index-CSr15URA.js"></script>
+    <link rel="stylesheet" crossorigin href="/epixodic/assets/index-CNeFCJ0Y.css">
+  </head>
+  <body data-theme="light">
+    <audio id="click">
+      <source src="/epixodic/assets/click-CFz1muzQ.mp3" type="audio/mpeg" />
+    </audio>
+
+    <div id="welcome" style="display: none">
+      <img class="landing-logo" src="/epixodic/assets/epixodic-logo-only-BDEOzicR.png" alt="Epixodic" />
+      <button class="landing-enter">Enter</button>
+    </div>
+    <div id="stroke_slider" class="flexrows stroke_slider" style="display: none">
+      <div id="slideleft" style="display: none" class="strokeAction slideback flexcenter">&#62;</div>
+      <div class="flexcols flexcenter strokes"></div>
+      <div id="slideright" class="strokeAction slideback flexcenter">&#60;</div>
+    </div>
+
+
+    <div id="matcharchive" class="noselect" style="display: none">
+      <div class="fixedmenu flexrows">
+        <div class="fm_header">Match Archive</div>
+        <div class="fm_action"></div>
+        <div class="fm_action"></div>
+        <div class="fm_action">
+          <div class="newMatch archive-new-match">+</div>
+        </div>
+        <div class="fm_action">
+          <div class="outcomeEntry menu_icon iconexit"></div>
+        </div>
+      </div>
+      <div class="m_content">
+        <div id="matcharchiveList"></div>
+      </div>
+    </div>
+
+    <div id="pts" style="display: none">
+      <div class="fixedmenu flexrows">
+        <div class="fm_header">Points To Set</div>
+        <div class="viewStats fm_action">
+          <div class="viewStats menu_icon iconstats"></div>
+        </div>
+        <div class="viewGameTree fm_action">
+          <div class="viewGameTree menu_icon icongametree"></div>
+        </div>
+        <div class="viewPointHistory fm_action">
+          <div class="viewPointHistory menu_icon iconhistory"></div>
+        </div>
+        <div class="outcomeEntry fm_action">
+          <div class="outcomeEntry menu_icon iconexit"></div>
+        </div>
+      </div>
+      <div class="m_content">
+        <div id="PTSChart"></div>
+      </div>
+    </div>
+
+    <div id="gametree" style="display: none">
+      <div class="fixedmenu flexrows">
+        <div class="fm_header">Game Tree</div>
+        <div class="fm_action">
+          <div class="viewStats menu_icon iconstats"></div>
+        </div>
+        <div class="fm_action">
+          <div class="viewMomentum menu_icon iconmomentum"></div>
+        </div>
+        <div class="fm_action">
+          <div class="viewPointHistory menu_icon iconhistory"></div>
+        </div>
+        <div class="fm_action">
+          <div class="outcomeEntry menu_icon iconexit"></div>
+        </div>
+      </div>
+      <div class="m_content">
+        <div id="gameTreeChart"></div>
+      </div>
+    </div>
+
+    <div id="momentum" style="display: none">
+      <div class="fixedmenu flexrows">
+        <div class="fm_header">Momentum</div>
+        <div class="fm_action">
+          <div class="viewStats menu_icon iconstats"></div>
+        </div>
+        <div class="fm_action">
+          <div class="viewGameTree menu_icon icongametree"></div>
+        </div>
+        <div class="fm_action">
+          <div class="viewPointHistory menu_icon iconhistory"></div>
+        </div>
+        <div class="fm_action">
+          <div class="outcomeEntry menu_icon iconexit"></div>
+        </div>
+      </div>
+      <div class="m_content">
+        <div id="momentumChart"></div>
+      </div>
+    </div>
+
+    <div id="pointhistory" class="noselect" style="display: none">
+      <div class="fixedmenu flexrows">
+        <div class="fm_header">Point History</div>
+        <div class="fm_action">
+          <div class="viewMomentum menu_icon iconmomentum"></div>
+        </div>
+        <div class="fm_action">
+          <div class="viewGameTree menu_icon icongametree"></div>
+        </div>
+        <div class="fm_action">
+          <div class="viewStats menu_icon iconstats"></div>
+        </div>
+        <div class="fm_action">
+          <div class="outcomeEntry menu_icon iconexit"></div>
+        </div>
+      </div>
+      <div class="fixedheader flexrows">
+        <div class="ph_result">Server</div>
+        <div class="ph_score">Score</div>
+        <div class="ph_rally">Rally</div>
+      </div>
+      <div class="fixedcontent">
+        <div id="ph_frame"></div>
+      </div>
+    </div>
+
+    <div id="statsscreen" class="noselect" style="display: none">
+      <div class="s_menu flexrows">
+        <div class="fm_header">Statistics</div>
+        <div class="fm_action">
+          <div class="viewMomentum menu_icon iconmomentum"></div>
+        </div>
+        <div class="fm_action">
+          <div class="viewGameTree menu_icon icongametree"></div>
+        </div>
+        <div class="fm_action">
+          <div class="viewPointHistory menu_icon iconhistory"></div>
+        </div>
+        <div class="fm_action">
+          <div class="outcomeEntry menu_icon iconexit"></div>
+        </div>
+      </div>
+      <div id="statview" class="s_view flexrows sets">
+        <div class="s_set">Match</div>
+      </div>
+      <div class="s_header flexrows">
+        <div class="s_players">
+          <div id="playerone" class="s_player playerone">Player One</div>
+          <div id="playertwo" class="s_player playertwo" style="text-align: right">Player Two</div>
+        </div>
+      </div>
+      <div class="s_content">
+        <div id="statlines"></div>
+      </div>
+    </div>
+
+    <div id="scoring-container"></div>
+  </body>
+</html>
