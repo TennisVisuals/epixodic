@@ -18,7 +18,7 @@
     background: rgba(74, 158, 255, 0.15);
     border: 1px solid rgba(74, 158, 255, 0.3);
     border-radius: 8px;
-    color: #4a9eff;
+    color: var(--ep-accent);
     font-size: 0.8125rem;
     font-weight: 600;
     cursor: pointer;

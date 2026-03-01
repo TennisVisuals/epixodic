@@ -12,7 +12,7 @@
     justify-content: center;
     align-items: center;
     padding: 3rem 1rem;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--ep-page-text-muted);
     font-size: 0.925rem;
     text-align: center;
   }

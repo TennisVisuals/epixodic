@@ -47,8 +47,9 @@ export function viewPointHistory() {
 export function settings() {
   let inputs: any;
   let profileSelect: HTMLSelectElement;
+  let darkModeCheckbox: HTMLInputElement;
 
-  const color = '#333';
+  const color = 'var(--chc-text-primary)';
   const content = (elem: HTMLElement) => {
     inputs = renderForm(elem, [
       { label: 'Audible Clicks', field: 'audible_clicks', id: 'audible_clicks', checkbox: true, checked: appSettings.audible_clicks, color },
@@ -57,13 +58,31 @@ export function settings() {
       { label: 'Auto-swap Server Side', field: 'auto_swap_sides', id: 'auto_swap_sides', checkbox: true, checked: appSettings.auto_swap_sides, color },
     ]);
 
+    // Dark Mode toggle
+    const darkModeRow = document.createElement('div');
+    darkModeRow.style.cssText = 'display: flex; align-items: center; justify-content: space-between; margin-top: 0.5rem; margin-bottom: 0.5rem;';
+    const darkModeLabel = document.createElement('label');
+    darkModeLabel.textContent = 'Dark Mode';
+    darkModeLabel.style.cssText = 'font-weight: bold; color: var(--chc-text-primary);';
+    darkModeCheckbox = document.createElement('input');
+    darkModeCheckbox.type = 'checkbox';
+    darkModeCheckbox.checked = document.documentElement.dataset.theme === 'dark';
+    darkModeCheckbox.addEventListener('change', () => {
+      const theme = darkModeCheckbox.checked ? 'dark' : 'light';
+      document.documentElement.dataset.theme = theme;
+      browserStorage.set('theme', theme);
+    });
+    darkModeRow.appendChild(darkModeLabel);
+    darkModeRow.appendChild(darkModeCheckbox);
+    elem.appendChild(darkModeRow);
+
     const profileLabel = document.createElement('div');
     profileLabel.textContent = 'Shot Decorations';
-    profileLabel.style.cssText = 'font-weight: bold; margin-top: 1rem; margin-bottom: 0.25rem; color: #333;';
+    profileLabel.style.cssText = 'font-weight: bold; margin-top: 1rem; margin-bottom: 0.25rem; color: var(--chc-text-primary);';
     elem.appendChild(profileLabel);
 
     profileSelect = document.createElement('select');
-    profileSelect.style.cssText = 'width: 100%; padding: 0.4rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px;';
+    profileSelect.style.cssText = 'width: 100%; padding: 0.4rem; font-size: 1rem; border: 1px solid var(--chc-border-primary); border-radius: 4px; background-color: var(--chc-bg-secondary); color: var(--chc-text-primary);';
     for (const profile of getProfiles()) {
       const opt = document.createElement('option');
       opt.value = profile.id;
@@ -109,11 +128,11 @@ export function selectInterfaces() {
   const content = (elem: HTMLElement) => {
     const vLabel = document.createElement('div');
     vLabel.textContent = 'Vertical Interface';
-    vLabel.style.cssText = 'font-weight: bold; margin-bottom: 0.25rem; color: #333;';
+    vLabel.style.cssText = 'font-weight: bold; margin-bottom: 0.25rem; color: var(--chc-text-primary);';
     elem.appendChild(vLabel);
 
     vSelect = document.createElement('select');
-    vSelect.style.cssText = 'width: 100%; padding: 0.4rem; margin-bottom: 1rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px;';
+    vSelect.style.cssText = 'width: 100%; padding: 0.4rem; margin-bottom: 1rem; font-size: 1rem; border: 1px solid var(--chc-border-primary); border-radius: 4px; background-color: var(--chc-bg-secondary); color: var(--chc-text-primary);';
     for (const skin of verticalSkins) {
       const opt = document.createElement('option');
       opt.value = skin.id;
@@ -125,11 +144,11 @@ export function selectInterfaces() {
 
     const hLabel = document.createElement('div');
     hLabel.textContent = 'Horizontal Interface';
-    hLabel.style.cssText = 'font-weight: bold; margin-bottom: 0.25rem; color: #333;';
+    hLabel.style.cssText = 'font-weight: bold; margin-bottom: 0.25rem; color: var(--chc-text-primary);';
     elem.appendChild(hLabel);
 
     hSelect = document.createElement('select');
-    hSelect.style.cssText = 'width: 100%; padding: 0.4rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px;';
+    hSelect.style.cssText = 'width: 100%; padding: 0.4rem; font-size: 1rem; border: 1px solid var(--chc-border-primary); border-radius: 4px; background-color: var(--chc-bg-secondary); color: var(--chc-text-primary);';
     for (const skin of horizontalSkins) {
       const opt = document.createElement('option');
       opt.value = skin.id;
@@ -182,8 +201,8 @@ export function mainMenu() {
   const menuItem = (label: string, action: () => void) => {
     const div = document.createElement('div');
     div.textContent = label;
-    div.style.cssText = 'padding: 0.75rem 1rem; cursor: pointer; font-size: 1.1rem; color: #333; border-bottom: 1px solid #eee;';
-    div.addEventListener('mouseenter', () => (div.style.backgroundColor = '#f5f5f5'));
+    div.style.cssText = 'padding: 0.75rem 1rem; cursor: pointer; font-size: 1.1rem; color: var(--chc-text-primary); border-bottom: 1px solid var(--chc-border-secondary);';
+    div.addEventListener('mouseenter', () => (div.style.backgroundColor = 'var(--chc-hover-bg)'));
     div.addEventListener('mouseleave', () => (div.style.backgroundColor = ''));
     div.addEventListener('click', () => {
       cModal.close();

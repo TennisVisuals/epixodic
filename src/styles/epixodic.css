@@ -1,3 +1,73 @@
+/* === Minireset (replaces Bulma's reset) === */
+html,
+body,
+p,
+ol,
+ul,
+li,
+dl,
+dt,
+dd,
+blockquote,
+figure,
+fieldset,
+legend,
+textarea,
+pre,
+iframe,
+hr,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  padding: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: 100%;
+  font-weight: normal;
+}
+
+ul {
+  list-style: none;
+}
+
+button,
+input,
+select,
+textarea {
+  margin: 0;
+}
+
+img,
+video {
+  height: auto;
+  max-width: 100%;
+}
+
+iframe {
+  border: 0;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+td,
+th {
+  padding: 0;
+}
+/* === End minireset === */
+
 @media (min-height: 500px) {
   .ch_footer {
     position: absolute;
@@ -11,7 +81,7 @@ select {
   -webkit-appearance: none;
   appearance: none;
   border: 0px;
-  background-color: white;
+  background-color: var(--ep-bg-surface);
 }
 
 select option:first-child {
@@ -42,6 +112,8 @@ body {
   padding-top: 0px;
   min-height: 100%;
   font-family: 'Helvetica Neue', Arial, sans-serif;
+  color: var(--ep-text-primary);
+  background-color: var(--ep-bg-primary);
 }
 
 *:focus {
@@ -337,11 +409,11 @@ body {
   -webkit-align-content: stretch;
   align-content: stretch;
   font-family: 'Helvetica Neue', Arial, sans-serif;
-  background-color: white;
+  background-color: var(--ep-bg-surface);
 }
 
 .settings_options {
-  color: black;
+  color: var(--ep-text-primary);
   width: 100%;
 }
 
@@ -373,13 +445,13 @@ body {
   height: 20%;
   width: 90%;
   border: 1px;
-  color: black;
+  color: var(--ep-text-primary);
   margin: 2px 0px 0px 0px;
   font-size: 4.5vw;
   border-radius: 5px;
-  border-color: black;
+  border-color: var(--ep-border-secondary);
   border-style: solid;
-  background-color: white;
+  background-color: var(--ep-bg-surface);
 }
 
 /* Menu */
@@ -429,9 +501,9 @@ body {
   margin: 2px 0px 0px 0px;
   font-size: 1.5em;
   border-radius: 5px;
-  border-color: black;
+  border-color: var(--ep-border-secondary);
   border-style: solid;
-  background-color: white;
+  background-color: var(--ep-bg-surface);
 }
 
 /* match formats */
@@ -451,9 +523,9 @@ body {
 .mf_format {
   width: 100%;
   padding: 1em 1em 1em 1em;
-  background-color: white;
+  background-color: var(--ep-bg-surface);
   border-width: 0px 0px 1px 0px;
-  border-color: black;
+  border-color: var(--ep-border-secondary);
   border-style: solid;
 }
 
@@ -474,7 +546,7 @@ body {
 
 #pointhistory {
   display: none;
-  background-color: white;
+  background-color: var(--ep-bg-surface);
 }
 
 .fixedmenu {
@@ -483,10 +555,10 @@ body {
   left: 0;
   width: 100vw;
   height: 6vh;
-  color: white;
+  color: var(--ep-header-text);
   padding-left: 10px;
   font-size: 3vh;
-  background-color: black;
+  background-color: var(--ep-header-bg);
   display: flex;
   -webkit-align-items: center;
   align-items: center;
@@ -501,7 +573,7 @@ body {
   color: white;
   padding-left: 10px;
   font-size: 2vh;
-  background-color: #2980b9;
+  background-color: var(--ep-ph-header-bg);
   display: flex;
   -webkit-align-items: center;
   align-items: center;
@@ -529,7 +601,7 @@ body {
   height: 90%;
   overflow-y: scroll;
   overflow-x: hidden;
-  background-color: white;
+  background-color: var(--ep-bg-surface);
 }
 
 #ph_frame {
@@ -651,12 +723,13 @@ body {
 
 .archive-popup {
   z-index: 3000;
-  background: white;
-  border: 1px solid #ccc;
+  background: var(--ep-popup-bg);
+  border: 1px solid var(--ep-popup-border);
   border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   min-width: 140px;
   overflow: hidden;
+  color: var(--ep-popup-text);
 }
 
 .archive-popup-item {
@@ -668,7 +741,7 @@ body {
 }
 
 .archive-popup-item:hover {
-  background-color: #f5f5f5;
+  background-color: var(--ep-popup-hover);
 }
 
 .archive-popup-delete {
@@ -680,7 +753,7 @@ body {
   height: 6vw;
   display: inline-block;
   border: none;
-  background-color: white;
+  background-color: var(--ep-bg-surface);
   padding: 0;
   margin: 0;
   vertical-align: top;
@@ -719,7 +792,7 @@ body {
 .mh_match {
   width: 100%;
   padding: 1em 1em 1em 1em;
-  background-color: white;
+  background-color: var(--ep-bg-surface);
 }
 
 .mh_fullheight {
@@ -1206,7 +1279,7 @@ body {
   display: none;
   width: 100%;
   height: 100%;
-  background-color: white;
+  background-color: var(--ep-bg-surface);
 }
 
 .s_menu {
@@ -1215,10 +1288,10 @@ body {
   left: 0;
   width: 100%;
   height: 6%;
-  color: white;
+  color: var(--ep-header-text);
   padding-left: 10px;
   font-size: 3vh;
-  background-color: black;
+  background-color: var(--ep-header-bg);
   display: flex;
   -webkit-align-items: center;
   align-items: center;
@@ -1233,7 +1306,7 @@ body {
   color: white;
   padding-left: 10px;
   font-size: 3vh;
-  background-color: #85929e;
+  background-color: var(--ep-stats-tab-bg);
   display: flex;
   -webkit-align-items: center;
   align-items: center;
@@ -1349,7 +1422,7 @@ body {
   height: auto;
   color: white;
   padding: 2px;
-  background-color: #85929e;
+  background-color: var(--ep-stats-tab-bg);
   margin-bottom: 1em;
 }
 
@@ -1373,7 +1446,7 @@ body {
   height: 100%;
   width: 50%;
   max-width: 200px;
-  background-color: white;
+  background-color: var(--ep-bg-surface);
 }
 @media (orientation: landscape) {
   #stroke_slider {
@@ -1384,7 +1457,7 @@ body {
 .slideback {
   height: 100%;
   width: 10%;
-  background-color: gray;
+  background-color: var(--ep-slider-back, gray);
 }
 
 .strokes {
@@ -1397,8 +1470,8 @@ body {
   position: relative;
   border: 1px;
   border-style: solid;
-  border-color: black;
-  color: #0000ff;
+  border-color: var(--ep-border-secondary);
+  color: var(--ep-slider-text, #0000ff);
   flex: 1;
   width: 100%;
 }
@@ -1413,7 +1486,7 @@ body {
   top: 0;
   left: 0;
   opacity: 0.4;
-  background-color: #bfc9cb;
+  background-color: var(--ep-slider-forehand, #bfc9cb);
 }
 
 .backhand {
@@ -1427,7 +1500,7 @@ body {
   right: 0;
   opacity: 0.4;
   text-align: right;
-  background-color: #b2babb;
+  background-color: var(--ep-slider-backhand, #b2babb);
 }
 
 .hand_label {
@@ -1483,7 +1556,7 @@ body {
   display: none;
   width: 100%;
   height: 100%;
-  background-color: white;
+  background-color: var(--ep-bg-surface);
 }
 
 .m_content {
@@ -1494,7 +1567,7 @@ body {
   height: 90%;
   overflow-y: scroll;
   overflow-x: scroll;
-  background-color: white;
+  background-color: var(--ep-bg-surface);
 }
 
 #momentumChart {
@@ -1521,7 +1594,7 @@ body {
   display: none;
   width: 100vw;
   height: 100vh;
-  background-color: white;
+  background-color: var(--ep-bg-surface);
 }
 
 #gameTreeChart {
@@ -1675,7 +1748,7 @@ input:checked + .slider:before {
 }
 
 .btn {
-  color: #000;
+  color: var(--ep-text-primary);
   cursor: pointer;
 
   background: 0;
@@ -1686,7 +1759,7 @@ input:checked + .slider:before {
   -webkit-box-shadow: none;
 
   border-radius: 4px;
-  border: 1px solid #000;
+  border: 1px solid var(--ep-border-secondary);
 
   font-weight: normal;
   text-align: center;
@@ -1723,7 +1796,7 @@ input:checked + .slider:before {
 #welcome {
   width: 100vw;
   height: 100vh;
-  background-color: white;
+  background-color: var(--ep-landing-bg);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1741,9 +1814,9 @@ input:checked + .slider:before {
   padding: 0.75rem 2.5rem;
   font-size: 1.2rem;
   font-family: 'Helvetica Neue', Arial, sans-serif;
-  color: #333;
-  background-color: white;
-  border: 2px solid #333;
+  color: var(--ep-landing-text);
+  background-color: var(--ep-landing-bg);
+  border: 2px solid var(--ep-landing-text);
   border-radius: 6px;
   cursor: pointer;
   transition:
@@ -1752,6 +1825,16 @@ input:checked + .slider:before {
 }
 
 .landing-enter:hover {
-  background-color: #333;
-  color: white;
+  background-color: var(--ep-landing-text);
+  color: var(--ep-landing-bg);
+}
+
+/* Slide animations (replaces animate.css) */
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
 }

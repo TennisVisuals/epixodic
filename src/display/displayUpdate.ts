@@ -8,7 +8,7 @@ import {
   getSetsToWin,
   getNextServer,
 } from '../state/env';
-import { getFormatName } from '../services/matchObject/formatMigration';
+import { FORMAT_NAMES, isLegacyFormat, migrateFormat } from '../services/matchObject/formatMigration';
 import { browserStorage } from '../state/browserStorage';
 import { groupGames } from '../engine/groupGames';
 import { cModal, renderForm } from 'courthive-components';
@@ -268,7 +268,10 @@ function changeClassDisplay(className: string, display: string) {
 export function editMatchDetails() {
   const matchMeta = env.metadata.match;
   const tournament = env.metadata.tournament;
-  const formatName = getFormatName(env.engine.getFormat());
+  const rawFormat = env.engine.getFormat();
+  const formatCode = isLegacyFormat(rawFormat) ? migrateFormat(rawFormat) : rawFormat;
+  const knownName = FORMAT_NAMES[formatCode];
+  const formatDisplay = knownName ? `${knownName} (${formatCode})` : formatCode;
 
   let inputs: any;
 
@@ -277,7 +280,7 @@ export function editMatchDetails() {
     elem.style.overflowY = 'auto';
     inputs = renderForm(elem, [
       { text: '<b>Match</b>', header: true },
-      { text: formatName },
+      { text: formatDisplay },
       { label: 'Court', field: 'court', placeholder: 'Court Number or Name', value: matchMeta.court || '' },
       { label: 'Umpire', field: 'umpire', placeholder: 'Match Umpire', value: matchMeta.umpire || '' },
       { text: '<b>Event</b>', header: true },

@@ -48,7 +48,7 @@
 <div class="tournament-page">
   <TopNav />
 
-  <div class="content">
+  <div class="page-content">
     {#if loadError}
       <ErrorMessage message={loadError} />
     {:else if !tournamentInfo}
@@ -79,10 +79,10 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: #0f0f23;
-    color: #fff;
+    background: var(--ep-page-bg);
+    color: var(--ep-page-text);
   }
-  .content {
+  .page-content {
     flex: 1;
     overflow-y: auto;
     min-height: 0;

@@ -36,10 +36,10 @@
     gap: 0.5rem;
     width: 100%;
     padding: 0.625rem 1rem;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--ep-page-section-bg);
     border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.85);
+    border-bottom: 1px solid var(--ep-page-section-border);
+    color: var(--ep-page-text-heading);
     font-size: 0.8125rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -49,7 +49,7 @@
   }
   .section-count {
     background: rgba(74, 158, 255, 0.2);
-    color: #4a9eff;
+    color: var(--ep-accent);
     padding: 0.1rem 0.45rem;
     border-radius: 10px;
     font-size: 0.75rem;

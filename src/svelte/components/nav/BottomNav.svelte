@@ -21,8 +21,8 @@
     gap: 0.75rem;
     height: 56px;
     padding: 0 1rem;
-    background: #1a1a2e;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--ep-page-secondary-bg);
+    border-top: 1px solid var(--ep-page-border);
     flex-shrink: 0;
   }
 </style>

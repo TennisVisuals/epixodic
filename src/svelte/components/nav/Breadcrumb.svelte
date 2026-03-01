@@ -19,21 +19,21 @@
     background: none;
     border: none;
     padding: 0;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--ep-page-text-soft);
   }
   .breadcrumb.clickable {
     cursor: pointer;
     text-decoration: none;
   }
   .breadcrumb.clickable:hover {
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--ep-page-text-bright);
   }
   .breadcrumb.active {
-    color: #fff;
+    color: var(--ep-page-text);
     font-weight: 600;
   }
   .separator {
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--ep-page-text-subtle);
     margin: 0 0.35rem;
     font-size: 0.8rem;
   }

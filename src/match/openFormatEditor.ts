@@ -1,4 +1,4 @@
-import { getFormatName } from '../services/matchObject/formatMigration';
+import { FORMAT_NAMES } from '../services/matchObject/formatMigration';
 import { env, resetEngine, updateMatchArchive } from '../state/env';
 import { getMatchUpFormatModal } from 'courthive-components';
 import { updateScore } from '../display/displayUpdate';
@@ -21,11 +21,12 @@ export function openFormatEditor() {
       }
 
       // Update UI
-      const formatName = getFormatName(format);
+      const knownName = FORMAT_NAMES[format];
+      const formatDisplay = knownName ? `${knownName} (${format})` : format;
       const matchFormat = document.getElementById('md_format');
-      if (matchFormat) matchFormat.innerHTML = formatName;
+      if (matchFormat) matchFormat.innerHTML = formatDisplay;
       const matchDescription = document.getElementById('match_description');
-      if (matchDescription) matchDescription.innerHTML = formatName;
+      if (matchDescription) matchDescription.innerHTML = formatDisplay;
 
       updateMatchArchive();
       updateScore();

@@ -12,7 +12,6 @@
     theme: '',
     configuration: {
       scheduleInfo: true,
-      winnerChevron: true,
     },
   };
 
@@ -23,6 +22,7 @@
         structureId: matchUp.structureId || '',
       },
       composition: archiveComposition,
+      isAdHoc: true,
       eventHandlers: {
         matchUpClick: () => onclick?.(),
         scheduleClick: ({ pointerEvent }: { pointerEvent: MouseEvent }) => {

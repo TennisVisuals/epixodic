@@ -29,16 +29,16 @@
     justify-content: space-between;
     width: 100%;
     padding: 0.875rem 1rem;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--ep-page-surface);
     border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    color: #fff;
+    border-bottom: 1px solid var(--ep-page-surface-border);
+    color: var(--ep-page-text);
     cursor: pointer;
     text-align: left;
     transition: background 0.15s;
   }
   .event-card:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--ep-page-surface-hover);
   }
   .event-info {
     display: flex;
@@ -51,7 +51,7 @@
   }
   .event-category {
     font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--ep-page-text-muted);
   }
   .event-meta {
     display: flex;
@@ -64,11 +64,11 @@
     padding: 0.15rem 0.5rem;
     border-radius: 4px;
     background: rgba(74, 158, 255, 0.15);
-    color: #4a9eff;
+    color: var(--ep-accent);
     text-transform: uppercase;
   }
   .chevron {
     font-size: 1.25rem;
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--ep-page-text-subtle);
   }
 </style>

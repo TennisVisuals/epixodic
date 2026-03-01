@@ -41,7 +41,7 @@
     </button>
   </div>
 
-  <div class="content">
+  <div class="archive-content">
     {#if activeTab === 'my'}
       <MyMatchUps />
     {:else}
@@ -57,12 +57,12 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: #0f0f23;
-    color: #fff;
+    background: var(--ep-page-bg);
+    color: var(--ep-page-text);
   }
   .tab-bar {
     display: flex;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid var(--ep-page-border);
     flex-shrink: 0;
   }
   .tab {
@@ -71,20 +71,20 @@
     background: none;
     border: none;
     border-bottom: 2px solid transparent;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--ep-page-text-muted);
     font-size: 0.875rem;
     font-weight: 500;
     cursor: pointer;
     transition: color 0.15s, border-color 0.15s;
   }
   .tab:hover {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--ep-page-text-hover);
   }
   .tab.active {
-    color: #4a9eff;
-    border-bottom-color: #4a9eff;
+    color: var(--ep-accent);
+    border-bottom-color: var(--ep-accent);
   }
-  .content {
+  .archive-content {
     flex: 1;
     overflow-y: auto;
     min-height: 0;

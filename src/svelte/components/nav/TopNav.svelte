@@ -37,8 +37,8 @@
     justify-content: space-between;
     height: 48px;
     padding: 0 1rem;
-    background: #1a1a2e;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--ep-page-secondary-bg);
+    border-bottom: 1px solid var(--ep-page-border);
     flex-shrink: 0;
   }
   .breadcrumbs {

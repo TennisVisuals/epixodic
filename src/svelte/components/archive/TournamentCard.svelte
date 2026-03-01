@@ -38,16 +38,16 @@
     justify-content: space-between;
     width: 100%;
     padding: 0.875rem 1rem;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--ep-page-surface);
     border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    color: #fff;
+    border-bottom: 1px solid var(--ep-page-surface-border);
+    color: var(--ep-page-text);
     cursor: pointer;
     text-align: left;
     transition: background 0.15s;
   }
   .tournament-card:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--ep-page-surface-hover);
   }
   .tournament-info {
     display: flex;
@@ -60,7 +60,7 @@
   }
   .tournament-dates {
     font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--ep-page-text-muted);
   }
   .tournament-meta {
     display: flex;
@@ -69,10 +69,10 @@
   }
   .event-count {
     font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--ep-page-text-dim);
   }
   .chevron {
     font-size: 1.25rem;
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--ep-page-text-subtle);
   }
 </style>

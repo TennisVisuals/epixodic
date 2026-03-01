@@ -110,7 +110,7 @@ export function showGameFish(index?: number) {
     const [p1, p2] = getParticipantNames();
 
     gameLabel = document.createElement('div');
-    gameLabel.style.cssText = 'text-align: center; padding: 0.5rem; font-weight: bold; color: #333;';
+    gameLabel.style.cssText = 'text-align: center; padding: 0.5rem; font-weight: bold; color: var(--chc-text-primary);';
     elem.appendChild(gameLabel);
 
     const players = document.createElement('div');

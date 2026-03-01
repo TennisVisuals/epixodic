@@ -46,7 +46,7 @@ export class GameTreePage extends ViewPage {
         if (parent) {
           const msg = document.createElement('div');
           msg.id = 'gametreeUnsupported';
-          msg.style.cssText = 'text-align: center; padding: 2rem; color: #666;';
+          msg.style.cssText = 'text-align: center; padding: 2rem; color: var(--ep-text-secondary);';
           msg.textContent = 'Game Tree is not available for this scoring format.';
           parent.appendChild(msg);
         }
