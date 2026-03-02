@@ -1,17 +1,15 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
 
-  let { title, count = 0, collapsed = false, children }: {
+  let { title, count = 0, collapsed = $bindable(false), children }: {
     title: string;
     count?: number;
     collapsed?: boolean;
     children?: Snippet;
   } = $props();
 
-  let isCollapsed = $state(collapsed);
-
   function toggle() {
-    isCollapsed = !isCollapsed;
+    collapsed = !collapsed;
   }
 </script>
 
@@ -20,10 +18,10 @@
   {#if count > 0}
     <span class="section-count">{count}</span>
   {/if}
-  <span class="section-chevron" class:rotated={!isCollapsed}>&#9660;</span>
+  <span class="section-chevron" class:rotated={!collapsed}>&#9660;</span>
 </button>
 
-{#if !isCollapsed && children}
+{#if !collapsed && children}
   <div class="section-content">
     {@render children()}
   </div>

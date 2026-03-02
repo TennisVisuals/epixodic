@@ -1,7 +1,7 @@
 import { ViewPage } from './ViewPage';
 import { touchManager } from '../events/touchManager';
 import { env, charts, getEpisodes, getParticipantNames } from '../state/env';
-import { supportsGameVisualizations } from '@tennisvisuals/scoring-visualizations';
+import { supportsGameVisualizations, supportsPointsToVisualization } from '@tennisvisuals/scoring-visualizations';
 import { mountViewHeader, unmountViewHeader } from '../svelte/bridge/viewHeaderMount';
 import { viewStats, viewGameTree, viewPointHistory, outcomeEntry } from '../events/clickActions';
 
@@ -24,8 +24,9 @@ export class MomentumPage extends ViewPage {
 
     const episodes = getEpisodes();
     const isLandscape = env.orientation === 'landscape';
+    const ptsSupported = supportsPointsToVisualization(env.engine.getFormat());
 
-    if (isLandscape) {
+    if (isLandscape && ptsSupported) {
       this.hide('momentum');
       this.show('pts');
       this.activeContainerId = 'pts';
@@ -40,7 +41,7 @@ export class MomentumPage extends ViewPage {
 
     const container = document.getElementById(this.activeContainerId);
     if (container && !this.headerInstance) {
-      const title = isLandscape ? 'Points To Set' : 'Momentum';
+      const title = isLandscape && ptsSupported ? 'Points To Set' : 'Momentum';
       this.headerInstance = mountViewHeader(container, {
         title,
         navItems: this.getNavItems(),
@@ -64,7 +65,7 @@ export class MomentumPage extends ViewPage {
 
   updateVisualizations(): void {
     const episodes = getEpisodes();
-    if (env.orientation === 'landscape') {
+    if (env.orientation === 'landscape' && supportsPointsToVisualization(env.engine.getFormat())) {
       charts.pts_match.players(getParticipantNames());
       charts.pts_match.data(episodes);
       charts.pts_match.update();
