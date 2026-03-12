@@ -1,18 +1,22 @@
 import { loadDetails, stateChangeEvent, updateScore } from '../display/displayUpdate';
 import { setCurrentMatchUpId } from '../state/matchContext';
 import { browserStorage } from '../state/browserStorage';
-import { renderMatchUp } from 'courthive-components';
+import { renderMatchUp, cModal } from 'courthive-components';
 import { matchPath } from '../router/routes';
 import { tools } from 'tods-competition-factory';
 import { env, resetEngine, definePlayer } from '../state/env';
 
-const archiveComposition = {
-  theme: '',
-  configuration: {
-    scheduleInfo: true,
-    winnerChevron: true,
-  },
-};
+function getArchiveComposition(matchData?: any) {
+  const hasGamePoints = !matchData?.winningSide || matchData?.matchUpStatus === 'RETIRED';
+  return {
+    theme: '',
+    configuration: {
+      scheduleInfo: true,
+      winnerChevron: true,
+      ...(hasGamePoints && { gameScore: { position: 'trailing' as const } }),
+    },
+  };
+}
 
 let activePopup: HTMLElement | null = null;
 let dismissListener: ((e: MouseEvent) => void) | null = null;
@@ -28,34 +32,96 @@ function dismissPopup() {
   }
 }
 
+function makePopupItem(label: string, onClick: () => void, className?: string) {
+  const item = document.createElement('div');
+  item.className = className ? `archive-popup-item ${className}` : 'archive-popup-item';
+  item.textContent = label;
+  item.onclick = (e) => {
+    e.stopPropagation();
+    dismissPopup();
+    onClick();
+  };
+  return item;
+}
+
+function completeMatch(matchId: string, winningSide: 1 | 2, matchUpStatus: 'RETIRED' | 'WALKOVER') {
+  const raw = browserStorage.get(matchId);
+  if (!raw) return;
+  try {
+    const data = JSON.parse(raw);
+    data.winningSide = winningSide;
+    data.matchUpStatus = matchUpStatus;
+    const sets = data.score?.sets;
+    if (sets?.length) {
+      delete sets[sets.length - 1].side1PointsScore;
+      delete sets[sets.length - 1].side2PointsScore;
+    }
+    browserStorage.set(matchId, JSON.stringify(data));
+    window.dispatchEvent(new CustomEvent('matcharchive:updated'));
+  } catch { /* skip corrupt */ }
+}
+
+function showCompleteModal(matchId: string, status: 'RETIRED' | 'WALKOVER') {
+  const raw = browserStorage.get(matchId);
+  if (!raw) return;
+  const data = JSON.parse(raw);
+  const side1Name = data.sides?.[0]?.participant?.participantName || 'Player 1';
+  const side2Name = data.sides?.[1]?.participant?.participantName || 'Player 2';
+  const label = status === 'RETIRED' ? 'Retirement' : 'Walkover';
+
+  const content = (elem: HTMLElement) => {
+    elem.style.cssText = 'display: flex; flex-direction: column; gap: 0.5rem;';
+    const prompt = document.createElement('div');
+    prompt.textContent = `Select winner by ${label.toLowerCase()}:`;
+    prompt.style.cssText = 'color: var(--chc-text-primary); margin-bottom: 0.25rem;';
+    elem.appendChild(prompt);
+
+    for (const [sideNumber, name] of [[1, side1Name], [2, side2Name]] as [1|2, string][]) {
+      const btn = document.createElement('div');
+      btn.textContent = name;
+      btn.style.cssText = 'padding: 0.75rem 1rem; cursor: pointer; font-size: 1.1rem; color: var(--chc-text-primary); border: 1px solid var(--chc-border-secondary); border-radius: 4px; text-align: center;';
+      btn.addEventListener('mouseenter', () => (btn.style.backgroundColor = 'var(--chc-hover-bg)'));
+      btn.addEventListener('mouseleave', () => (btn.style.backgroundColor = ''));
+      btn.addEventListener('click', () => {
+        cModal.close();
+        completeMatch(matchId, sideNumber, status);
+      });
+      elem.appendChild(btn);
+    }
+  };
+
+  cModal.open({
+    title: label,
+    content,
+    config: { clickAway: true },
+    buttons: [{ label: 'Cancel', intent: 'is-info', close: true }],
+  });
+}
+
 function showPopupMenu(anchor: MouseEvent, matchId: string, cardElement: HTMLElement) {
   dismissPopup();
+
+  const raw = browserStorage.get(matchId);
+  const matchData = raw ? JSON.parse(raw) : {};
+  const isComplete = matchData.winningSide || matchData.matchUpStatus === 'COMPLETED';
 
   const menu = document.createElement('div');
   menu.className = 'archive-popup';
 
-  const editBtn = document.createElement('div');
-  editBtn.className = 'archive-popup-item';
-  editBtn.textContent = 'Edit Details';
-  editBtn.onclick = (e) => {
-    e.stopPropagation();
-    dismissPopup();
+  menu.appendChild(makePopupItem('Edit Details', () => {
     const router = (window as any).appRouter;
     router?.navigate(matchPath(matchId, 'details'));
-  };
+  }));
 
-  const deleteBtn = document.createElement('div');
-  deleteBtn.className = 'archive-popup-item archive-popup-delete';
-  deleteBtn.textContent = 'Delete';
-  deleteBtn.onclick = (e) => {
-    e.stopPropagation();
-    dismissPopup();
+  if (!isComplete) {
+    menu.appendChild(makePopupItem('Retirement', () => showCompleteModal(matchId, 'RETIRED')));
+    menu.appendChild(makePopupItem('Walkover', () => showCompleteModal(matchId, 'WALKOVER')));
+  }
+
+  menu.appendChild(makePopupItem('Delete', () => {
     deleteMatch(matchId);
     cardElement.remove();
-  };
-
-  menu.appendChild(editBtn);
-  menu.appendChild(deleteBtn);
+  }, 'archive-popup-delete'));
 
   // Position near the click
   menu.style.position = 'fixed';
@@ -126,7 +192,7 @@ export function displayMatchArchive(params?: any) {
 
     const element = renderMatchUp({
       matchUp,
-      composition: archiveComposition,
+      composition: getArchiveComposition(match_data),
       eventHandlers: {
         matchUpClick: () => {
           dismissPopup();

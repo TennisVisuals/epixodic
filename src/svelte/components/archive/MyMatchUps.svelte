@@ -1,8 +1,9 @@
 <script lang="ts">
   import MatchUpCard from './MatchUpCard.svelte';
   import EmptyState from '../shared/EmptyState.svelte';
-  import { getLocalMatchUpsState, deleteLocalMatchUp } from '../../stores/localMatchUps.svelte';
+  import { getLocalMatchUpsState, deleteLocalMatchUp, completeLocalMatchUp } from '../../stores/localMatchUps.svelte';
   import { matchPath } from '../../../router/routes';
+  import { cModal } from 'courthive-components';
 
   const local = getLocalMatchUpsState();
 
@@ -20,33 +21,38 @@
     }
   }
 
+  function makePopupItem(label: string, onClick: (e: MouseEvent) => void, className?: string) {
+    const item = document.createElement('div');
+    item.className = className ? `archive-popup-item ${className}` : 'archive-popup-item';
+    item.textContent = label;
+    item.onclick = (e) => {
+      e.stopPropagation();
+      dismissPopup();
+      onClick(e);
+    };
+    return item;
+  }
+
   function showPopupMenu(event: MouseEvent, matchUpId: string) {
     dismissPopup();
+
+    const matchUp = local.myMatchUps.find((m) => m.matchUpId === matchUpId);
+    const isComplete = matchUp?.winningSide || matchUp?.matchUpStatus === 'COMPLETED';
 
     const menu = document.createElement('div');
     menu.className = 'archive-popup';
 
-    const editBtn = document.createElement('div');
-    editBtn.className = 'archive-popup-item';
-    editBtn.textContent = 'Edit Details';
-    editBtn.onclick = (e) => {
-      e.stopPropagation();
-      dismissPopup();
+    menu.appendChild(makePopupItem('Edit Details', () => {
       const router = (window as any).appRouter;
       router?.navigate(matchPath(matchUpId, 'details'));
-    };
+    }));
 
-    const deleteBtn = document.createElement('div');
-    deleteBtn.className = 'archive-popup-item archive-popup-delete';
-    deleteBtn.textContent = 'Delete';
-    deleteBtn.onclick = (e) => {
-      e.stopPropagation();
-      dismissPopup();
-      deleteLocalMatchUp(matchUpId);
-    };
+    if (!isComplete) {
+      menu.appendChild(makePopupItem('Retirement', () => showCompleteModal(matchUpId, 'RETIRED')));
+      menu.appendChild(makePopupItem('Walkover', () => showCompleteModal(matchUpId, 'WALKOVER')));
+    }
 
-    menu.appendChild(editBtn);
-    menu.appendChild(deleteBtn);
+    menu.appendChild(makePopupItem('Delete', () => deleteLocalMatchUp(matchUpId), 'archive-popup-delete'));
 
     menu.style.position = 'fixed';
     menu.style.left = `${event.clientX}px`;
@@ -72,6 +78,43 @@
         document.addEventListener('click', dismissListener, true);
       }
     }, 0);
+  }
+
+  function showCompleteModal(matchUpId: string, status: 'RETIRED' | 'WALKOVER') {
+    const matchUp = local.myMatchUps.find((m) => m.matchUpId === matchUpId);
+    if (!matchUp) return;
+
+    const side1Name = matchUp.sides?.[0]?.participant?.participantName || 'Player 1';
+    const side2Name = matchUp.sides?.[1]?.participant?.participantName || 'Player 2';
+    const label = status === 'RETIRED' ? 'Retirement' : 'Walkover';
+
+    const content = (elem: HTMLElement) => {
+      elem.style.cssText = 'display: flex; flex-direction: column; gap: 0.5rem;';
+      const prompt = document.createElement('div');
+      prompt.textContent = `Select winner by ${label.toLowerCase()}:`;
+      prompt.style.cssText = 'color: var(--chc-text-primary); margin-bottom: 0.25rem;';
+      elem.appendChild(prompt);
+
+      for (const [sideNumber, name] of [[1, side1Name], [2, side2Name]] as [1|2, string][]) {
+        const btn = document.createElement('div');
+        btn.textContent = name;
+        btn.style.cssText = 'padding: 0.75rem 1rem; cursor: pointer; font-size: 1.1rem; color: var(--chc-text-primary); border: 1px solid var(--chc-border-secondary); border-radius: 4px; text-align: center;';
+        btn.addEventListener('mouseenter', () => (btn.style.backgroundColor = 'var(--chc-hover-bg)'));
+        btn.addEventListener('mouseleave', () => (btn.style.backgroundColor = ''));
+        btn.addEventListener('click', () => {
+          cModal.close();
+          completeLocalMatchUp(matchUpId, sideNumber, status);
+        });
+        elem.appendChild(btn);
+      }
+    };
+
+    cModal.open({
+      title: label,
+      content,
+      config: { clickAway: true },
+      buttons: [{ label: 'Cancel', intent: 'is-info', close: true }],
+    });
   }
 
   function navigateToScoring(matchUpId: string) {

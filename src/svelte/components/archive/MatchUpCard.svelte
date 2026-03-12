@@ -8,12 +8,15 @@
     oncontextmenu?: (e: MouseEvent) => void;
   } = $props();
 
-  const archiveComposition = {
+  const hasGamePoints = $derived(!matchUp.winningSide || matchUp.matchUpStatus === 'RETIRED');
+
+  const archiveComposition = $derived({
     theme: '',
     configuration: {
       scheduleInfo: true,
+      ...(hasGamePoints && { gameScore: { position: 'trailing' as const } }),
     },
-  };
+  });
 
   function mountRenderMatchUp(node: HTMLElement) {
     const element = renderMatchUp({
@@ -41,7 +44,9 @@
   }
 </script>
 
-<div class="matchup-card" use:mountRenderMatchUp></div>
+{#key matchUp.matchUpStatus + '|' + (matchUp.winningSide ?? '')}
+  <div class="matchup-card" use:mountRenderMatchUp></div>
+{/key}
 
 <style>
   .matchup-card {

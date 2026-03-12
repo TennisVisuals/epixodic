@@ -1,0 +1,29 @@
+{
+  "name": "@epixodic/score-relay",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
+    "build": "tsc",
+    "check-types": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "axios": "^1.6.5",
+    "socket.io": "^4.8.3",
+    "tods-competition-factory": "link:../../../CourtHive/factory"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.0",
+    "socket.io-client": "4.8.3",
+    "tsx": "^4.19.0",
+    "typescript": "^5.9.3",
+    "vitest": "1.6.1"
+  }
+}

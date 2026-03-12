@@ -30,6 +30,12 @@
   --ep-landing-bg: #ffffff;
   --ep-landing-text: #333;
 
+  /* Logo radii (center outward) */
+  --ep-logo-radius-0: #38f0df;
+  --ep-logo-radius-1: #35b5de;
+  --ep-logo-radius-2: #0a78b7;
+  --ep-logo-radius-3: #1b1464;
+
   /* Svelte page backgrounds */
   --ep-page-bg: #f8f9fa;
   --ep-page-text: #333;
@@ -83,6 +89,12 @@
 
   --ep-landing-bg: #0f0f23;
   --ep-landing-text: #e0e0e0;
+
+  /* Logo radii (center outward) */
+  --ep-logo-radius-0: #00e8d4;
+  --ep-logo-radius-1: #5ed0f0;
+  --ep-logo-radius-2: #7eb8ff;
+  --ep-logo-radius-3: #c8c8ff;
 
   /* Svelte pages — same dark palette in dark mode */
   --ep-page-bg: #0f0f23;

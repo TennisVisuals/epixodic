@@ -40,6 +40,28 @@ export function refreshLocalMatchUps() {
   matchUps = loaded;
 }
 
+export function completeLocalMatchUp(matchUpId: string, winningSide: 1 | 2, matchUpStatus: 'RETIRED' | 'WALKOVER') {
+  const raw = browserStorage.get(matchUpId);
+  if (!raw) return;
+
+  try {
+    const data = JSON.parse(raw);
+    data.winningSide = winningSide;
+    data.matchUpStatus = matchUpStatus;
+    // Remove in-progress point scores from last set since match is now ended
+    const sets = data.score?.sets;
+    if (sets?.length) {
+      const lastSet = sets[sets.length - 1];
+      delete lastSet.side1PointsScore;
+      delete lastSet.side2PointsScore;
+    }
+    browserStorage.set(matchUpId, JSON.stringify(data));
+    refreshLocalMatchUps();
+  } catch {
+    // skip corrupt entries
+  }
+}
+
 export function deleteLocalMatchUp(matchUpId: string) {
   browserStorage.remove(matchUpId);
   const currentMatchId = browserStorage.get('current_match');

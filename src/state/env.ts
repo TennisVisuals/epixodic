@@ -324,7 +324,20 @@ export function updateMatchArchive(force?: boolean) {
 
   const matchUpFormat = env.engine.getFormat();
   const scoreboard = env.engine.getScoreboard();
-  const sets = state.score?.sets || [];
+  const engineScore = env.engine.getScore();
+  const isComplete = env.engine.isComplete();
+  const sets = (state.score?.sets || []).map((s: any) => ({ ...s }));
+
+  // For incomplete matches, attach current game point scores to the last set
+  // so the archive can display them (e.g. "6-4 3-2 (30-15)")
+  if (!isComplete && sets.length > 0 && engineScore.pointDisplay) {
+    const lastSet = sets[sets.length - 1];
+    lastSet.side1PointsScore = engineScore.pointDisplay[0];
+    lastSet.side2PointsScore = engineScore.pointDisplay[1];
+  }
+
+  const winningSide = env.engine.getWinner();
+  const matchUpStatus = isComplete ? 'COMPLETED' : (matchPoints.length || env.directActions.length) ? 'IN_PROGRESS' : undefined;
 
   const sides = players.map((player: any, index: number) => ({
     sideNumber: index + 1,
@@ -346,11 +359,13 @@ export function updateMatchArchive(force?: boolean) {
     ? { scheduledDate: new Date(matchDate).toISOString().split('T')[0] }
     : undefined;
 
-  const todsMatchUp = {
+  const todsMatchUp: any = {
     tournamentId: env.metadata.tournament?.tournamentId || env.metadata.match?.tournamentId,
     matchUpId: match_id,
     matchUpFormat,
     matchUpType: SINGLES,
+    matchUpStatus,
+    winningSide,
     sides,
     score: {
       sets,
