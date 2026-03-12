@@ -1,9 +1,17 @@
 import { baseApi } from '../../services/messaging/baseApi';
-import type { TournamentInfo } from '../types';
+import type { TournamentInfo, HydratedMatchUp } from '../types';
 
 interface ApiResult<T> {
   data?: T;
   error?: string;
+}
+
+export interface ScheduledMatchUpsResponse {
+  dateMatchUps?: Record<string, HydratedMatchUp[]>;
+  completedMatchUps?: HydratedMatchUp[];
+  groupInfo?: Record<string, any>;
+  mappedParticipants?: Record<string, any>;
+  courtsData?: any[];
 }
 
 export async function getTournamentInfo(tournamentId: string): Promise<ApiResult<TournamentInfo>> {
@@ -30,11 +38,15 @@ export async function getEventData(
 export async function getScheduledMatchUps(
   tournamentId: string,
   options?: Record<string, any>,
-): Promise<ApiResult<any>> {
+): Promise<ApiResult<ScheduledMatchUpsResponse>> {
   try {
     const response = await baseApi.post('/factory/scheduledmatchups', {
-      tournamentId,
-      ...options,
+      params: {
+        tournamentId,
+        usePublishState: true,
+        hydrateParticipants: true,
+        ...options,
+      },
     });
     return { data: response.data };
   } catch (e: any) {

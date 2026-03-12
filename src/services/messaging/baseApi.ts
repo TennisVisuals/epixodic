@@ -3,8 +3,7 @@ import { browserStorage } from '../../state/browserStorage';
 import axios from 'axios';
 
 const JWT_TOKEN_STORAGE_NAME = getJwtTokenStorageKey();
-// const baseURL = window.location.host;
-const baseURL = 'http://localhost:8383';
+const baseURL = import.meta.env.VITE_SERVER_URL || 'http://localhost:8383';
 const axiosInstance = axios.create({ baseURL });
 
 axiosInstance.interceptors.request.use(
