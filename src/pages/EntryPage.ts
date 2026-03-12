@@ -1,7 +1,7 @@
 import { ViewPage } from './ViewPage';
 import { touchManager } from '../events/touchManager';
 import { stateChangeEvent, swapServer } from '../display/displayUpdate';
-import { getSkin } from '../scoring';
+import { getSkin, getRegisteredSkins } from '../scoring';
 import { env, options } from '../state/env';
 
 export class EntryPage extends ViewPage {
@@ -18,6 +18,12 @@ export class EntryPage extends ViewPage {
 
     if (vSkin && !vSkin.rendered) vSkin.render(container);
     if (hSkin && !hSkin.rendered) hSkin.render(container);
+
+    // Hide all rendered skins before showing the selected ones.
+    // Prevents stale skins from remaining visible after a skin switch.
+    for (const skin of getRegisteredSkins()) {
+      if (skin.rendered) skin.hide();
+    }
 
     if (env.orientation === 'landscape') {
       if (hSkin) hSkin.show();

@@ -1,7 +1,14 @@
-import { changeDisplay } from './viewManager';
+import {
+  gameTree,
+  gameFish,
+  momentumChart,
+  ptsMatch,
+  supportsGameVisualizations,
+  supportsPointsToVisualization,
+} from '@tennisvisuals/scoring-visualizations';
 import { charts, env, setOrientation, getEpisodes, getParticipantNames } from '../state/env';
-import { gameTree, gameFish, momentumChart, ptsMatch, supportsGameVisualizations } from '@tennisvisuals/scoring-visualizations';
 import { groupGames } from '../engine/groupGames';
+import { changeDisplay } from './viewManager';
 import { cModal } from 'courthive-components';
 
 import * as d3 from 'd3';
@@ -94,9 +101,7 @@ export function showGameFish(index?: number) {
     const game = games[gameIndex];
     if (!game?.points?.length) return;
 
-    const gridcells = game.points[0].tiebreak
-      ? ['0', '1', '2', '3', '4', '5', '6', '7']
-      : ['0', '15', '30', '40', 'G'];
+    const gridcells = game.points[0].tiebreak ? ['0', '1', '2', '3', '4', '5', '6', '7'] : ['0', '15', '30', '40', 'G'];
     charts.gamefish.options({
       display: { reverse: env.swap_sides },
       fish: { gridcells, cellSize: 20 },
@@ -110,14 +115,13 @@ export function showGameFish(index?: number) {
     const [p1, p2] = getParticipantNames();
 
     gameLabel = document.createElement('div');
-    gameLabel.style.cssText = 'text-align: center; padding: 0.5rem; font-weight: bold; color: #333;';
+    gameLabel.style.cssText = 'text-align: center; padding: 0.5rem; font-weight: bold; color: var(--chc-text-primary);';
     elem.appendChild(gameLabel);
 
     const players = document.createElement('div');
     players.className = 'gf_players flexrows';
     players.innerHTML =
-      `<div class="gf_player flexcenter">${p1}</div>` +
-      `<div class="gf_player flexcenter">${p2}</div>`;
+      `<div class="gf_player flexcenter">${p1}</div>` + `<div class="gf_player flexcenter">${p2}</div>`;
     elem.appendChild(players);
 
     const chartWrap = document.createElement('div');
@@ -145,7 +149,7 @@ export function showGameFish(index?: number) {
   let prevBtn: HTMLButtonElement | undefined;
   let nextBtn: HTMLButtonElement | undefined;
 
-  const modal = cModal.open({
+  cModal.open({
     title: 'GameFish',
     content,
     config: { clickAway: false },
@@ -225,14 +229,15 @@ export function updateChartData() {
 
 export function vizUpdate() {
   const direction = env.orientation == 'landscape' ? 'horizontal' : 'vertical';
+  const ptsSupported = supportsPointsToVisualization(env.engine.getFormat());
 
-  if (env.view == 'pts' && direction == 'vertical') {
+  if (env.view == 'pts' && (direction == 'vertical' || !ptsSupported)) {
     changeDisplay('none', 'pts');
     changeDisplay('inline', 'momentum');
     charts.mc.width(window.innerWidth).height(820);
     charts.mc.update();
     env.view = 'momentum';
-  } else if (env.view == 'momentum' && direction == 'horizontal') {
+  } else if (env.view == 'momentum' && direction == 'horizontal' && ptsSupported) {
     changeDisplay('none', 'momentum');
     changeDisplay('flex', 'pts');
     const ptsEpisodes = getEpisodes();
@@ -256,6 +261,6 @@ export function vizUpdate() {
 export function orientationEvent() {
   setOrientation();
   vizUpdate();
-  const router = (window as any).appRouter;
+  const router = (globalThis as any).appRouter;
   if (router) router.refreshCurrentView();
 }

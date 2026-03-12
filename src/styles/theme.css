@@ -1,0 +1,126 @@
+:root {
+  /* Backgrounds */
+  --ep-bg-primary: #ffffff;
+  --ep-bg-secondary: #f5f5f5;
+  --ep-bg-surface: #ffffff;
+
+  /* Text */
+  --ep-text-primary: #333;
+  --ep-text-secondary: #666;
+  --ep-text-inverse: #fff;
+
+  /* Borders */
+  --ep-border-primary: #ddd;
+  --ep-border-secondary: #ccc;
+
+  /* Accent */
+  --ep-accent: #4a9eff;
+
+  /* Viz headers (fixedmenu, s_menu) */
+  --ep-header-bg: black;
+  --ep-header-text: white;
+
+  /* Stats-specific */
+  --ep-stats-tab-bg: #85929e;
+
+  /* Point history secondary header */
+  --ep-ph-header-bg: #2980b9;
+
+  /* Landing */
+  --ep-landing-bg: #ffffff;
+  --ep-landing-text: #333;
+
+  /* Logo radii (center outward) */
+  --ep-logo-radius-0: #38f0df;
+  --ep-logo-radius-1: #35b5de;
+  --ep-logo-radius-2: #0a78b7;
+  --ep-logo-radius-3: #1b1464;
+
+  /* Svelte page backgrounds */
+  --ep-page-bg: #f8f9fa;
+  --ep-page-text: #333;
+  --ep-page-secondary-bg: #e9ecef;
+  --ep-page-border: #dee2e6;
+  --ep-page-text-muted: #888;
+  --ep-page-text-subtle: #aaa;
+  --ep-page-text-dim: #999;
+  --ep-page-text-soft: #666;
+  --ep-page-text-hover: #444;
+  --ep-page-text-bright: #222;
+  --ep-page-text-heading: #444;
+  --ep-page-surface: #fff;
+  --ep-page-surface-border: #dee2e6;
+  --ep-page-surface-hover: #f1f3f5;
+  --ep-page-section-bg: #e9ecef;
+  --ep-page-section-border: #dee2e6;
+
+  /* Popup menu */
+  --ep-popup-bg: white;
+  --ep-popup-border: #ccc;
+  --ep-popup-hover: #f5f5f5;
+  --ep-popup-text: inherit;
+
+  /* Stroke slider */
+  --ep-slider-text: #0000ff;
+  --ep-slider-back: gray;
+  --ep-slider-forehand: #bfc9cb;
+  --ep-slider-backhand: #b2babb;
+}
+
+[data-theme='dark'] {
+  --ep-bg-primary: #0f0f23;
+  --ep-bg-secondary: #1a1a2e;
+  --ep-bg-surface: #16213e;
+
+  --ep-text-primary: #e0e0e0;
+  --ep-text-secondary: #b0b0b0;
+  --ep-text-inverse: #1a1a2e;
+
+  --ep-border-primary: #444;
+  --ep-border-secondary: #333;
+
+  --ep-accent: #4a9eff;
+
+  --ep-header-bg: #1a1a2e;
+  --ep-header-text: #e0e0e0;
+
+  --ep-stats-tab-bg: #2a2a4e;
+  --ep-ph-header-bg: #1a3a5c;
+
+  --ep-landing-bg: #0f0f23;
+  --ep-landing-text: #e0e0e0;
+
+  /* Logo radii (center outward) */
+  --ep-logo-radius-0: #00e8d4;
+  --ep-logo-radius-1: #5ed0f0;
+  --ep-logo-radius-2: #7eb8ff;
+  --ep-logo-radius-3: #c8c8ff;
+
+  /* Svelte pages — same dark palette in dark mode */
+  --ep-page-bg: #0f0f23;
+  --ep-page-text: #e0e0e0;
+  --ep-page-secondary-bg: #1a1a2e;
+  --ep-page-border: rgba(255, 255, 255, 0.08);
+  --ep-page-text-muted: rgba(255, 255, 255, 0.5);
+  --ep-page-text-subtle: rgba(255, 255, 255, 0.3);
+  --ep-page-text-dim: rgba(255, 255, 255, 0.4);
+  --ep-page-text-soft: rgba(255, 255, 255, 0.6);
+  --ep-page-text-hover: rgba(255, 255, 255, 0.7);
+  --ep-page-text-bright: rgba(255, 255, 255, 0.9);
+  --ep-page-text-heading: rgba(255, 255, 255, 0.85);
+  --ep-page-surface: rgba(255, 255, 255, 0.03);
+  --ep-page-surface-border: rgba(255, 255, 255, 0.06);
+  --ep-page-surface-hover: rgba(255, 255, 255, 0.06);
+  --ep-page-section-bg: rgba(255, 255, 255, 0.05);
+  --ep-page-section-border: rgba(255, 255, 255, 0.1);
+
+  --ep-popup-bg: #1a1a2e;
+  --ep-popup-border: #444;
+  --ep-popup-hover: #16213e;
+  --ep-popup-text: #e0e0e0;
+
+  --ep-slider-text: #7db8ff;
+  --ep-slider-back: #2a2a4e;
+  --ep-slider-forehand: #2a3a4e;
+  --ep-slider-backhand: #1e2e3e;
+}

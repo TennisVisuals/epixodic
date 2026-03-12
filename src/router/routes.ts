@@ -48,8 +48,18 @@ export const routes: RouteConfig[] = [
   },
   {
     path: '/archive',
-    view: 'matcharchive',
+    view: 'svelte-archive',
     name: 'archive',
+  },
+  {
+    path: '/tournament/:tournamentId',
+    view: 'svelte-tournament',
+    name: 'tournament',
+  },
+  {
+    path: '/tournament/:tournamentId/event/:eventId',
+    view: 'svelte-tournament',
+    name: 'tournament-event',
   },
   {
     path: '/welcome',

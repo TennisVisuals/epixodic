@@ -1,3 +1,4 @@
+import './styles/theme.css';
 import './styles/epixodic.css';
 import './styles/swipeList.css';
 import './styles/icons.css';
